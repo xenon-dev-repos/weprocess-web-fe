@@ -20,9 +20,23 @@ export const AuthProvider = ({ children }) => {
       const storedToken = localStorage.getItem('token');
       if (storedToken) {
         setToken(storedToken);
-        // In a real app, you would fetch user data using the token
-        // For now, we'll simulate having the user data
-        setUser({ is_authenticated: true });
+        try {
+          // Fetch user profile from localStorage or set a default value
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          if (userData) {
+            setUser(userData);
+          } else {
+            // If we don't have the user data in localStorage, set a default authenticated user
+            setUser({ 
+              is_authenticated: true,
+              email: localStorage.getItem('userEmail') || ''
+            });
+          }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          // Set a default authenticated user
+          setUser({ is_authenticated: true });
+        }
       }
     };
 
@@ -88,8 +102,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', data.token);
       setToken(data.token);
       
+      // Store user data in localStorage for persistence
+      localStorage.setItem('userData', JSON.stringify((data.user?data.user:data.firm)));
+      localStorage.setItem('userEmail', (data.user?data.user:data.firm).email);
+      
       // Set user state
-      setUser(data.user);
+      setUser((data.user?data.user:data.firm));
       
       // Clear registration data
       setRegistrationData(null);
@@ -143,8 +161,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', data.token);
       setToken(data.token);
       
+      // Store user data in localStorage for persistence
+      localStorage.setItem('userData', JSON.stringify((data.user?data.user:data.firm)));
+      localStorage.setItem('userEmail', (data.user?data.user:data.firm).email);
+      
       // Set user state
-      setUser(data.user);
+      setUser((data.user?data.user:data.firm));
       
       console.log('Login successful:', data);
       return true;
@@ -159,6 +181,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userEmail');
     setToken(null);
     setUser(null);
   };

@@ -87,6 +87,10 @@ const SignupPage = () => {
             <NextButton type="submit" disabled={loading}>
               {loading ? 'Processing...' : 'Next'}
             </NextButton>
+            
+            <ForgotPasswordLink>
+              <Link to="/forgot-password">Forgot your password?</Link>
+            </ForgotPasswordLink>
           </form>
         </FormContainer>
       </Content>
@@ -279,6 +283,21 @@ const NextButton = styled.button`
   &:disabled {
     background-color: #999;
     cursor: not-allowed;
+  }
+`;
+
+const ForgotPasswordLink = styled.div`
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
   }
 `;
 

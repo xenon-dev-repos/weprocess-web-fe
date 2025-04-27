@@ -10,9 +10,14 @@ const DashboardPage = () => {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!token) {
-      navigate('/signup');
+      navigate('/signin');
     }
   }, [token, navigate]);
+
+  // Update document title
+  useEffect(() => {
+    document.title = 'Dashboard | WeProcess';
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -23,14 +28,21 @@ const DashboardPage = () => {
     return <LoadingContainer>Loading...</LoadingContainer>;
   }
 
+  // Display user name from the user object, with fallbacks
+  const userName = user.full_name || user.name || user.email || 'User';
+  const userEmail = user.email || '';
+  const userPhone = user.phone_number || '';
+  const userAddress = user.address || user.billing_address || '';
+  const firmName = user.firm_name || '';
+
   return (
     <Container>
       <Header>
         <Logo src="/logo.svg" alt="WeProcess Logo" />
         <UserMenu>
           <UserInfo>
-            <strong>{user.full_name}</strong>
-            <span>{user.email}</span>
+            <strong>{userName}</strong>
+            <span>{userEmail}</span>
           </UserInfo>
           <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
         </UserMenu>
@@ -47,25 +59,25 @@ const DashboardPage = () => {
           <h2>Your Information</h2>
           <InfoItem>
             <label>Name:</label>
-            <span>{user.full_name}</span>
+            <span>{userName}</span>
           </InfoItem>
           <InfoItem>
             <label>Email:</label>
-            <span>{user.email}</span>
+            <span>{userEmail}</span>
           </InfoItem>
           <InfoItem>
             <label>Phone:</label>
-            <span>{user.phone_number}</span>
+            <span>{userPhone}</span>
           </InfoItem>
-          {user.firm_name && (
+          {firmName && (
             <InfoItem>
               <label>Firm:</label>
-              <span>{user.firm_name}</span>
+              <span>{firmName}</span>
             </InfoItem>
           )}
           <InfoItem>
             <label>Address:</label>
-            <span>{user.address}</span>
+            <span>{userAddress}</span>
           </InfoItem>
         </UserInfoCard>
       </Content>
