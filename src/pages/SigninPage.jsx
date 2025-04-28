@@ -37,12 +37,12 @@ const SigninPage = () => {
       <Sidebar>
         <Logo src="/logo.svg" alt="WeProcess Logo" />
         <ImagesGrid>
-          <img src="/images/user1.jpg" alt="" />
+          <img src="https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
           <EmptyBox />
-          <img src="/images/user2.jpg" alt="" />
+          <img src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
           <LightGreenBackground />
           <LightPinkBackground />
-          <img src="/images/user3.jpg" alt="" />
+          <img src="https://images.pexels.com/photos/789822/pexels-photo-789822.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
         </ImagesGrid>
       </Sidebar>
       <Content>
@@ -110,59 +110,77 @@ const SigninPage = () => {
 // Styled Components
 const Container = styled.div`
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
 `;
 
 const Sidebar = styled.div`
   width: 50%;
+  height: 100vh;
   background-color: white;
   padding: 2rem;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const Logo = styled.img`
   height: 60px;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
+  z-index: 2;
 `;
 
 const ImagesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  height: 80%;
-  gap: 1rem;
+  height: calc(100% - 80px);
+  gap: 1.5rem;
+  flex: 1;
   
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 `;
 
 const EmptyBox = styled.div`
-  background-color: #d9d9d9;
+  background-color: #e7e7e7;
   border-radius: 1.5rem;
 `;
 
 const LightGreenBackground = styled.div`
-  background-color: var(--secondary-color);
+  background-color: #e4f1eb;
   border-radius: 1.5rem;
 `;
 
 const LightPinkBackground = styled.div`
-  background-color: var(--light-pink);
+  background-color: #f8e4e6;
   border-radius: 1.5rem;
 `;
 
 const Content = styled.div`
   width: 50%;
+  height: 100vh;
   background-color: white;
   display: flex;
   flex-direction: column;
   padding: 2rem;
   overflow-y: auto;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 1.5rem;
+  }
 `;
 
 const SignUpLink = styled.div`
@@ -173,24 +191,41 @@ const SignUpLink = styled.div`
     color: var(--primary-color);
     font-weight: 600;
   }
+
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+  }
 `;
 
 const FormContainer = styled.div`
-  max-width: 500px;
+  max-width: 450px;
   margin: 0 auto;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: calc(100% - 60px);
 `;
 
 const Title = styled.h1`
   font-size: 2.5rem;
   color: var(--primary-color);
   margin-bottom: 1rem;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
 `;
 
 const Subtitle = styled.h2`
   font-size: 1.5rem;
   margin-bottom: 2rem;
   font-weight: 400;
+
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const FormGroup = styled.div`

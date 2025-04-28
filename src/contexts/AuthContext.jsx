@@ -74,13 +74,17 @@ export const AuthProvider = ({ children }) => {
         ? API_ENDPOINTS.REGISTER_FIRM 
         : API_ENDPOINTS.REGISTER;
       
+      console.log('Using endpoint:', endpoint);
+      
       // Make the API call to register the user
       const response = await fetch(endpoint, {
         method: 'POST',
         body: formData
       });
       
+      console.log('Registration response status:', response.status);
       const data = await response.json();
+      console.log('Registration response data:', data);
       
       if (!data.success) {
         // Handle specific error messages from API
@@ -98,16 +102,26 @@ export const AuthProvider = ({ children }) => {
         throw new Error(errorMessage);
       }
       
+      // Determine whether we have user or firm data in the response
+      const userData = data.user || data.firm;
+      
+      if (!userData) {
+        console.error('No user or firm data in response');
+        throw new Error('Invalid response from server');
+      }
+      
+      console.log('Got user data:', userData);
+      
       // Save token to localStorage
       localStorage.setItem('token', data.token);
       setToken(data.token);
       
       // Store user data in localStorage for persistence
-      localStorage.setItem('userData', JSON.stringify((data.user?data.user:data.firm)));
-      localStorage.setItem('userEmail', (data.user?data.user:data.firm).email);
+      localStorage.setItem('userData', JSON.stringify(userData));
+      localStorage.setItem('userEmail', userData.email || '');
       
       // Set user state
-      setUser((data.user?data.user:data.firm));
+      setUser(userData);
       
       // Clear registration data
       setRegistrationData(null);
@@ -133,13 +147,17 @@ export const AuthProvider = ({ children }) => {
       formData.append('email', email);
       formData.append('password', password);
       
+      console.log('Attempting login for:', email);
+      
       // Make the API call to login
       const response = await fetch(API_ENDPOINTS.LOGIN, {
         method: 'POST',
         body: formData
       });
       
+      console.log('Login response status:', response.status);
       const data = await response.json();
+      console.log('Login response data:', data);
       
       if (!data.success) {
         // Handle specific error messages from API
@@ -157,16 +175,26 @@ export const AuthProvider = ({ children }) => {
         throw new Error(errorMessage);
       }
       
+      // Determine whether we have user or firm data in the response
+      const userData = data.user || data.firm;
+      
+      if (!userData) {
+        console.error('No user or firm data in login response');
+        throw new Error('Invalid response from server');
+      }
+      
+      console.log('Got user data from login:', userData);
+      
       // Save token to localStorage
       localStorage.setItem('token', data.token);
       setToken(data.token);
       
       // Store user data in localStorage for persistence
-      localStorage.setItem('userData', JSON.stringify((data.user?data.user:data.firm)));
-      localStorage.setItem('userEmail', (data.user?data.user:data.firm).email);
+      localStorage.setItem('userData', JSON.stringify(userData));
+      localStorage.setItem('userEmail', userData.email || '');
       
       // Set user state
-      setUser((data.user?data.user:data.firm));
+      setUser(userData);
       
       console.log('Login successful:', data);
       return true;

@@ -166,10 +166,30 @@ const IndividualSetupPage = () => {
     // Add account type
     formDataForSubmit.append('type', 'individual');
     
+    console.log('About to call completeRegistration');
     const success = await completeRegistration(formDataForSubmit);
+    console.log('Registration success:', success);
+    
     if (success) {
-      // Navigate to dashboard or welcome page
-      navigate('/dashboard');
+      console.log('Navigating to dashboard after successful registration');
+      try {
+        // First try React Router navigation
+        navigate('/dashboard');
+        
+        // As a backup, also set a direct navigation after a short delay
+        setTimeout(() => {
+          if (window.location.pathname !== '/dashboard') {
+            console.log('Forcing navigation to dashboard');
+            window.location.href = '/dashboard';
+          }
+        }, 300);
+      } catch (error) {
+        console.error('Navigation error:', error);
+        // Fallback to direct navigation
+        window.location.href = '/dashboard';
+      }
+    } else {
+      console.log('Registration was not successful, not navigating');
     }
   };
 
@@ -182,12 +202,12 @@ const IndividualSetupPage = () => {
       <Sidebar>
         <Logo src="/logo.svg" alt="WeProcess Logo" />
         <ImagesGrid>
-          <img src="/images/user1.jpg" alt="" />
+          <img src="https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
           <EmptyBox />
-          <img src="/images/user2.jpg" alt="" />
+          <img src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
           <LightGreenBackground />
           <LightPinkBackground />
-          <img src="/images/user3.jpg" alt="" />
+          <img src="https://images.pexels.com/photos/789822/pexels-photo-789822.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
         </ImagesGrid>
       </Sidebar>
       <Content>
@@ -327,44 +347,54 @@ const Container = styled.div`
 
 const Sidebar = styled.div`
   width: 50%;
+  height: 100vh;
   background-color: white;
   padding: 2rem;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const Logo = styled.img`
   height: 60px;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
+  z-index: 2;
 `;
 
 const ImagesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  height: 80%;
-  gap: 1rem;
+  height: calc(100% - 80px);
+  gap: 1.5rem;
+  flex: 1;
   
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 `;
 
 const EmptyBox = styled.div`
-  background-color: #d9d9d9;
+  background-color: #e7e7e7;
   border-radius: 1.5rem;
 `;
 
 const LightGreenBackground = styled.div`
-  background-color: var(--secondary-color);
+  background-color: #e4f1eb;
   border-radius: 1.5rem;
 `;
 
 const LightPinkBackground = styled.div`
-  background-color: var(--light-pink);
+  background-color: #f8e4e6;
   border-radius: 1.5rem;
 `;
 
