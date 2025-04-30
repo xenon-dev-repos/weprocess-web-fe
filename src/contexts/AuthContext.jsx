@@ -150,7 +150,7 @@ export const AuthProvider = ({ children }) => {
       console.log('Attempting login for:', email);
       
       // Make the API call to login
-      const response = await fetch(API_ENDPOINTS.LOGIN_INDIVIDUAL, {
+      const response = await fetch(API_ENDPOINTS.LOGIN, {
         method: 'POST',
         body: formData
       });

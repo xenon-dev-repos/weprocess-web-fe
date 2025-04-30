@@ -3,8 +3,7 @@ const API_BASE_URL = 'https://weprocess.co.uk/v1/api';
 
 export const API_ENDPOINTS = {
   // Authentication
-  LOGIN_INDIVIDUAL: `${API_BASE_URL}/login`,
-  LOGIN_FIRM: `${API_BASE_URL}/firms/login`,
+  LOGIN: `${API_BASE_URL}/firms/login`,
   REGISTER_INDIVIDUAL: `${API_BASE_URL}/register`,
   REGISTER_FIRM: `${API_BASE_URL}/firms/register`,
   
@@ -18,4 +17,4 @@ export const API_ENDPOINTS = {
   CHANGE_PASSWORD: `${API_BASE_URL}/change/password`,
 };
 
-export default API_ENDPOINTS; 
+export default API_ENDPOINTS;
