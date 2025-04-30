@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
       // Determine which endpoint to use based on account type
       const endpoint = formData.get('type') === 'firm' 
         ? API_ENDPOINTS.REGISTER_FIRM 
-        : API_ENDPOINTS.REGISTER;
+        : API_ENDPOINTS.REGISTER_INDIVIDUAL;
       
       console.log('Using endpoint:', endpoint);
       
@@ -150,14 +150,14 @@ export const AuthProvider = ({ children }) => {
       console.log('Attempting login for:', email);
       
       // Make the API call to login
-      const response = await fetch(API_ENDPOINTS.LOGIN, {
+      const response = await fetch(API_ENDPOINTS.LOGIN_INDIVIDUAL, {
         method: 'POST',
         body: formData
       });
       
-      console.log('Login response status:', response.status);
+      // console.log('Login response status:', response.status);
       const data = await response.json();
-      console.log('Login response data:', data);
+      // console.log('Login response data:', data);
       
       if (!data.success) {
         // Handle specific error messages from API
