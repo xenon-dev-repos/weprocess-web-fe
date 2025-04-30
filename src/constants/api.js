@@ -3,7 +3,7 @@ const API_BASE_URL = 'https://weprocess.co.uk/v1/api';
 
 export const API_ENDPOINTS = {
   // Authentication
-  LOGIN: `${API_BASE_URL}/firms/login`,
+  LOGIN: `${API_BASE_URL}/login`,
   REGISTER: `${API_BASE_URL}/register`,
   REGISTER_FIRM: `${API_BASE_URL}/firms/register`,
   
