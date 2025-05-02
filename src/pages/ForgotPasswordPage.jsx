@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
 import { AuthLayout } from '../layouts/AuthLayout';
+import { useNavigation } from '../hooks/useNavigation';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { requestPasswordReset, loading, error } = useAuth();
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +20,7 @@ const ForgotPasswordPage = () => {
   };
 
   const handleBackToLogin = () => {
-    navigate('/signin');
+    navigateTo('/signin');
   };
 
   return (

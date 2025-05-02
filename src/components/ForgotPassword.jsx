@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '../hooks/useNavigation';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  
   const { requestPasswordReset } = useAuth();
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -39,7 +38,7 @@ const ForgotPassword = () => {
       if (success) {
         setMessage('OTP sent to your email address');
         setTimeout(() => {
-          navigate('/verify-otp', { state: { email } });
+          navigateTo('/verify-otp', { state: { email } });
         }, 2000);
       } else {
         setError('Failed to send OTP. Please try again.');

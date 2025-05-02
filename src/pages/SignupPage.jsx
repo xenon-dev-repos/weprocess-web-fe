@@ -1,24 +1,25 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
+import { useNavigation } from '../hooks/useNavigation';
 
 const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [accountType, setAccountType] = useState('firm');
   const { startRegistration, loading, error } = useAuth();
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const success = await startRegistration(email, accountType);
     if (success) {
       if (accountType === 'firm') {
-        navigate('/firm-setup');
+        navigateTo('/firm-setup');
       } else {
-        navigate('/individual-setup');
+        navigateTo('/individual-setup');
       }
     }
   };

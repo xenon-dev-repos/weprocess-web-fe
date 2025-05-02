@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { ErrorMessage, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton, PhoneInput, PhoneInputContainer, CountryCode, FlagIcon  } from '../components/shared/FormElements';
+import { useNavigation } from '../hooks/useNavigation';
 
 const FirmSetupPage = () => {
   const { registrationData, completeRegistration, loading, error } = useAuth();
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -27,9 +27,9 @@ const FirmSetupPage = () => {
       }));
     } else {
       // If no registration data, redirect back to the first step
-      navigate('/signup');
+      navigateTo('/signup');
     }
-  }, [registrationData, navigate]);
+  }, [registrationData, navigateTo]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -91,7 +91,7 @@ const FirmSetupPage = () => {
       console.log('Navigating to dashboard after successful firm registration');
       try {
         // First try React Router navigation
-        navigate('/dashboard');
+        navigateTo('/dashboard');
         
         // As a backup, also set a direct navigation after a short delay
         setTimeout(() => {
@@ -224,76 +224,5 @@ const FirmSetupPage = () => {
     </AuthLayout> 
   );
 };
-
-// const FormGroup = styled.div`
-//   margin-bottom: 1.5rem;
-// `;
-
-// const Label = styled.label`
-//   display: block;
-//   margin-bottom: 0.5rem;
-//   font-size: 1rem;
-// `;
-
-// const Input = styled.input`
-//   width: 100%;
-//   padding: 0.75rem;
-//   border: 1px solid #ccc;
-//   border-radius: 12px;
-//   font-size: 1rem;
-  
-//   &:focus {
-//     outline: none;
-//     border-color: var(--primary-color);
-//   }
-// `;
-
-// const PasswordInputContainer = styled.div`
-//   position: relative;
-// `;
-
-// const PasswordToggle = styled.button`
-//   position: absolute;
-//   right: 12px;
-//   top: 50%;
-//   transform: translateY(-50%);
-//   background: none;
-//   border: none;
-//   cursor: pointer;
-//   font-size: 1.2rem;
-// `;
-
-// const PhoneInputContainer = styled.div`
-//   display: flex;
-//   align-items: center;
-// `;
-
-// const CountryCode = styled.div`
-//   display: flex;
-//   align-items: center;
-//   padding: 0.75rem;
-//   border: 1px solid #ccc;
-//   border-radius: 0.5rem 0 0 0.5rem;
-//   border-right: none;
-//   background-color: #f9f9f9;
-//   font-size: 1rem;
-// `;
-
-// const FlagIcon = styled.span`
-//   margin-right: 0.5rem;
-// `;
-
-// const PhoneInput = styled.input`
-//   flex: 1;
-//   padding: 0.75rem;
-//   border: 1px solid #ccc;
-//   border-radius: 0 0.5rem 0.5rem 0;
-//   font-size: 1rem;
-  
-//   &:focus {
-//     outline: none;
-//     border-color: var(--primary-color);
-//   }
-// `;
 
 export default FirmSetupPage; 

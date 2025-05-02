@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { CountryCode, ErrorMessage, FlagIcon, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, PhoneInput, PhoneInputContainer, SubmitButton } from '../components/shared/FormElements';
+import { useNavigation } from '../hooks/useNavigation';
 
 const IndividualSetupPage = () => {
   const { registrationData, completeRegistration, loading, error } = useAuth();
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -25,9 +25,9 @@ const IndividualSetupPage = () => {
       }));
     } else {
       // If no registration data, redirect back to the first step
-      navigate('/signup');
+      navigateTo('/signup');
     }
-  }, [registrationData, navigate]);
+  }, [registrationData, navigateTo]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,7 +89,7 @@ const IndividualSetupPage = () => {
       console.log('Navigating to dashboard after successful registration');
       try {
         // First try React Router navigation
-        navigate('/dashboard');
+        navigateTo('/dashboard');
         
         // As a backup, also set a direct navigation after a short delay
         setTimeout(() => {

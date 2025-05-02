@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '../hooks/useNavigation';
 
 const VerifyOTP = () => {
   const [otp, setOtp] = useState('');
@@ -9,15 +10,15 @@ const VerifyOTP = () => {
   const [message, setMessage] = useState('');
   
   const { verifyOTP, requestPasswordReset } = useAuth();
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   const location = useLocation();
   const email = location.state?.email || '';
   
   useEffect(() => {
     if (!email) {
-      navigate('/forgot-password');
+      navigateTo('/forgot-password');
     }
-  }, [email, navigate]);
+  }, [email, navigateTo]);
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,7 +38,7 @@ const VerifyOTP = () => {
       if (success) {
         setMessage('OTP verified successfully');
         setTimeout(() => {
-          navigate('/reset-password', { state: { email, verified: true } });
+          navigateTo('/reset-password', { state: { email, verified: true } });
         }, 1500);
       } else {
         setError('Invalid OTP. Please try again.');

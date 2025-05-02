@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { ErrorMessage, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
+import { useNavigation } from '../hooks/useNavigation';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
@@ -14,7 +15,7 @@ const ResetPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [resetToken, setResetToken] = useState('');
   const { resetPassword, loading, error } = useAuth();
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   const location = useLocation();
 
   useEffect(() => {
@@ -62,7 +63,7 @@ const ResetPasswordPage = () => {
   };
 
   const handleBackToLogin = () => {
-    navigate('/signin');
+    navigateTo('/signin');
   };
 
   const togglePasswordVisibility = () => {

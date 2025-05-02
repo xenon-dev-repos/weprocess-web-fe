@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-// import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
+import { useNavigation } from '../hooks/useNavigation';
 
 const SigninPage = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +12,7 @@ const SigninPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const { login, loading, error } = useAuth();
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,7 +26,7 @@ const SigninPage = () => {
     e.preventDefault();
     const success = await login(formData.email, formData.password);
     if (success) {
-      navigate('/dashboard');
+      navigateTo('/dashboard');
     }
   };
 

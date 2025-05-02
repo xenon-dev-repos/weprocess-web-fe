@@ -3,8 +3,6 @@ import { API_ENDPOINTS } from '../constants/api';
 
 const AuthContext = createContext();
 
-export const useAuth = () => useContext(AuthContext);
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -13,6 +11,10 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [resetPasswordEmail, setResetPasswordEmail] = useState('');
   const [otpVerified, setOtpVerified] = useState(false);
+
+  const clearError = () => {
+    setError(null);
+  };
 
   // Check if user is already logged in on mount
   useEffect(() => {
@@ -46,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   const startRegistration = async (email, accountType) => {
     try {
       setLoading(true);
-      setError(null);
+      clearError();
       // Store the initial registration data
       setRegistrationData({ email, accountType });
       return true;
@@ -61,7 +63,7 @@ export const AuthProvider = ({ children }) => {
   const completeRegistration = async (formData) => {
     try {
       setLoading(true);
-      setError(null);
+      clearError();
       
       // Log the form data being sent
       console.log('Submitting registration with:');
@@ -75,7 +77,8 @@ export const AuthProvider = ({ children }) => {
         : API_ENDPOINTS.REGISTER_INDIVIDUAL;
       
       console.log('Using endpoint:', endpoint);
-
+      
+      // Make the API call to register the user
       const response = await fetch(endpoint, {
         method: 'POST',
         body: formData
@@ -132,7 +135,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
-      setError(null);
+      clearError();
       
       // Create form data for login
       const formData = new FormData();
@@ -200,7 +203,7 @@ export const AuthProvider = ({ children }) => {
   const forgotPassword = async (email) => {
     try {
       setLoading(true);
-      setError(null);
+      clearError();
       setResetPasswordEmail(email);
 
       const formData = new FormData();
@@ -243,7 +246,7 @@ export const AuthProvider = ({ children }) => {
   const verifyOtp = async (email, otp) => {
     try {
       setLoading(true);
-      setError(null);
+      clearError();
       
       const formData = new FormData();
       formData.append('email', email);
@@ -287,7 +290,7 @@ export const AuthProvider = ({ children }) => {
   const changePassword = async (email, password) => {
     try {
       setLoading(true);
-      setError(null);
+      clearError();
 
       const formData = new FormData();
       formData.append('email', email);
@@ -349,8 +352,12 @@ export const AuthProvider = ({ children }) => {
     verifyOtp,
     verifyOTP, // Add alias
     changePassword,
-    resetPassword
+    resetPassword,
+    clearError,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }; 
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => useContext(AuthContext);
