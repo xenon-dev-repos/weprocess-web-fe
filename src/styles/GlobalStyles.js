@@ -16,13 +16,22 @@ const GlobalStyles = createGlobalStyle`
     box-sizing: border-box;
   }
 
+  html {
+    height: 100%;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
+    font-family: 'Manrope', 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
   }
 
   h1, h2, h3, h4, h5, h6 {

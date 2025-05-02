@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
+import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
+import { AuthLayout } from '../layouts/AuthLayout';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -22,233 +24,51 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <Container>
-      <Sidebar>
-        <Logo src="/logo.svg" alt="WeProcess Logo" />
-        <ImagesGrid>
-          <img src="https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
-          <EmptyBox />
-          <img src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
-          <LightGreenBackground />
-          <LightPinkBackground />
-          <img src="https://images.pexels.com/photos/789822/pexels-photo-789822.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
-        </ImagesGrid>
-      </Sidebar>
-      <Content>
-        <SignInLink>Remember your password? <Link to="/signin">Sign In</Link></SignInLink>
-        <FormContainer>
-          <Title>Forgot Password</Title>
-          {!isSubmitted ? (
-            <>
-              <Subtitle>Enter your email to reset your password</Subtitle>
-              <form onSubmit={handleSubmit}>
-                <FormGroup>
-                  <Label>Email</Label>
-                  <Input
-                    type="email"
-                    placeholder="example@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </FormGroup>
-                
-                {error && <ErrorMessage>{error}</ErrorMessage>}
-                
-                <SubmitButton type="submit" disabled={loading}>
-                  {loading ? 'Processing...' : 'Reset Password'}
-                </SubmitButton>
-                
-                <BackLink onClick={handleBackToLogin}>
-                  Back to Sign In
-                </BackLink>
-              </form>
-            </>
-          ) : (
-            <SuccessMessage>
-              <SuccessIcon>✓</SuccessIcon>
-              <h2>Email Sent</h2>
-              <p>We've sent password reset instructions to {email}</p>
-              <p>Please check your inbox and follow the link to reset your password.</p>
-              <BackToLoginButton onClick={handleBackToLogin}>
-                Back to Sign In
-              </BackToLoginButton>
-            </SuccessMessage>
-          )}
-        </FormContainer>
-      </Content>
-    </Container>
+    <AuthLayout
+      title={isSubmitted ? "Email Sent" : "Forgot Password"}
+      subtitle={isSubmitted ? 
+        "We've sent password reset instructions to your email" : 
+        "Enter your email to reset your password"}
+      signInText="Remember your password?"
+      signInLink="/signin"
+      signInLinkText="Sign In"
+    >
+      {!isSubmitted ? (
+        <form onSubmit={handleSubmit}>
+          <FormGroup>
+            <Label>Email</Label>
+            <Input
+              type="email"
+              placeholder="example@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </FormGroup>
+          
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+          
+          <SubmitButton type="submit" disabled={loading}>
+            {loading ? 'Processing...' : 'Reset Password'}
+          </SubmitButton>
+          
+          <BackLink onClick={handleBackToLogin}>
+            Back to Sign In
+          </BackLink>
+        </form>
+      ) : (
+        <SuccessMessage>
+          <SuccessIcon>✓</SuccessIcon>
+          <p>We've sent password reset instructions to <strong>{email}</strong></p>
+          <p>Please check your inbox and follow the link to reset your password.</p>
+          <BackToLoginButton onClick={handleBackToLogin}>
+            Back to Sign In
+          </BackToLoginButton>
+        </SuccessMessage>
+      )}
+    </AuthLayout>
   );
 };
-
-// Styled Components
-const Container = styled.div`
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-  overflow: hidden;
-`;
-
-const Sidebar = styled.div`
-  width: 50%;
-  height: 100vh;
-  background-color: white;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const Logo = styled.img`
-  height: 60px;
-  margin-bottom: 2rem;
-  z-index: 2;
-`;
-
-const ImagesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  height: calc(100% - 80px);
-  gap: 1.5rem;
-  flex: 1;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 1.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const EmptyBox = styled.div`
-  background-color: #e7e7e7;
-  border-radius: 1.5rem;
-`;
-
-const LightGreenBackground = styled.div`
-  background-color: #e4f1eb;
-  border-radius: 1.5rem;
-`;
-
-const LightPinkBackground = styled.div`
-  background-color: #f8e4e6;
-  border-radius: 1.5rem;
-`;
-
-const Content = styled.div`
-  width: 50%;
-  height: 100vh;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 2rem;
-  overflow-y: auto;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    padding: 1.5rem;
-  }
-`;
-
-const SignInLink = styled.div`
-  text-align: right;
-  margin-bottom: 3rem;
-  
-  a {
-    color: var(--primary-color);
-    font-weight: 600;
-  }
-
-  @media (max-width: 768px) {
-    margin-bottom: 2rem;
-  }
-`;
-
-const FormContainer = styled.div`
-  max-width: 450px;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: calc(100% - 60px);
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  color: var(--primary-color);
-  margin-bottom: 1rem;
-
-  @media (max-width: 768px) {
-    font-size: 2rem;
-  }
-`;
-
-const Subtitle = styled.h2`
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  font-weight: 400;
-
-  @media (max-width: 768px) {
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
-  }
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  
-  &:focus {
-    outline: none;
-    border-color: var(--primary-color);
-  }
-`;
-
-const ErrorMessage = styled.div`
-  color: red;
-  margin-bottom: 1rem;
-`;
-
-const SubmitButton = styled.button`
-  width: 100%;
-  background-color: var(--primary-color);
-  color: white;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background-color: #122619;
-  }
-  
-  &:disabled {
-    background-color: #999;
-    cursor: not-allowed;
-  }
-`;
 
 const BackLink = styled.div`
   text-align: center;

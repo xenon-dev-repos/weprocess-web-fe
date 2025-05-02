@@ -75,8 +75,7 @@ export const AuthProvider = ({ children }) => {
         : API_ENDPOINTS.REGISTER_INDIVIDUAL;
       
       console.log('Using endpoint:', endpoint);
-      
-      // Make the API call to register the user
+
       const response = await fetch(endpoint, {
         method: 'POST',
         body: formData
@@ -103,27 +102,20 @@ export const AuthProvider = ({ children }) => {
       }
       
       // Determine whether we have user or firm data in the response
-      const userData = data.user || data.firm;
+      const userData = data.client || data.firm;
       
       if (!userData) {
         console.error('No user or firm data in response');
         throw new Error('Invalid response from server');
       }
       
-      console.log('Got user data:', userData);
-      
-      // Save token to localStorage
       localStorage.setItem('token', data.token);
       setToken(data.token);
-      
-      // Store user data in localStorage for persistence
       localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('userEmail', userData.email || '');
       
-      // Set user state
       setUser(userData);
-      
-      // Clear registration data
+
       setRegistrationData(null);
       
       console.log('Registration successful:', data);
@@ -154,20 +146,15 @@ export const AuthProvider = ({ children }) => {
         method: 'POST',
         body: formData
       });
-      
-      // console.log('Login response status:', response.status);
+
       const data = await response.json();
-      // console.log('Login response data:', data);
       
       if (!data.success) {
-        // Handle specific error messages from API
         let errorMessage = data.message || 'Login failed';
-        
-        // If there are validation errors, format them
+
         if (data.errors) {
           const errorKeys = Object.keys(data.errors);
           if (errorKeys.length > 0) {
-            // Get the first error message
             errorMessage = data.errors[errorKeys[0]][0];
           }
         }
@@ -175,8 +162,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error(errorMessage);
       }
       
-      // Determine whether we have user or firm data in the response
-      const userData = data.user || data.firm;
+      const userData = data.user || data.firm || data.client;
       
       if (!userData) {
         console.error('No user or firm data in login response');
@@ -185,15 +171,11 @@ export const AuthProvider = ({ children }) => {
       
       console.log('Got user data from login:', userData);
       
-      // Save token to localStorage
       localStorage.setItem('token', data.token);
       setToken(data.token);
-      
-      // Store user data in localStorage for persistence
       localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('userEmail', userData.email || '');
-      
-      // Set user state
+
       setUser(userData);
       
       console.log('Login successful:', data);
@@ -220,12 +202,10 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       setResetPasswordEmail(email);
-      
-      // Create form data for forgot password request
+
       const formData = new FormData();
       formData.append('email', email);
-      
-      // Make the API call
+
       const response = await fetch(API_ENDPOINTS.FORGOT_PASSWORD, {
         method: 'POST',
         body: formData
@@ -265,12 +245,10 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
-      // Create form data for OTP verification
       const formData = new FormData();
       formData.append('email', email);
       formData.append('otp', otp);
-      
-      // Make the API call
+
       const response = await fetch(API_ENDPOINTS.VERIFY_OTP, {
         method: 'POST',
         body: formData
@@ -310,13 +288,11 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Create form data for password change
+
       const formData = new FormData();
       formData.append('email', email);
       formData.append('password', password);
-      
-      // Make the API call
+
       const response = await fetch(API_ENDPOINTS.CHANGE_PASSWORD, {
         method: 'POST',
         body: formData
@@ -336,8 +312,7 @@ export const AuthProvider = ({ children }) => {
         
         throw new Error(errorMessage);
       }
-      
-      // Reset states
+
       setOtpVerified(false);
       setResetPasswordEmail('');
       

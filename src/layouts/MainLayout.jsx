@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import WeProcessLogoIcon from '../assets/dashboard-icons/weprocess-logo-icon.svg';
-import SearchIcon from '../assets/dashboard-icons/search-icon.svg';
-import NotificationIcon from '../assets/dashboard-icons/notification-icon.svg';
-import MessageIcon from '../assets/dashboard-icons/message-icon.svg';
+import WeProcessLogoIcon from '../assets/images/dashboard/weprocess-logo-icon.svg';
+import SearchIcon from '../assets/images/dashboard/search-icon.svg';
+import NotificationIcon from '../assets/images/dashboard/notification-icon.svg';
+import MessageIcon from '../assets/images/dashboard/message-icon.svg';
 
 export const MainLayout = ({ children, showDashboardHeader = false }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

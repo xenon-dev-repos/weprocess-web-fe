@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
+import { AuthLayout } from '../layouts/AuthLayout';
+import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
 
 const SignupPage = () => {
   const [email, setEmail] = useState('');
@@ -13,7 +15,6 @@ const SignupPage = () => {
     e.preventDefault();
     const success = await startRegistration(email, accountType);
     if (success) {
-      // Navigate to the appropriate setup page based on account type
       if (accountType === 'firm') {
         navigate('/firm-setup');
       } else {
@@ -23,224 +24,67 @@ const SignupPage = () => {
   };
 
   return (
-    <Container>
-      <Sidebar>
-        <Logo src="/logo.svg" alt="WeProcess Logo" />
-        <ImagesGrid>
-          <img src="https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
-          <EmptyBox />
-          <img src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
-          <LightGreenBackground />
-          <LightPinkBackground />
-          <img src="https://images.pexels.com/photos/789822/pexels-photo-789822.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" />
-        </ImagesGrid>
-      </Sidebar>
-      <Content>
-        <SignInLink>Already have an account? <Link to="/signin">Sign In</Link></SignInLink>
-        <FormContainer>
-          <Title>Welcome to WeProcess</Title>
-          <Subtitle>Register below</Subtitle>
-          
-          <form onSubmit={handleSubmit}>
-            <FormGroup>
-              <Label>Email</Label>
-              <Input
-                type="email"
-                placeholder="example@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </FormGroup>
+    <AuthLayout
+      title="Welcome to WeProcess"
+      subtitle="Register below"
+      signInText="Already have an account?"
+      signInLink="/signin"
+      signInLinkText="Sign In"
+    >
+      <form onSubmit={handleSubmit}>
+        <FormGroup>
+          <Label>Email</Label>
+          <Input
+            type="email"
+            placeholder="example@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </FormGroup>
+        
+        <FormGroup>
+          <Label>How do you want to set up your account?</Label>
+          <AccountTypeOptions>
+            <AccountTypeOption
+              selected={accountType === 'firm'}
+              onClick={() => setAccountType('firm')}
+            >
+              <Radio checked={accountType === 'firm'} />
+              <Icon>💼</Icon>
+              <OptionText>Set up my firm</OptionText>
+            </AccountTypeOption>
             
-            <FormGroup>
-              <Label>How do you want to set up your account?</Label>
-              <AccountTypeOptions>
-                <AccountTypeOption
-                  selected={accountType === 'firm'}
-                  onClick={() => setAccountType('firm')}
-                >
-                  <Radio checked={accountType === 'firm'} />
-                  <Icon>💼</Icon>
-                  <OptionText>Set up my firm</OptionText>
-                </AccountTypeOption>
-                
-                <AccountTypeOption
-                  selected={accountType === 'individual'}
-                  onClick={() => setAccountType('individual')}
-                >
-                  <Radio checked={accountType === 'individual'} />
-                  <Icon>👤</Icon>
-                  <OptionText>Set up as an individual</OptionText>
-                </AccountTypeOption>
-              </AccountTypeOptions>
-            </FormGroup>
-            
-            <TermsText>
-              By continuing, you acknowledge that you agree to the{' '}
-              <Link to="/terms">Terms of Service</Link> and{' '}
-              <Link to="/privacy">Privacy Policy</Link> of WeProcess.
-            </TermsText>
-            
-            {error && <ErrorMessage>{error}</ErrorMessage>}
-            
-            <NextButton type="submit" disabled={loading}>
-              {loading ? 'Processing...' : 'Next'}
-            </NextButton>
-            
-            <ForgotPasswordLink>
-              <Link to="/forgot-password">Forgot your password?</Link>
-            </ForgotPasswordLink>
-          </form>
-        </FormContainer>
-      </Content>
-    </Container>
+            <AccountTypeOption
+              selected={accountType === 'individual'}
+              onClick={() => setAccountType('individual')}
+            >
+              <Radio checked={accountType === 'individual'} />
+              <Icon>👤</Icon>
+              <OptionText>Set up as an individual</OptionText>
+            </AccountTypeOption>
+          </AccountTypeOptions>
+        </FormGroup>
+        
+        <TermsText>
+          By continuing, you acknowledge that you agree to the{' '}
+          <Link to="/terms">Terms of Service</Link> and{' '}
+          <Link to="/privacy">Privacy Policy</Link> of WeProcess.
+        </TermsText>
+        
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+        
+        <SubmitButton type="submit" disabled={loading}>
+          {loading ? 'Processing...' : 'Next'}
+        </SubmitButton>
+        
+        <ForgotPasswordLink>
+          <Link to="/forgot-password">Forgot your password?</Link>
+        </ForgotPasswordLink>
+      </form>
+    </AuthLayout>
   );
 };
-
-// Styled Components
-const Container = styled.div`
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-  overflow: hidden;
-`;
-
-const Sidebar = styled.div`
-  width: 50%;
-  height: 100vh;
-  background-color: white;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const Logo = styled.img`
-  height: 60px;
-  margin-bottom: 2rem;
-  z-index: 2;
-`;
-
-const ImagesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  height: calc(100% - 80px);
-  gap: 1.5rem;
-  flex: 1;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 1.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const EmptyBox = styled.div`
-  background-color: #e7e7e7;
-  border-radius: 1.5rem;
-`;
-
-const LightGreenBackground = styled.div`
-  background-color: #e4f1eb;
-  border-radius: 1.5rem;
-`;
-
-const LightPinkBackground = styled.div`
-  background-color: #f8e4e6;
-  border-radius: 1.5rem;
-`;
-
-const Content = styled.div`
-  width: 50%;
-  height: 100vh;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 2rem;
-  overflow-y: auto;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    padding: 1.5rem;
-  }
-`;
-
-const SignInLink = styled.div`
-  text-align: right;
-  margin-bottom: 3rem;
-  
-  a {
-    color: var(--primary-color);
-    font-weight: 600;
-  }
-
-  @media (max-width: 768px) {
-    margin-bottom: 2rem;
-  }
-`;
-
-const FormContainer = styled.div`
-  max-width: 450px;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: calc(100% - 60px);
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  color: var(--primary-color);
-  margin-bottom: 1rem;
-
-  @media (max-width: 768px) {
-    font-size: 2rem;
-  }
-`;
-
-const Subtitle = styled.h2`
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  font-weight: 400;
-
-  @media (max-width: 768px) {
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
-  }
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  
-  &:focus {
-    outline: none;
-    border-color: var(--primary-color);
-  }
-`;
 
 const AccountTypeOptions = styled.div`
   display: flex;
@@ -257,7 +101,7 @@ const AccountTypeOption = styled.div`
   align-items: center;
   padding: 1rem;
   border: 1px solid ${props => props.selected ? 'var(--primary-color)' : '#ccc'};
-  border-radius: 0.5rem;
+  border-radius: 12px;
   cursor: pointer;
   background-color: ${props => props.selected ? 'rgba(27, 55, 40, 0.05)' : 'white'};
 `;
@@ -304,46 +148,6 @@ const TermsText = styled.p`
   @media (max-width: 768px) {
     margin: 1.5rem 0;
     font-size: 0.85rem;
-  }
-`;
-
-const ErrorMessage = styled.div`
-  color: red;
-  margin-bottom: 1rem;
-`;
-
-const NextButton = styled.button`
-  width: 100%;
-  background-color: var(--primary-color);
-  color: white;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background-color: #122619;
-  }
-  
-  &:disabled {
-    background-color: #999;
-    cursor: not-allowed;
-  }
-`;
-
-const ForgotPasswordLink = styled.div`
-  text-align: center;
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  
-  a {
-    color: var(--primary-color);
-    text-decoration: none;
-    
-    &:hover {
-      text-decoration: underline;
-    }
   }
 `;
 
