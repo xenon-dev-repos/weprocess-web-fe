@@ -198,7 +198,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       
       if (!data.success) {
         let errorMessage = data.message || 'Failed to send password reset email';
-        toast.showError(errorMessage);
         
         if (data.errors) {
           const errorKeys = Object.keys(data.errors);
