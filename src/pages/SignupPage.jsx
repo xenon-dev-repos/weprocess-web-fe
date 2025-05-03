@@ -3,27 +3,29 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
-import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
+import { ForgotPasswordLink, FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
 import { useNavigation } from '../hooks/useNavigation';
-import { validateEmail } from '../services/ApiService';
+import { useApi } from '../hooks/useApi';
 import { useToast } from '../services/ToastService';
 
 const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [accountType, setAccountType] = useState('firm');
   const [validating, setValidating] = useState(false);
-  const { startRegistration, loading, error } = useAuth();
+  const { startRegistration, loading, clearError } = useAuth();
   const { navigateTo } = useNavigation();
   const { showError } = useToast();
+  const api = useApi();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    clearError(); // Clear any previous errors
     
     try {
       setValidating(true);
       
       // Validate email with API
-      const response = await validateEmail(email, accountType);
+      const response = await api.validateEmail(email, accountType);
       
       // If validation is successful, continue with registration
       if (response.success) {
@@ -99,8 +101,6 @@ const SignupPage = () => {
           <Link to="/terms">Terms of Service</Link> and{' '}
           <Link to="/privacy">Privacy Policy</Link> of WeProcess.
         </TermsText>
-        
-        {error && <ErrorMessage>{error}</ErrorMessage>}
         
         <SubmitButton type="submit" disabled={loading || validating}>
           {loading || validating ? 'Processing...' : 'Next'}

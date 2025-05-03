@@ -3,7 +3,15 @@ import { API_ENDPOINTS } from '../constants/api';
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+// Create a toast utility object that logs to console when real toast isn't available
+const createLogger = () => ({
+  showSuccess: (msg) => console.log('Success:', msg),
+  showError: (msg) => console.error('Error:', msg),
+  showInfo: (msg) => console.info('Info:', msg),
+  showWarning: (msg) => console.warn('Warning:', msg),
+});
+
+export const AuthProvider = ({ children, toast = createLogger() }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -54,6 +62,7 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (err) {
       setError(err.message || 'Registration failed');
+      toast.showError(err.message || 'Registration failed');
       return false;
     } finally {
       setLoading(false);
@@ -122,10 +131,12 @@ export const AuthProvider = ({ children }) => {
       setRegistrationData(null);
       
       console.log('Registration successful:', data);
+      toast.showSuccess(data.message || 'Registration successful!');
       return true;
     } catch (err) {
       console.error('Registration error:', err);
       setError(err.message || 'Registration failed');
+      toast.showError(err.message || 'Registration failed');
       return false;
     } finally {
       setLoading(false);
@@ -182,10 +193,12 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       
       console.log('Login successful:', data);
+      toast.showSuccess(data.message || 'Login successful!');
       return true;
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message || 'Login failed');
+      toast.showError(err.message || 'Login failed');
       return false;
     } finally {
       setLoading(false);
@@ -198,6 +211,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('userEmail');
     setToken(null);
     setUser(null);
+    toast.showInfo('You have been logged out');
   };
 
   const forgotPassword = async (email) => {
@@ -230,10 +244,12 @@ export const AuthProvider = ({ children }) => {
       }
       
       console.log('Password reset email sent');
+      toast.showSuccess(data.message || 'Password reset email sent. Please check your inbox.');
       return true;
     } catch (err) {
       console.error('Forgot password error:', err);
       setError(err.message || 'Failed to send password reset email');
+      toast.showError(err.message || 'Failed to send password reset email');
       return false;
     } finally {
       setLoading(false);
@@ -251,7 +267,9 @@ export const AuthProvider = ({ children }) => {
       const formData = new FormData();
       formData.append('email', email);
       formData.append('otp', otp);
-
+      
+      console.log('Verifying OTP for:', email);
+      
       const response = await fetch(API_ENDPOINTS.VERIFY_OTP, {
         method: 'POST',
         body: formData
@@ -260,7 +278,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       
       if (!data.success) {
-        let errorMessage = data.message || 'Failed to verify OTP';
+        let errorMessage = data.message || 'OTP verification failed';
         
         if (data.errors) {
           const errorKeys = Object.keys(data.errors);
@@ -272,30 +290,31 @@ export const AuthProvider = ({ children }) => {
         throw new Error(errorMessage);
       }
       
+      console.log('OTP verification successful');
       setOtpVerified(true);
-      console.log('OTP verified successfully');
+      toast.showSuccess(data.message || 'OTP verified successfully');
       return true;
     } catch (err) {
       console.error('OTP verification error:', err);
-      setError(err.message || 'Failed to verify OTP');
+      setError(err.message || 'OTP verification failed');
+      toast.showError(err.message || 'OTP verification failed');
       return false;
     } finally {
       setLoading(false);
     }
   };
-  
-  // Alias for verifyOtp to maintain compatibility with VerifyOTP component
-  const verifyOTP = verifyOtp;
 
   const changePassword = async (email, password) => {
     try {
       setLoading(true);
       clearError();
-
+      
       const formData = new FormData();
       formData.append('email', email);
       formData.append('password', password);
-
+      
+      console.log('Changing password for:', email);
+      
       const response = await fetch(API_ENDPOINTS.CHANGE_PASSWORD, {
         method: 'POST',
         body: formData
@@ -304,7 +323,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       
       if (!data.success) {
-        let errorMessage = data.message || 'Failed to change password';
+        let errorMessage = data.message || 'Password change failed';
         
         if (data.errors) {
           const errorKeys = Object.keys(data.errors);
@@ -315,15 +334,15 @@ export const AuthProvider = ({ children }) => {
         
         throw new Error(errorMessage);
       }
-
-      setOtpVerified(false);
-      setResetPasswordEmail('');
       
       console.log('Password changed successfully');
+      setOtpVerified(false);
+      toast.showSuccess(data.message || 'Password changed successfully');
       return true;
     } catch (err) {
       console.error('Password change error:', err);
-      setError(err.message || 'Failed to change password');
+      setError(err.message || 'Password change failed');
+      toast.showError(err.message || 'Password change failed');
       return false;
     } finally {
       setLoading(false);
@@ -331,8 +350,48 @@ export const AuthProvider = ({ children }) => {
   };
 
   const resetPassword = async (email, password) => {
-    // Reset password uses the same endpoint as changePassword
-    return await changePassword(email, password);
+    try {
+      setLoading(true);
+      clearError();
+      
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+      
+      console.log('Resetting password for:', email);
+      
+      const response = await fetch(API_ENDPOINTS.CHANGE_PASSWORD, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        let errorMessage = data.message || 'Password reset failed';
+        
+        if (data.errors) {
+          const errorKeys = Object.keys(data.errors);
+          if (errorKeys.length > 0) {
+            errorMessage = data.errors[errorKeys[0]][0];
+          }
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
+      console.log('Password reset successfully');
+      setOtpVerified(false);
+      toast.showSuccess(data.message || 'Password reset successfully');
+      return true;
+    } catch (err) {
+      console.error('Password reset error:', err);
+      setError(err.message || 'Password reset failed');
+      toast.showError(err.message || 'Password reset failed');
+      return false;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const value = {
@@ -348,9 +407,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     forgotPassword,
-    requestPasswordReset, // Add alias
+    requestPasswordReset,
     verifyOtp,
-    verifyOTP, // Add alias
     changePassword,
     resetPassword,
     clearError,
