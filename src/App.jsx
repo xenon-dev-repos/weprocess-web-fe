@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './services/ToastService';
 import GlobalStyles from './styles/GlobalStyles';
 import SignupPage from './pages/SignupPage';
 import SigninPage from './pages/SigninPage';
@@ -15,20 +16,22 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-      <ThemeProvider theme={theme}>
-          <GlobalStyles />
-          <Routes>
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/signin" element={<SigninPage />} />
-            <Route path="/firm-setup" element={<FirmSetupPage />} />
-            <Route path="/individual-setup" element={<IndividualSetupPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/" element={<Navigate to="/signin" replace />} />
-            <Route path="*" element={<Navigate to="/signin" replace />} />
-          </Routes>
-        </ThemeProvider>
+        <ToastProvider>
+          <ThemeProvider theme={theme}>
+            <GlobalStyles />
+            <Routes>
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/signin" element={<SigninPage />} />
+              <Route path="/firm-setup" element={<FirmSetupPage />} />
+              <Route path="/individual-setup" element={<IndividualSetupPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/" element={<Navigate to="/signin" replace />} />
+              <Route path="*" element={<Navigate to="/signin" replace />} />
+            </Routes>
+          </ThemeProvider>
+        </ToastProvider>
       </AuthProvider>
     </Router>
   );

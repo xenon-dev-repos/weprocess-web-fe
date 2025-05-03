@@ -5,22 +5,49 @@ import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
 import { useNavigation } from '../hooks/useNavigation';
+import { validateEmail } from '../services/ApiService';
+import { useToast } from '../services/ToastService';
 
 const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [accountType, setAccountType] = useState('firm');
+  const [validating, setValidating] = useState(false);
   const { startRegistration, loading, error } = useAuth();
   const { navigateTo } = useNavigation();
+  const { showError } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await startRegistration(email, accountType);
-    if (success) {
-      if (accountType === 'firm') {
-        navigateTo('/firm-setup');
+    
+    try {
+      setValidating(true);
+      
+      // Validate email with API
+      const response = await validateEmail(email, accountType);
+      
+      // If validation is successful, continue with registration
+      if (response.success) {
+        const success = await startRegistration(email, accountType);
+        if (success) {
+          if (accountType === 'firm') {
+            navigateTo('/firm-setup');
+          } else {
+            navigateTo('/individual-setup');
+          }
+        }
       } else {
-        navigateTo('/individual-setup');
+        // If email validation fails, show error toast
+        showError(response.message || 'This email is already registered');
       }
+    } catch (error) {
+      // Handle specific error for existing email
+      if (error.message.includes('already exists') || error.message.includes('already registered')) {
+        showError('This email is already registered. Please use a different email or sign in.');
+      } else {
+        showError(error.message || 'An error occurred during email validation');
+      }
+    } finally {
+      setValidating(false);
     }
   };
 
@@ -75,8 +102,8 @@ const SignupPage = () => {
         
         {error && <ErrorMessage>{error}</ErrorMessage>}
         
-        <SubmitButton type="submit" disabled={loading}>
-          {loading ? 'Processing...' : 'Next'}
+        <SubmitButton type="submit" disabled={loading || validating}>
+          {loading || validating ? 'Processing...' : 'Next'}
         </SubmitButton>
         
         <ForgotPasswordLink>
