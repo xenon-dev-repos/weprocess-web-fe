@@ -6,7 +6,6 @@ import { AuthLayout } from '../layouts/AuthLayout';
 import { ForgotPasswordLink, FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
 import { useNavigation } from '../hooks/useNavigation';
 import { useApi } from '../hooks/useApi';
-import { useToast } from '../services/ToastService';
 
 const SignupPage = () => {
   const [email, setEmail] = useState('');
@@ -14,7 +13,6 @@ const SignupPage = () => {
   const [validating, setValidating] = useState(false);
   const { startRegistration, loading, clearError } = useAuth();
   const { navigateTo } = useNavigation();
-  const { showError } = useToast();
   const api = useApi();
 
   const handleSubmit = async (e) => {
@@ -24,7 +22,7 @@ const SignupPage = () => {
     try {
       setValidating(true);
       
-      // Validate email with API
+      // Validate email with API - ApiService will handle error toast automatically
       const response = await api.validateEmail(email, accountType);
       
       // If validation is successful, continue with registration
@@ -37,17 +35,12 @@ const SignupPage = () => {
             navigateTo('/individual-setup');
           }
         }
-      } else {
-        // If email validation fails, show error toast
-        showError(response.message || 'This email is already registered');
       }
+      // Removed duplicate toast for validation failure - ApiService already shows it
     } catch (error) {
-      // Handle specific error for existing email
-      if (error.message.includes('already exists') || error.message.includes('already registered')) {
-        showError('This email is already registered. Please use a different email or sign in.');
-      } else {
-        showError(error.message || 'An error occurred during email validation');
-      }
+      // Skip error toast since ApiService already shows one
+      console.error('Email validation error:', error.message);
+      // Don't show another error toast here
     } finally {
       setValidating(false);
     }

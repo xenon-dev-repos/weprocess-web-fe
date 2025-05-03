@@ -5,7 +5,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
 import { useNavigation } from '../hooks/useNavigation';
-import { useToast } from '../services/ToastService';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
@@ -18,7 +17,6 @@ const ResetPasswordPage = () => {
   const { resetPassword, loading, clearError } = useAuth();
   const { navigateTo } = useNavigation();
   const location = useLocation();
-  const toast = useToast();
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);

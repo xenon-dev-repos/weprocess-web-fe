@@ -4,14 +4,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { useNavigation } from '../hooks/useNavigation';
-import { useToast } from '../services/ToastService';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { requestPasswordReset, loading, error, clearError } = useAuth();
   const { navigateTo } = useNavigation();
-  const toast = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -5,7 +5,7 @@ import { CountryCode, ErrorMessage, FlagIcon, FormGroup, Input, Label, PasswordI
 import { useNavigation } from '../hooks/useNavigation';
 
 const IndividualSetupPage = () => {
-  const { registrationData, completeRegistration, loading, error } = useAuth();
+  const { registrationData, completeRegistration, loading } = useAuth();
   const { navigateTo } = useNavigation();
   
   const [formData, setFormData] = useState({
@@ -172,8 +172,6 @@ const IndividualSetupPage = () => {
             />
           </PhoneInputContainer>
         </FormGroup>
-        
-        {error && <ErrorMessage>{error}</ErrorMessage>}
         
         <SubmitButton type="submit" disabled={loading}>
           {loading ? 'Processing...' : 'Create account'}

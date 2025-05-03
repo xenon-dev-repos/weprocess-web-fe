@@ -5,7 +5,7 @@ import { ErrorMessage, FormGroup, Input, Label, PasswordInputContainer, Password
 import { useNavigation } from '../hooks/useNavigation';
 
 const FirmSetupPage = () => {
-  const { registrationData, completeRegistration, loading, error } = useAuth();
+  const { registrationData, completeRegistration, loading } = useAuth();
   const { navigateTo } = useNavigation();
   
   const [formData, setFormData] = useState({
@@ -197,8 +197,6 @@ const FirmSetupPage = () => {
             required
           />
         </FormGroup>
-        
-        {error && <ErrorMessage>{error}</ErrorMessage>}
         
         <SubmitButton type="submit" disabled={loading}>
           {loading ? 'Processing...' : 'Create Account'}
