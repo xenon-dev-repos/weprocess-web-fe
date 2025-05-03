@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { ForgotPasswordLink, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
-import { useNavigation } from '../hooks/useNavigation';
-import { useToast } from '../services/ToastService';
 
 const SigninPage = () => {
   const [formData, setFormData] = useState({
@@ -12,9 +10,7 @@ const SigninPage = () => {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const { login, loading, error, clearError } = useAuth();
-  const { navigateTo } = useNavigation();
-  const toast = useToast();
+  const { login, loading, clearError } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,7 +25,8 @@ const SigninPage = () => {
     clearError(); // Clear any previous errors
     const success = await login(formData.email, formData.password);
     if (success) {
-      navigateTo('/dashboard');
+      // Force a full page navigation to dashboard to avoid SPA routing issues
+      window.location.href = '/dashboard';
     }
   };
 

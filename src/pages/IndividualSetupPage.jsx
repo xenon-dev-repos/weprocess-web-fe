@@ -86,25 +86,8 @@ const IndividualSetupPage = () => {
     console.log('Registration success:', success);
     
     if (success) {
-      console.log('Navigating to dashboard after successful registration');
-      try {
-        // First try React Router navigation
-        navigateTo('/dashboard');
-        
-        // As a backup, also set a direct navigation after a short delay
-        setTimeout(() => {
-          if (window.location.pathname !== '/dashboard') {
-            console.log('Forcing navigation to dashboard');
-            window.location.href = '/dashboard';
-          }
-        }, 300);
-      } catch (error) {
-        console.error('Navigation error:', error);
-        // Fallback to direct navigation
-        window.location.href = '/dashboard';
-      }
-    } else {
-      console.log('Registration was not successful, not navigating');
+      // Force a full page navigation to dashboard to avoid SPA routing issues
+      window.location.href = '/dashboard';
     }
   };
 
