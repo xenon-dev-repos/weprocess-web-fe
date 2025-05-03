@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { ROUTES } from '../constants/routes';
 
@@ -8,7 +7,6 @@ export const useNavigation = () => {
   const { clearError } = useAuth();
 
   const navigateTo = (url, options) => {
-    toast.dismiss();
     clearError();
     navigate(url, options);
   };

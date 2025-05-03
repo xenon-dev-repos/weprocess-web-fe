@@ -14,7 +14,7 @@ const ResetPasswordPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [resetToken, setResetToken] = useState('');
-  const { resetPassword, loading, clearError } = useAuth();
+  const { resetPassword, loading } = useAuth();
   const { navigateTo } = useNavigation();
   const location = useLocation();
 
@@ -50,7 +50,6 @@ const ResetPasswordPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    clearError(); // Clear any previous errors
     
     if (!validatePassword()) {
       return;

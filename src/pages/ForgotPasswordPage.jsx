@@ -8,12 +8,11 @@ import { useNavigation } from '../hooks/useNavigation';
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { requestPasswordReset, loading, error, clearError } = useAuth();
+  const { requestPasswordReset, loading } = useAuth();
   const { navigateTo } = useNavigation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    clearError(); // Clear any previous errors
     const success = await requestPasswordReset(email);
     if (success) {
       setIsSubmitted(true);

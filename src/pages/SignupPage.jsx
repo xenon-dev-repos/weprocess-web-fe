@@ -12,13 +12,12 @@ const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [accountType, setAccountType] = useState('firm');
   const [validating, setValidating] = useState(false);
-  const { startRegistration, loading, clearError } = useAuth();
+  const { startRegistration, loading } = useAuth();
   const { navigateTo } = useNavigation();
   const api = useApi();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    clearError(); // Clear any previous errors
     
     try {
       setValidating(true);

@@ -10,7 +10,7 @@ const SigninPage = () => {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const { login, loading, clearError } = useAuth();
+  const { login, loading } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,7 +22,6 @@ const SigninPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    clearError(); // Clear any previous errors
     const success = await login(formData.email, formData.password);
     if (success) {
       // Force a full page navigation to dashboard to avoid SPA routing issues

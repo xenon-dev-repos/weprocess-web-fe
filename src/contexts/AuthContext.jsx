@@ -1,16 +1,8 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import { API_ENDPOINTS } from '../constants/api';
-import { 
-  ToastError, 
-  ToastSuccess, 
-  ToastInfo,
-  ToastLoading,
-  ToastPromise
-} from '../utils/toastUtils';
 
 const AuthContext = createContext();
 
-// Create a toast utility object that logs to console when real toast isn't available
 const createLogger = () => ({
   showSuccess: (msg) => console.log('Success:', msg),
   showError: (msg) => console.error('Error:', msg),
@@ -61,11 +53,9 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
   const startRegistration = async (email, accountType) => {
     try {
       setLoading(true);
-      clearError();
       setRegistrationData({ email, accountType });
       return true;
     } catch (err) {
-      setError(err.message || 'Registration failed');
       toast.showError(err.message || 'Registration failed');
       return false;
     } finally {
@@ -76,7 +66,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
   const completeRegistration = async (formData) => {
     try {
       setLoading(true);
-      clearError();
 
       const endpoint = formData.get('type') === 'firm' 
         ? API_ENDPOINTS.REGISTER_FIRM 
@@ -91,7 +80,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       
       if (!data.success) {
         let errorMessage = data.message || 'Registration failed';
-        ToastError(errorMessage);
 
         if (data.errors) {
           const errorKeys = Object.keys(data.errors);
@@ -123,7 +111,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       return true;
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.message || 'Registration failed');
       toast.showError(err.message || 'Registration failed');
       return false;
     } finally {
@@ -134,7 +121,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
-      clearError();
 
       const formData = new FormData();
       formData.append('email', email);
@@ -149,7 +135,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       
       if (!data.success) {
         let errorMessage = data.message || 'Login failed';
-        ToastError(errorMessage);
 
         if (data.errors) {
           const errorKeys = Object.keys(data.errors);
@@ -180,7 +165,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       return true;
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.message || 'Login failed');
       toast.showError(err.message || 'Login failed');
       return false;
     } finally {
@@ -200,7 +184,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
   const forgotPassword = async (email) => {
     try {
       setLoading(true);
-      clearError();
       setResetPasswordEmail(email);
 
       const formData = new FormData();
@@ -232,7 +215,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       return true;
     } catch (err) {
       console.error('Forgot password error:', err);
-      setError(err.message || 'Failed to send password reset email');
       toast.showError(err.message || 'Failed to send password reset email');
       return false;
     } finally {
@@ -246,8 +228,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
   const verifyOtp = async (email, otp) => {
     try {
       setLoading(true);
-      clearError();
-      
+
       const formData = new FormData();
       formData.append('email', email);
       formData.append('otp', otp);
@@ -280,7 +261,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       return true;
     } catch (err) {
       console.error('OTP verification error:', err);
-      setError(err.message || 'OTP verification failed');
       toast.showError(err.message || 'OTP verification failed');
       return false;
     } finally {
@@ -291,13 +271,10 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
   const changePassword = async (email, password) => {
     try {
       setLoading(true);
-      clearError();
-      
+
       const formData = new FormData();
       formData.append('email', email);
       formData.append('password', password);
-      
-      console.log('Changing password for:', email);
       
       const response = await fetch(API_ENDPOINTS.CHANGE_PASSWORD, {
         method: 'POST',
@@ -325,7 +302,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       return true;
     } catch (err) {
       console.error('Password change error:', err);
-      setError(err.message || 'Password change failed');
       toast.showError(err.message || 'Password change failed');
       return false;
     } finally {
@@ -336,8 +312,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
   const resetPassword = async (email, password) => {
     try {
       setLoading(true);
-      clearError();
-      
+
       const formData = new FormData();
       formData.append('email', email);
       formData.append('password', password);
@@ -370,7 +345,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       return true;
     } catch (err) {
       console.error('Password reset error:', err);
-      setError(err.message || 'Password reset failed');
       toast.showError(err.message || 'Password reset failed');
       return false;
     } finally {
