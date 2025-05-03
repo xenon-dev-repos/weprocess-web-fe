@@ -1,5 +1,12 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import { API_ENDPOINTS } from '../constants/api';
+import { 
+  ToastError, 
+  ToastSuccess, 
+  ToastInfo,
+  ToastLoading,
+  ToastPromise
+} from '../utils/toastUtils';
 
 const AuthContext = createContext();
 
@@ -23,12 +30,10 @@ export const AuthProvider = ({ children }) => {
       if (storedToken) {
         setToken(storedToken);
         try {
-          // Fetch user profile from localStorage or set a default value
           const userData = JSON.parse(localStorage.getItem('userData'));
           if (userData) {
             setUser(userData);
           } else {
-            // If we don't have the user data in localStorage, set a default authenticated user
             setUser({ 
               is_authenticated: true,
               email: localStorage.getItem('userEmail') || ''
@@ -49,11 +54,10 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       clearError();
-      // Store the initial registration data
       setRegistrationData({ email, accountType });
       return true;
     } catch (err) {
-      setError(err.message || 'Registration failed');
+      ToastError(err.message || 'Registration failed')
       return false;
     } finally {
       setLoading(false);
@@ -64,39 +68,25 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       clearError();
-      
-      // Log the form data being sent
-      console.log('Submitting registration with:');
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
-      
-      // Determine which endpoint to use based on account type
+
       const endpoint = formData.get('type') === 'firm' 
         ? API_ENDPOINTS.REGISTER_FIRM 
         : API_ENDPOINTS.REGISTER_INDIVIDUAL;
       
-      console.log('Using endpoint:', endpoint);
-      
-      // Make the API call to register the user
       const response = await fetch(endpoint, {
         method: 'POST',
         body: formData
       });
-      
-      console.log('Registration response status:', response.status);
+
       const data = await response.json();
-      console.log('Registration response data:', data);
       
       if (!data.success) {
-        // Handle specific error messages from API
         let errorMessage = data.message || 'Registration failed';
-        
-        // If there are validation errors, format them
+        ToastError(errorMessage);
+
         if (data.errors) {
           const errorKeys = Object.keys(data.errors);
           if (errorKeys.length > 0) {
-            // Get the first error message
             errorMessage = data.errors[errorKeys[0]][0];
           }
         }
@@ -104,7 +94,6 @@ export const AuthProvider = ({ children }) => {
         throw new Error(errorMessage);
       }
       
-      // Determine whether we have user or firm data in the response
       const userData = data.client || data.firm;
       
       if (!userData) {
@@ -118,14 +107,13 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('userEmail', userData.email || '');
       
       setUser(userData);
-
       setRegistrationData(null);
-      
-      console.log('Registration successful:', data);
+
+      ToastSuccess('Registration successful');
       return true;
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.message || 'Registration failed');
+      ToastError('Registration error:');
       return false;
     } finally {
       setLoading(false);
@@ -136,15 +124,11 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       clearError();
-      
-      // Create form data for login
+
       const formData = new FormData();
       formData.append('email', email);
       formData.append('password', password);
-      
-      console.log('Attempting login for:', email);
-      
-      // Make the API call to login
+
       const response = await fetch(API_ENDPOINTS.LOGIN, {
         method: 'POST',
         body: formData
@@ -154,6 +138,7 @@ export const AuthProvider = ({ children }) => {
       
       if (!data.success) {
         let errorMessage = data.message || 'Login failed';
+        ToastError(errorMessage);
 
         if (data.errors) {
           const errorKeys = Object.keys(data.errors);
@@ -171,21 +156,17 @@ export const AuthProvider = ({ children }) => {
         console.error('No user or firm data in login response');
         throw new Error('Invalid response from server');
       }
-      
-      console.log('Got user data from login:', userData);
-      
+
       localStorage.setItem('token', data.token);
       setToken(data.token);
       localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('userEmail', userData.email || '');
 
       setUser(userData);
-      
-      console.log('Login successful:', data);
+      ToastSuccess('Login successful.');
       return true;
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.message || 'Login failed');
       return false;
     } finally {
       setLoading(false);
@@ -218,6 +199,7 @@ export const AuthProvider = ({ children }) => {
       
       if (!data.success) {
         let errorMessage = data.message || 'Failed to send password reset email';
+        ToastError(errorMessage);
         
         if (data.errors) {
           const errorKeys = Object.keys(data.errors);
@@ -228,12 +210,11 @@ export const AuthProvider = ({ children }) => {
         
         throw new Error(errorMessage);
       }
-      
-      console.log('Password reset email sent');
+ 
+      ToastSuccess('Password reset email sent.')
       return true;
     } catch (err) {
       console.error('Forgot password error:', err);
-      setError(err.message || 'Failed to send password reset email');
       return false;
     } finally {
       setLoading(false);
@@ -261,6 +242,7 @@ export const AuthProvider = ({ children }) => {
       
       if (!data.success) {
         let errorMessage = data.message || 'Failed to verify OTP';
+        ToastError(errorMessage);
         
         if (data.errors) {
           const errorKeys = Object.keys(data.errors);
@@ -273,11 +255,10 @@ export const AuthProvider = ({ children }) => {
       }
       
       setOtpVerified(true);
-      console.log('OTP verified successfully');
+      ToastSuccess('OTP verified successfully.');
       return true;
     } catch (err) {
       console.error('OTP verification error:', err);
-      setError(err.message || 'Failed to verify OTP');
       return false;
     } finally {
       setLoading(false);
@@ -305,6 +286,7 @@ export const AuthProvider = ({ children }) => {
       
       if (!data.success) {
         let errorMessage = data.message || 'Failed to change password';
+        ToastError(errorMessage);
         
         if (data.errors) {
           const errorKeys = Object.keys(data.errors);
@@ -318,12 +300,11 @@ export const AuthProvider = ({ children }) => {
 
       setOtpVerified(false);
       setResetPasswordEmail('');
-      
-      console.log('Password changed successfully');
+
+      ToastSuccess('Password changed successfully.');
       return true;
     } catch (err) {
       console.error('Password change error:', err);
-      setError(err.message || 'Failed to change password');
       return false;
     } finally {
       setLoading(false);
@@ -331,8 +312,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const resetPassword = async (email, password) => {
-    // Reset password uses the same endpoint as changePassword
     return await changePassword(email, password);
+  };
+
+  const isAuthenticated = () => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('userData');
+    return !!token && !!userData;
   };
 
   const value = {
@@ -354,6 +340,7 @@ export const AuthProvider = ({ children }) => {
     changePassword,
     resetPassword,
     clearError,
+    isAuthenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

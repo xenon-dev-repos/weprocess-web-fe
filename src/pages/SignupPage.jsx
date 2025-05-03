@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
 import { useNavigation } from '../hooks/useNavigation';
+import { ROUTES } from '../constants/routes';
 
 const SignupPage = () => {
   const [email, setEmail] = useState('');
@@ -17,7 +18,7 @@ const SignupPage = () => {
     const success = await startRegistration(email, accountType);
     if (success) {
       if (accountType === 'firm') {
-        navigateTo('/firm-setup');
+        navigateTo(ROUTES.FIRM_SETUP);
       } else {
         navigateTo('/individual-setup');
       }

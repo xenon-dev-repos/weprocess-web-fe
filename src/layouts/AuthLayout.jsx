@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import AuthImage from '../assets/images/auth/auth-image.png';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+// import { useAuth } from '../contexts/AuthContext';
 
 export const AuthLayout = ({ 
     children,
@@ -11,7 +11,7 @@ export const AuthLayout = ({
     signInLink,
     signInLinkText
 }) => {
-  const { clearError } = useAuth();
+  // const { clearError } = useAuth();
   
   return (
     <AuthContainer>
@@ -24,7 +24,7 @@ export const AuthLayout = ({
         </Sidebar>
         <Content>
                <SignInLink>
-               {signInText} <Link onClick={clearError} to={signInLink}>{signInLinkText}</Link>
+               {signInText} <Link to={signInLink}>{signInLinkText}</Link>
                 </SignInLink>
                 <ContentContainer>
                     <Title>{title}</Title>
