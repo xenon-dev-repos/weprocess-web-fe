@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
 import { useNavigation } from '../hooks/useNavigation';
+import { API_ENDPOINTS } from '../constants/api';
+
 
 const SignupPage = () => {
   const [email, setEmail] = useState('');
@@ -14,13 +16,35 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await startRegistration(email, accountType);
-    if (success) {
-      if (accountType === 'firm') {
-        navigateTo('/firm-setup');
-      } else {
-        navigateTo('/individual-setup');
+
+    // Validate email via API using FormData
+    try {
+      const formData = new FormData();
+      formData.append('email', email);
+
+      const response = await fetch(API_ENDPOINTS.VALIDATE_FIRM_EMAIL, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const { message } = await response.json();
+        throw new Error(message || 'Email validation failed');
       }
+
+      // Proceed with registration if email is valid
+      else {
+        if (accountType === 'firm') {
+          // navigateTo('/firm-setup');
+          window.location.href = '/firm-setup';
+        } else {
+          // navigateTo('/individual-setup');
+          window.location.href = '/individual-setup';
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.message); // Display error to the user
     }
   };
 
@@ -152,4 +176,4 @@ const TermsText = styled.p`
   }
 `;
 
-export default SignupPage; 
+export default SignupPage;
