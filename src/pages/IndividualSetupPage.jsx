@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { CountryCode, ErrorMessage, FlagIcon, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, PhoneInput, PhoneInputContainer, SubmitButton } from '../components/shared/FormElements';
-import { useNavigation } from '../hooks/useNavigation';
+import { useNavigate } from 'react-router-dom';
+// import { useNavigation } from '../hooks/useNavigation';
 
 const IndividualSetupPage = () => {
   const { registrationData, completeRegistration, loading } = useAuth();
-  const { navigateTo } = useNavigation();
+  // const { navigateTo } = useNavigation();
+  const { navigate } = useNavigate();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -25,9 +27,10 @@ const IndividualSetupPage = () => {
       }));
     } else {
       // If no registration data, redirect back to the first step
-      navigateTo('/signup');
+      // navigateTo('/signup');
+      navigate('/signup')
     }
-  }, [registrationData, navigateTo]);
+  }, [registrationData, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
