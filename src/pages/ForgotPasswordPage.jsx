@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
-import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
+import { FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { useNavigation } from '../hooks/useNavigation';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { requestPasswordReset, loading, error } = useAuth();
+  const { requestPasswordReset, loading, error, clearError } = useAuth();
   const { navigateTo } = useNavigation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    clearError(); // Clear any previous errors
     const success = await requestPasswordReset(email);
     if (success) {
       setIsSubmitted(true);
@@ -45,8 +46,6 @@ const ForgotPasswordPage = () => {
               required
             />
           </FormGroup>
-          
-          {error && <ErrorMessage>{error}</ErrorMessage>}
           
           <SubmitButton type="submit" disabled={loading}>
             {loading ? 'Processing...' : 'Reset Password'}

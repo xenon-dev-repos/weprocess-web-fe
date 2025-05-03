@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
-import { ErrorMessage, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
+import { FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
 import { useNavigation } from '../hooks/useNavigation';
 
 const ResetPasswordPage = () => {
@@ -14,7 +14,7 @@ const ResetPasswordPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [resetToken, setResetToken] = useState('');
-  const { resetPassword, loading, error } = useAuth();
+  const { resetPassword, loading, clearError } = useAuth();
   const { navigateTo } = useNavigation();
   const location = useLocation();
 
@@ -50,6 +50,7 @@ const ResetPasswordPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    clearError(); // Clear any previous errors
     
     if (!validatePassword()) {
       return;
@@ -132,8 +133,6 @@ const ResetPasswordPage = () => {
               </PasswordInputContainer>
               {passwordError && <PasswordErrorMessage>{passwordError}</PasswordErrorMessage>}
             </FormGroup>
-            
-            {error && <ErrorMessage>{error}</ErrorMessage>}
             
             <SubmitButton type="submit" disabled={loading}>
               {loading ? 'Processing...' : 'Set New Password'}

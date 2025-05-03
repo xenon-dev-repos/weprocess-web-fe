@@ -3,25 +3,47 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
-import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
+import { ForgotPasswordLink, FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
 import { useNavigation } from '../hooks/useNavigation';
+import { useApi } from '../hooks/useApi';
 import { ROUTES } from '../constants/routes';
 
 const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [accountType, setAccountType] = useState('firm');
-  const { startRegistration, loading, error } = useAuth();
+  const [validating, setValidating] = useState(false);
+  const { startRegistration, loading, clearError } = useAuth();
   const { navigateTo } = useNavigation();
+  const api = useApi();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await startRegistration(email, accountType);
-    if (success) {
-      if (accountType === 'firm') {
-        navigateTo(ROUTES.FIRM_SETUP);
-      } else {
-        navigateTo('/individual-setup');
+    clearError(); // Clear any previous errors
+    
+    try {
+      setValidating(true);
+      
+      // Validate email with API - ApiService will handle error toast automatically
+      const response = await api.validateEmail(email, accountType);
+      
+      // If validation is successful, continue with registration
+      if (response.success) {
+        const success = await startRegistration(email, accountType);
+        if (success) {
+          if (accountType === 'firm') {
+            navigateTo(ROUTES.FIRM_SETUP);
+          } else {
+            navigateTo('/individual-setup');
+          }
+        }
       }
+      // Removed duplicate toast for validation failure - ApiService already shows it
+    } catch (error) {
+      // Skip error toast since ApiService already shows one
+      console.error('Email validation error:', error.message);
+      // Don't show another error toast here
+    } finally {
+      setValidating(false);
     }
   };
 
@@ -74,10 +96,8 @@ const SignupPage = () => {
           <Link to="/privacy">Privacy Policy</Link> of WeProcess.
         </TermsText>
         
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-        
-        <SubmitButton type="submit" disabled={loading}>
-          {loading ? 'Processing...' : 'Next'}
+        <SubmitButton type="submit" disabled={loading || validating}>
+          {loading || validating ? 'Processing...' : 'Next'}
         </SubmitButton>
         
         <ForgotPasswordLink>

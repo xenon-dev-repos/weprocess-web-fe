@@ -23,6 +23,7 @@ export const AuthLayout = ({
             </ImagesGrid>
         </Sidebar>
         <Content>
+               <LogoMobile src="/logo.svg" alt="WeProcess Logo" />
                <SignInLink>
                {signInText} <Link to={signInLink}>{signInLinkText}</Link>
                 </SignInLink>
@@ -89,6 +90,19 @@ const Logo = styled.img`
   align-self: flex-start;
 `;
 
+
+const LogoMobile = styled.img`
+  display: none;
+  height: 44px;
+  margin-bottom: 2rem;
+  z-index: 2;
+  align-self: center;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
 const ImagesGrid = styled.div`
   flex: 1;
   display: flex;
@@ -131,6 +145,11 @@ const SignInLink = styled.div`
   @media (max-width: 768px) {
     margin-bottom: 2rem;
   }
+
+    @media (max-width: 500px) {
+    margin-bottom: 2rem;
+    align-self: center;
+  }
 `;
 
 const ContentContainer = styled.div`
@@ -155,20 +174,22 @@ const Title = styled.h1`
   font-family: Manrope;
   font-weight: 700;
   font-size: 48px;
-  line-height: 90px;
   letter-spacing: 0%;
   color: var(--primary-color);
   margin-bottom: 1rem;
   white-space: nowrap;
   overflow: hidden;
 
+  @media (max-width: 1200px) {
+    font-size: 40px
+  }
+
   @media (max-width: 1000px) {
-    white-space: wrap;
+    font-size: 28px
   }
 
   @media (max-width: 768px) {
-    font-size: 2rem;
-    white-space: wrap;
+   font-size: 24px
   }
 `;
 

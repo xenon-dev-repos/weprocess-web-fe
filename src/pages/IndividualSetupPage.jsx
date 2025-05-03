@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { CountryCode, ErrorMessage, FlagIcon, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, PhoneInput, PhoneInputContainer, SubmitButton } from '../components/shared/FormElements';
-import { useNavigation } from '../hooks/useNavigation';
+import { useNavigate } from 'react-router-dom';
+// import { useNavigation } from '../hooks/useNavigation';
 
 const IndividualSetupPage = () => {
-  const { registrationData, completeRegistration, loading, error } = useAuth();
-  const { navigateTo } = useNavigation();
+  const { registrationData, completeRegistration, loading } = useAuth();
+  // const { navigateTo } = useNavigation();
+  const { navigate } = useNavigate();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -25,9 +27,10 @@ const IndividualSetupPage = () => {
       }));
     } else {
       // If no registration data, redirect back to the first step
-      navigateTo('/signup');
+      // navigateTo('/signup');
+      navigate('/signup')
     }
-  }, [registrationData, navigateTo]);
+  }, [registrationData, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -86,25 +89,8 @@ const IndividualSetupPage = () => {
     console.log('Registration success:', success);
     
     if (success) {
-      console.log('Navigating to dashboard after successful registration');
-      try {
-        // First try React Router navigation
-        navigateTo('/dashboard');
-        
-        // As a backup, also set a direct navigation after a short delay
-        setTimeout(() => {
-          if (window.location.pathname !== '/dashboard') {
-            console.log('Forcing navigation to dashboard');
-            window.location.href = '/dashboard';
-          }
-        }, 300);
-      } catch (error) {
-        console.error('Navigation error:', error);
-        // Fallback to direct navigation
-        window.location.href = '/dashboard';
-      }
-    } else {
-      console.log('Registration was not successful, not navigating');
+      // Force a full page navigation to dashboard to avoid SPA routing issues
+      window.location.href = '/dashboard';
     }
   };
 
@@ -189,8 +175,6 @@ const IndividualSetupPage = () => {
             />
           </PhoneInputContainer>
         </FormGroup>
-        
-        {error && <ErrorMessage>{error}</ErrorMessage>}
         
         <SubmitButton type="submit" disabled={loading}>
           {loading ? 'Processing...' : 'Create account'}

@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
-import { ErrorMessage, ForgotPasswordLink, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
-import { useNavigation } from '../hooks/useNavigation';
+import { ForgotPasswordLink, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
 
 const SigninPage = () => {
   const [formData, setFormData] = useState({
@@ -11,8 +10,7 @@ const SigninPage = () => {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const { login, loading, error } = useAuth();
-  const { navigateTo } = useNavigation();
+  const { login, loading, clearError } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,9 +22,11 @@ const SigninPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    clearError(); // Clear any previous errors
     const success = await login(formData.email, formData.password);
     if (success) {
-      navigateTo('/dashboard');
+      // Force a full page navigation to dashboard to avoid SPA routing issues
+      window.location.href = '/dashboard';
     }
   };
 
@@ -37,7 +37,7 @@ const SigninPage = () => {
   return (
     <AuthLayout
       title="Welcome to WeProcess"
-      subtitle="let’s get your law firm set up."
+      subtitle="let's get your law firm set up."
       signInText="Don't have an account?"
       signInLink="/signup"
       signInLinkText="Sign Up"
@@ -81,8 +81,6 @@ const SigninPage = () => {
             </PasswordToggle>
           </PasswordInputContainer>
         </FormGroup>
-        
-        {error && <ErrorMessage>{error}</ErrorMessage>}
         
         <SubmitButton type="submit" disabled={loading}>
           {loading ? 'Processing...' : 'Login'}
