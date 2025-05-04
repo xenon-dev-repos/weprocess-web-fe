@@ -112,7 +112,7 @@ export const MainLayout = ({
         
         {showDashboardPageHeader && (
           <DashboardHeader>
-            <Title>Good Morning, Andrew!</Title>
+            <Title>Good Morning, <David></David>!</Title>
             <NewButton>
               <span>+</span> New Instruction
             </NewButton>
