@@ -1,5 +1,6 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import { API_ENDPOINTS } from '../constants/api';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -11,6 +12,7 @@ const createLogger = () => ({
 });
 
 export const AuthProvider = ({ children, toast = createLogger() }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -49,6 +51,32 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
 
     checkAuth();
   }, []);
+
+  const formatPhoneNumber = (value, phoneNumber) => {
+    const isAdding = value.length > phoneNumber.length;
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    if (!isAdding) {
+      return value;
+    }
+    
+    // UK mobile format: 07700 900123
+    if (digitsOnly.startsWith('7')) {
+      if (digitsOnly.length <= 5) return digitsOnly;
+      if (digitsOnly.length <= 8) return `${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5)}`;
+      return `${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5, 8)} ${digitsOnly.slice(8, 11)}`;
+    }
+    // UK landline format: 020 7946 0958
+    else {
+      if (digitsOnly.length <= 3) return digitsOnly;
+      if (digitsOnly.length <= 6) return `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3)}`;
+      return `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 6)} ${digitsOnly.slice(6, 10)}`;
+    }
+  };
+
+  // const togglePasswordVisibility = () => {
+  //   setShowPassword(!showPassword);
+  // };
 
   const startRegistration = async (email, accountType) => {
     try {
@@ -105,6 +133,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       
       setUser(userData);
       setRegistrationData(null);
+      navigate('/dashboard'); 
       
       console.log('Registration successful:', data);
       toast.showSuccess(data.message || 'Registration successful!');
@@ -376,6 +405,8 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
     resetPassword,
     clearError,
     isAuthenticated,
+    navigate,
+    formatPhoneNumber,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

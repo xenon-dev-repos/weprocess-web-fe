@@ -36,7 +36,7 @@ const SigninPage = () => {
   return (
     <AuthLayout
       title="Welcome to WeProcess"
-      subtitle="let's get your law firm set up."
+      subtitle="Sign in"
       signInText="Don't have an account?"
       signInLink="/signup"
       signInLinkText="Sign Up"
@@ -92,84 +92,5 @@ const SigninPage = () => {
     </AuthLayout>
   );
 };
-
-// const FormGroup = styled.div`
-//   margin-bottom: 1.5rem;
-// `;
-
-// const Label = styled.label`
-//   display: block;
-//   margin-bottom: 0.5rem;
-//   font-size: 1rem;
-// `;
-
-// const Input = styled.input`
-//   width: 100%;
-//   padding: 0.75rem;
-//   border: 1px solid #ccc;
-//   border-radius: 0.5rem;
-//   font-size: 1rem;
-  
-//   &:focus {
-//     outline: none;
-//     border-color: var(--primary-color);
-//   }
-// `;
-
-// const PasswordInputContainer = styled.div`
-//   position: relative;
-// `;
-
-// const PasswordToggle = styled.button`
-//   position: absolute;
-//   right: 12px;
-//   top: 50%;
-//   transform: translateY(-50%);
-//   background: none;
-//   border: none;
-//   cursor: pointer;
-//   font-size: 1.2rem;
-// `;
-
-// const ErrorMessage = styled.div`
-//   color: red;
-//   margin-bottom: 1rem;
-// `;
-
-// const LoginButton = styled.button`
-//   width: 100%;
-//   background-color: var(--primary-color);
-//   color: white;
-//   padding: 1rem;
-//   border-radius: 20px;
-//   font-size: 1rem;
-//   font-weight: 600;
-//   transition: background-color 0.2s;
-//   margin-top: 1rem;
-  
-//   &:hover {
-//     background-color: #122619;
-//   }
-  
-//   &:disabled {
-//     background-color: #999;
-//     cursor: not-allowed;
-//   }
-// `;
-
-// const ForgotPasswordLink = styled.div`
-//   text-align: center;
-//   margin-top: 1rem;
-//   font-size: 0.9rem;
-  
-//   a {
-//     color: var(--primary-color);
-//     text-decoration: none;
-    
-//     &:hover {
-//       text-decoration: underline;
-//     }
-//   }
-// `;
 
 export default SigninPage; 

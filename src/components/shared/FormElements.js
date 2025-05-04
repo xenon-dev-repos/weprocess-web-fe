@@ -1,25 +1,26 @@
 import styled from 'styled-components';
 
 export const FormGroup = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  margin-bottom: 24px;
 `;
 
 export const Label = styled.label`
   display: block;
-  margin-bottom: ${({ theme }) => theme.spacing.sm};
-  font-size: ${({ theme }) => theme.typography.body};
+  margin-bottom: 8px;
+  font-size: 1rem;
+  color: var(--color-primary-500);
 `;
 
 export const Input = styled.input`
   width: 100%;
-  padding: ${({ theme }) => theme.spacing.md};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  font-size: ${({ theme }) => theme.typography.body};
+  padding: 16px;
+  border: 2px solid var(--color-border-secondary);
+  border-radius: 12px;
+  font-size: 1rem;
   
   &:focus {
     outline: none;
-    border-color: ${({ theme }) => theme.colors.primary};
+    border-color: var(--color-border-primary);
   }
 `;
 
@@ -29,7 +30,7 @@ export const PasswordInputContainer = styled.div`
 
 export const PasswordToggle = styled.button`
   position: absolute;
-  right: ${({ theme }) => theme.spacing.md};
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -39,24 +40,24 @@ export const PasswordToggle = styled.button`
 `;
 
 export const ErrorMessage = styled.div`
-  color: ${({ theme }) => theme.colors.error};
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  color: var(--color-error-500);
+  margin-bottom: 16px;
 `;
 
 export const SubmitButton = styled.button`
   width: 100%;
-  background-color: ${({ theme }) => theme.colors.primary};
-  color: ${({ theme }) => theme.colors.white};
-  padding: ${({ theme }) => theme.spacing.md};
-  border-radius: ${({ theme }) => theme.borderRadius.xl};
-  font-size: ${({ theme }) => theme.typography.body};
+  background-color: var(--color-primary-500);
+  color: var(--color-text-secondary);
+  padding: 16px;
+  border-radius: 20px;
+  font-size: 1rem;
   font-weight: 600;
   transition: background-color 0.2s;
-  margin-top: ${({ theme }) => theme.spacing.md};
+  margin-top: 16px;
   border: none;
   
   &:hover {
-    background-color: #122619;
+    background-color: var(--color-primary-400);
   }
   
   &:disabled {
@@ -71,7 +72,7 @@ export const ForgotPasswordLink = styled.div`
   font-size: 0.9rem;
   
   a {
-    color: var(--primary-color);
+    color: var(--color-primary-500);
     text-decoration: none;
     
     &:hover {
@@ -96,8 +97,9 @@ export const CountryCode = styled.div`
   font-size: 1rem;
 `;
 
-export const FlagIcon = styled.span`
-  margin-right: 0.5rem;
+export const FlagIcon = styled.img`
+  width: 27px;
+  height: 20px;
 `;
 
 export const PhoneInput = styled.input`
@@ -109,6 +111,6 @@ export const PhoneInput = styled.input`
   
   &:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: var(--color-primary-500);
   }
 `;

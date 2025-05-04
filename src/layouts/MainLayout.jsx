@@ -1,14 +1,50 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import WeProcessLogoIcon from '../assets/images/dashboard/weprocess-logo-icon.svg';
 import SearchIcon from '../assets/images/dashboard/search-icon.svg';
 import NotificationIcon from '../assets/images/dashboard/notification-icon.svg';
 import MessageIcon from '../assets/images/dashboard/message-icon.svg';
+import { useNavigation } from '../hooks/useNavigation';
+import { PageHeader } from '../components/shared/PageHeader';
 
-export const MainLayout = ({ children, showDashboardHeader = false }) => {
+export const MainLayout = ({ 
+  children,
+  title,
+  showDashboardPageHeader = false,
+  showInstructionsPageHeader = false,
+  showInvoicePageHeader = false,
+  filterButtons,
+  handleStatusFilterChange,
+}) => {
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeLink, setActiveLink] = useState(''); 
   const navRef = useRef(null);
   const toggleRef = useRef(null);
+
+  const {
+    navigateToDashboard,
+    navigateToInstructions,
+    navigateToInvoices
+  } = useNavigation();
+
+  const handleNavigation = (path, linkName) => {
+    setActiveLink(linkName);
+    path();
+    setMobileMenuOpen(false);
+  };
+
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes('/dashboard')) {
+      setActiveLink('Dashboard');
+    } else if (path.includes('/instructions')) {
+      setActiveLink('Instructions');
+    } else if (path.includes('/invoices')) {
+      setActiveLink('Invoices');
+    }
+  }, [location]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -35,16 +71,30 @@ export const MainLayout = ({ children, showDashboardHeader = false }) => {
             </MobileMenuToggle>
             <Logo>
               <LogoCircle>
-                {/* <LogoText>WP</LogoText> */}
                 <LogoIcon src={WeProcessLogoIcon} alt="Logo" />
               </LogoCircle>
               <LogoName>WeProcess</LogoName>
             </Logo>
           </LogoContainer>
-          <Navigation ref={navRef} mobileMenuOpen={mobileMenuOpen}>
-            <NavLink href="#" active={true}>Dashboard</NavLink>
-            <NavLink href="#">Instructions</NavLink>
-            <NavLink href="#">Reports</NavLink>
+          <Navigation ref={navRef} $mobileMenuOpen={mobileMenuOpen}>
+            <NavLink 
+              $active={activeLink === 'Dashboard'} 
+              onClick={() => handleNavigation(navigateToDashboard, 'Dashboard')}
+            >
+              Dashboard
+            </NavLink>
+            <NavLink 
+              $active={activeLink === 'Instructions'} 
+              onClick={() => handleNavigation(navigateToInstructions, 'Instructions')}
+            >
+              Instructions
+            </NavLink>
+            <NavLink 
+              $active={activeLink === 'Invoices'} 
+              onClick={() => handleNavigation(navigateToInvoices, 'Invoices')}
+            >
+              Invoices
+            </NavLink>
           </Navigation>
           <UserActions>
           <IconButton>
@@ -56,11 +106,11 @@ export const MainLayout = ({ children, showDashboardHeader = false }) => {
             <IconButton>
               <IconImg src={MessageIcon} alt="Messages" />
             </IconButton>
-            <UserAvatar src="https://via.placeholder.com/40" alt="User" />
+            <UserAvatar src="https://i.sstatic.net/l60Hf.png" alt="User" />
           </UserActions>
         </MainHeader>
         
-        {showDashboardHeader && (
+        {showDashboardPageHeader && (
           <DashboardHeader>
             <Title>Good Morning, Andrew!</Title>
             <NewButton>
@@ -68,6 +118,29 @@ export const MainLayout = ({ children, showDashboardHeader = false }) => {
             </NewButton>
           </DashboardHeader>
         )}
+
+        {showInvoicePageHeader &&
+          <DashboardHeader style={{flexDirection: 'column', alignItems: 'flex-start'}}>
+            <PageHeader
+              title={title} 
+              filterButtons={filterButtons} 
+              onFilterChange={handleStatusFilterChange} 
+            />
+          </DashboardHeader>
+        }
+
+        {showInstructionsPageHeader &&
+          <DashboardHeader>
+            <PageHeader
+              title={title}
+              filterButtons={filterButtons} 
+              onFilterChange={handleStatusFilterChange} 
+            />
+            <NewButton>
+              <span>+</span> New Instruction
+            </NewButton>
+          </DashboardHeader>
+        }
       </AppHeader>
       
       <PageContent>
@@ -85,16 +158,22 @@ const AppContainer = styled.div`
 `;
 
 const AppHeader = styled.header`
-  background-color: var(--primary-color);
+  background-color: var(--color-primary-500);
   color: white;
   max-width: 1728px;
   width: calc(100% - 48px);
   margin: 24px auto 0;
   border-radius: 20px;
   overflow: hidden;
+  min-height: 314px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
   
   @media (max-width: 1000px) {
     width: calc(100% - 32px);
+    padding: 30px;
   }
 `;
 
@@ -102,14 +181,25 @@ const MainHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 60px 40px 40px 40px;
-  height: 80px;
   
   @media (max-width: 1000px) {
-    padding: 40px 30px 30px 30px;
     flex-wrap: wrap;
     height: auto;
     gap: 16px;
+  }
+`;
+
+const DashboardHeader = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-primary-500);
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
   }
 `;
 
@@ -138,13 +228,6 @@ const LogoIcon = styled.img`
   width: 60px;
   height: 60px;
   object-fit: contain;
-`;
-
-
-const LogoText = styled.span`
-  color: var(--primary-color);
-  font-weight: bold;
-  font-size: 30px;
 `;
 
 const LogoName = styled.span`
@@ -194,7 +277,7 @@ const Navigation = styled.nav`
     padding: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     z-index: 100;
-    display: ${props => props.mobileMenuOpen ? 'flex' : 'none'};
+    display: ${props => props.$mobileMenuOpen ? 'flex' : 'none'};
     gap: 8px;
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
@@ -217,8 +300,9 @@ const NavLink = styled.a`
   transition: all 0.2s;
   text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
   
-  ${props => props.active ? `
+  ${props => props.$active ? `
     font-weight: 700;
     color: #FFFFFF;
     background-color: rgba(255, 255, 255, 0.2);
@@ -298,22 +382,6 @@ const PageContent = styled.main`
   }
 `;
 
-const DashboardHeader = styled.div`
-width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 60px 40px 40px 40px;
-  background-color: var(--primary-color);
-  
-  @media (max-width: 1000px) {
-    padding: 40px 30px 30px 30px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 24px;
-  }
-`;
-
 const Title = styled.h1`
   font-size: 28px;
   font-weight: 600;
@@ -325,8 +393,8 @@ const Title = styled.h1`
 `;
 
 const NewButton = styled.button`
-  background-color: #eab308;
-  color: var(--primary-color);
+  background-color: #AE8119;
+  color: #FFFFFF;
   padding: 12px 24px;
   border-radius: 8px;
   display: flex;
@@ -337,9 +405,10 @@ const NewButton = styled.button`
   border: none;
   cursor: pointer;
   transition: all 0.2s;
+  align-self: flex-end;
   
   &:hover {
-    background-color: #facc15;
+    background-color:rgb(230, 184, 0);
     transform: translateY(-1px);
   }
   
@@ -349,6 +418,5 @@ const NewButton = styled.button`
   
   @media (max-width: 1000px) {
     justify-content: center;
-    align-self: flex-end;
   }
 `;

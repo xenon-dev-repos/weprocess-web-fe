@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Chart } from 'chart.js/auto';
 import { MainLayout } from '../layouts/MainLayout';
@@ -9,6 +9,34 @@ import { instructionsTableData, statusData, monthlyInstructionsData } from '../c
 const DashboardPage = () => {
   const barChartRef = useRef(null);
   const pieChartRef = useRef(null);
+  const [filteredData, setFilteredData] = useState(instructionsTableData);
+  
+  // Removed unused activeTab state since we're using the tabId directly from onTabChange
+  // If you need activeTab for other purposes, keep it but use it somewhere in your component
+
+  const handleTabChange = (tabId) => {
+    // Filter data based on selected tab
+    let filtered = [];
+    switch(tabId) {
+      case 'new-requests':
+        filtered = instructionsTableData.filter(item => item.status === '1st attempt');
+        break;
+      case 'in-progress':
+        filtered = instructionsTableData.filter(item => 
+          ['1st attempt', '2nd attempt', '3rd attempt', 'In Transit'].includes(item.status)
+        );
+        break;
+      case 'completed':
+        filtered = instructionsTableData.filter(item => item.status === 'Completed');
+        break;
+      case 'invoices':
+        filtered = instructionsTableData.filter(item => item.type === 'Urgent');
+        break;
+      default:
+        filtered = instructionsTableData;
+    }
+    setFilteredData(filtered);
+  };
   
   useEffect(() => {
     let pieChartInstance = null;
@@ -99,7 +127,7 @@ const DashboardPage = () => {
   }, []);
 
   return (
-    <MainLayout showDashboardHeader={true}>
+    <MainLayout showDashboardPageHeader={true}>
       <DashboardContainer>
         <MainContent>
           <LeftColumn>
@@ -133,10 +161,39 @@ const DashboardPage = () => {
             </StatsGrid>
             
             <TableContainer>
-              <InstructionsTable 
+              {/* <InstructionsTable 
                 data={instructionsTableData} 
                 title="Instructions In Progress"
                 subtitle="Monthly instructions requested by firm"
+              /> */}
+              <InstructionsTable 
+                data={filteredData}
+                title="Instructions In Progress"
+                subtitle="Monthly instructions requested by firm"
+                tabs={[
+                  { id: 'new-requests', label: 'New requests' },
+                  { id: 'in-progress', label: 'In progress' },
+                  { id: 'completed', label: 'Completed' },
+                  { id: 'invoices', label: 'Invoices' }
+                ]}
+                columns={[
+                  { key: 'wpr', header: 'WPR no.' },
+                  { key: 'owner', header: 'Owner' },
+                  { key: 'serve', header: 'Serve name' },
+                  { key: 'court', header: 'Court name' },
+                  { key: 'type', header: 'Service type' },
+                  { key: 'deadline', header: 'Deadline' },
+                  { key: 'status', header: 'Process status' },
+                ]}
+                onTabChange={handleTabChange}
+                renderCell={(key, value) => {
+                  if (key === 'status') {
+                    return <StatusBadge status={value}>{value}</StatusBadge>;
+                  }
+                  return value;
+                }}
+                minHeight={356}
+                noDataCellHeight={309}
               />
             </TableContainer>
           </LeftColumn>
@@ -284,5 +341,28 @@ const SubTitle = styled.p`
   color: #6b7280;
   margin: 0 0 16px 0;
 `;
+
+const StatusBadge = styled.span`
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  
+  ${props => {
+    switch (props.status) {
+      case '1st attempt':
+        return 'background-color: #dcfce7; color: #166534;';
+      case '2nd attempt':
+        return 'background-color: #fef3c7; color: #92400e;';
+      case '3rd attempt':
+        return 'background-color: #fee2e2; color: #b91c1c;';
+      case 'In Transit':
+        return 'background-color: #dbeafe; color: #1e40af;';
+      default:
+        return 'background-color: #e5e7eb; color: #374151;';
+    }
+  }}
+`;
+
 
 export default DashboardPage;

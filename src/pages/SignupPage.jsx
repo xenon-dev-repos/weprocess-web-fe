@@ -22,10 +22,8 @@ const SignupPage = () => {
     try {
       setValidating(true);
       
-      // Validate email with API - ApiService will handle error toast automatically
       const response = await api.validateEmail(email, accountType);
       
-      // If validation is successful, continue with registration
       if (response.success) {
         const success = await startRegistration(email, accountType);
         if (success) {
@@ -36,11 +34,8 @@ const SignupPage = () => {
           }
         }
       }
-      // Removed duplicate toast for validation failure - ApiService already shows it
     } catch (error) {
-      // Skip error toast since ApiService already shows one
       console.error('Email validation error:', error.message);
-      // Don't show another error toast here
     } finally {
       setValidating(false);
     }
@@ -91,17 +86,13 @@ const SignupPage = () => {
         
         <TermsText>
           By continuing, you acknowledge that you agree to the{' '}
-          <Link to="/terms">Terms of Service</Link> and{' '}
-          <Link to="/privacy">Privacy Policy</Link> of WeProcess.
+          <Link to="https://weprocess.co.uk/privacy-policy/">Terms of Service</Link> and{' '}
+          <Link to="https://weprocess.co.uk/privacy-policy/">Privacy Policy</Link> of WeProcess.
         </TermsText>
         
         <SubmitButton type="submit" disabled={loading || validating}>
           {loading || validating ? 'Processing...' : 'Next'}
         </SubmitButton>
-        
-        <ForgotPasswordLink>
-          <Link to="/forgot-password">Forgot your password?</Link>
-        </ForgotPasswordLink>
       </form>
     </AuthLayout>
   );
@@ -121,17 +112,18 @@ const AccountTypeOption = styled.div`
   display: flex;
   align-items: center;
   padding: 1rem;
-  border: 1px solid ${props => props.selected ? 'var(--primary-color)' : '#ccc'};
+  border: 2px solid ${props => props.selected ? 'var(--color-primary-500)' : '#ccc'};
   border-radius: 12px;
   cursor: pointer;
-  background-color: ${props => props.selected ? 'rgba(27, 55, 40, 0.05)' : 'white'};
+  // background-color: ${props => props.selected ? 'var(--color-primary-100)' : 'white'};
+  background-color: white;
 `;
 
 const Radio = styled.div`
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid ${props => props.checked ? 'var(--primary-color)' : '#ccc'};
+  border: 2px solid ${props => props.checked ? 'var(--color-primary-500)' : '#ccc'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,7 +134,7 @@ const Radio = styled.div`
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background-color: var(--primary-color);
+    background-color: var(--color-primary-500);
     display: ${props => props.checked ? 'block' : 'none'};
   }
 `;
@@ -162,7 +154,7 @@ const TermsText = styled.p`
   color: #666;
   
   a {
-    color: var(--primary-color);
+    color: var(--color-primary-500);
     text-decoration: underline;
   }
 

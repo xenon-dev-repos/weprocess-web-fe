@@ -135,7 +135,7 @@ const SignInLink = styled.div`
   margin-bottom: 3rem;
   
   a {
-    color: var(--primary-color);
+    color: var(--color-primary-500);
     font-weight: 600;
   }
 
@@ -172,7 +172,7 @@ const Title = styled.h1`
   font-weight: 700;
   font-size: 48px;
   letter-spacing: 0%;
-  color: var(--primary-color);
+  color: var(--color-primary-500);
   margin-bottom: 1rem;
   white-space: nowrap;
   overflow: hidden;

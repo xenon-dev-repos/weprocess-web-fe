@@ -164,7 +164,7 @@ const ResetPasswordPage = () => {
     text-align: center;
     margin-top: 1rem;
     cursor: pointer;
-    color: var(--primary-color);
+    color: var(--color-primary-500);
     
     &:hover {
       text-decoration: underline;
@@ -177,7 +177,7 @@ const ResetPasswordPage = () => {
     h2 {
       font-size: 1.8rem;
       margin-bottom: 1rem;
-      color: var(--primary-color);
+      color: var(--color-primary-500);
     }
     
     p {
@@ -195,7 +195,7 @@ const ResetPasswordPage = () => {
   const SuccessIcon = styled.div`
     width: 80px;
     height: 80px;
-    background-color: var(--primary-color);
+    background-color: var(--color-primary-500);
     color: white;
     font-size: 2.5rem;
     border-radius: 50%;
@@ -213,7 +213,7 @@ const ResetPasswordPage = () => {
   `;
 
   const BackToLoginButton = styled.button`
-    background-color: var(--primary-color);
+    background-color: var(--color-primary-500);
     color: white;
     padding: 1rem 2rem;
     border: none;

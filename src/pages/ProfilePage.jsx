@@ -147,7 +147,7 @@ const ProfileHeader = styled.div`
   h1 {
     font-size: 1.8rem;
     margin-bottom: 0.5rem;
-    color: var(--text-color);
+    color: white;
   }
   
   p {
@@ -175,7 +175,7 @@ const CancelButton = styled.button`
   font-weight: 600;
   background-color: transparent;
   border: 1px solid #ccc;
-  color: var(--text-color);
+   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
   

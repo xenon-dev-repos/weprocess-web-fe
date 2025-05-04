@@ -7,6 +7,8 @@ const SigninPage = lazy(() => import('../pages/SigninPage'));
 const FirmSetupPage = lazy(() => import('../pages/FirmSetupPage'));
 const IndividualSetupPage = lazy(() => import('../pages/IndividualSetupPage'));
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
+const InstructionsPage = lazy(() => import('../pages/InstructionsPage'))
+const InvoicesPage = lazy(() => import('../pages/InvoicesPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
 
@@ -34,6 +36,16 @@ export const ROUTE_CONFIG = [
   {
     path: ROUTES.DASHBOARD,
     element: <DashboardPage />,
+    isPublic: false
+  },
+  {
+    path: ROUTES.INSTRUCTIONS,
+    element: <InstructionsPage />,
+    isPublic: false
+  },
+  {
+    path: ROUTES.INVOICES,
+    element: <InvoicesPage />,
     isPublic: false
   },
   {
