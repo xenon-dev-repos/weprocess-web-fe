@@ -173,7 +173,7 @@ const Title = styled.h1`
   font-size: 48px;
   letter-spacing: 0%;
   color: var(--color-primary-500);
-  margin-bottom: 1rem;
+  padding-bottom: 1rem;
   white-space: nowrap;
   overflow: hidden;
 

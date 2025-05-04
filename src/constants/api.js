@@ -12,7 +12,7 @@ export const API_ENDPOINTS = {
   VALIDATE_FIRM_EMAIL: `${API_BASE_URL}/clients/validate/email`,
   
   // Password management    
-  FORGOT_PASSWORD: `${API_BASE_URL}/forgot/password`,
+  FORGOT_PASSWORD: `${API_BASE_URL}/clients/forgot/password`,
   VERIFY_OTP: `${API_BASE_URL}/clients/validate/otp`,
   CHANGE_PASSWORD: `${API_BASE_URL}/clients/change/password`,
 };

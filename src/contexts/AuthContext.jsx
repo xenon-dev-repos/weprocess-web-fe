@@ -389,6 +389,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
   const value = {
     user,
     loading,
+    setLoading,
     error,
     token,
     registrationData,
