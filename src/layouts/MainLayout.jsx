@@ -7,6 +7,7 @@ import NotificationIcon from '../assets/images/dashboard/notification-icon.svg';
 import MessageIcon from '../assets/images/dashboard/message-icon.svg';
 import { useNavigation } from '../hooks/useNavigation';
 import { PageHeader } from '../components/shared/PageHeader';
+import { ProfileDropdown } from '../components/shared/ProfileDropdown';
 
 export const MainLayout = ({ 
   children,
@@ -20,8 +21,10 @@ export const MainLayout = ({
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState(''); 
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const navRef = useRef(null);
   const toggleRef = useRef(null);
+  const avatarRef = useRef(null);
 
   const {
     navigateToDashboard,
@@ -33,6 +36,11 @@ export const MainLayout = ({
     setActiveLink(linkName);
     path();
     setMobileMenuOpen(false);
+  };
+  
+  const toggleProfileDropdown = (e) => {
+    e.stopPropagation();
+    setShowProfileDropdown(prev => !prev);
   };
 
   useEffect(() => {
@@ -49,12 +57,12 @@ export const MainLayout = ({
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (mobileMenuOpen && 
-          !navRef.current.contains(event.target) && 
-          !toggleRef.current.contains(event.target)) {
+          !navRef.current?.contains(event.target) && 
+          !toggleRef.current?.contains(event.target)) {
         setMobileMenuOpen(false);
       }
     };
-
+  
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -106,7 +114,10 @@ export const MainLayout = ({
             <IconButton>
               <IconImg src={MessageIcon} alt="Messages" />
             </IconButton>
-            <UserAvatar src="https://i.sstatic.net/l60Hf.png" alt="User" />
+            <UserAvatar src="https://i.sstatic.net/l60Hf.png" alt="User"  ref={avatarRef}  onClick={(e) => toggleProfileDropdown(e)} />
+            {showProfileDropdown && (
+              <ProfileDropdown avatarRef={avatarRef} onClose={() => setShowProfileDropdown(false)} />
+            )}
           </UserActions>
         </MainHeader>
         
@@ -290,6 +301,7 @@ const NavLink = styled.a`
   line-height: 20px;
   letter-spacing: 0%;
   min-width: 120px;
+  max-width: 120px;
   width: auto;
   height: 52px;
   border-radius: 20px;
@@ -367,6 +379,12 @@ const UserAvatar = styled.img`
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid white;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
 `;
 
 const PageContent = styled.main`

@@ -32,12 +32,18 @@ const GlobalStyles = createGlobalStyle`
     // Neutral Colors
     --color-neutral-900: #000000;      // Black 
     --color-neutral-800: #333333;      // Dark gray 
-    --color-neutral-700: #656565;      // Medium gray
+    --color-neutral-700: #616161;      // Medium gray
     --color-neutral-500: #CCCCCC;      // Border color
     --color-neutral-300: #EEEEEE;      // Light gray
     --color-neutral-200: #FEFFFE;      // Light gray
     --color-neutral-100: #F7F7F7;      // Background color
     --color-neutral-000: #FFFFFF;      // White
+
+    // Background colors
+    --color-background-primary: var(--color-primary-500)
+    --color-background-dark: var(--color-neutral-800) // Dark 
+    --color-background-light: var(--color-neutral-700) // Light
+    --color-background-white: var(--color-neutral-000) // white
 
     // Accent Colors
     --color-accent-pink: #FFE6E6;      // light-pink
@@ -47,6 +53,7 @@ const GlobalStyles = createGlobalStyle`
     --color-text-primary: var(--color-primary-500);
     --color-text-secondary: var(--color-neutral-200);
     --color-text-dark: var(--color-neutral-800);
+    --color-text-lite: var(--color-neutral-700);
     --color-text-black: var(--color-neutral-900);        // Black
     --color-text-white: var(--color-neutral-000);        // White
 
