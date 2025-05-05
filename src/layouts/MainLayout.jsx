@@ -130,6 +130,19 @@ export const MainLayout = ({
           </DashboardHeader>
         )}
 
+        {showInstructionsPageHeader &&
+          <DashboardHeaderInstructions>
+            <PageHeader
+              title={title}
+              filterButtons={filterButtons} 
+              onFilterChange={handleStatusFilterChange} 
+            />
+            <NewButton>
+              <span>+</span> New Instruction
+            </NewButton>
+          </DashboardHeaderInstructions>
+        }
+
         {showInvoicePageHeader &&
           <DashboardHeader style={{flexDirection: 'column', alignItems: 'flex-start'}}>
             <PageHeader
@@ -140,18 +153,6 @@ export const MainLayout = ({
           </DashboardHeader>
         }
 
-        {showInstructionsPageHeader &&
-          <DashboardHeader>
-            <PageHeader
-              title={title}
-              filterButtons={filterButtons} 
-              onFilterChange={handleStatusFilterChange} 
-            />
-            <NewButton>
-              <span>+</span> New Instruction
-            </NewButton>
-          </DashboardHeader>
-        }
       </AppHeader>
       
       <PageContent>
@@ -182,7 +183,7 @@ const AppHeader = styled.header`
   justify-content: space-between;
   padding: 40px;
   
-  @media (max-width: 1000px) {
+  @media (max-width: 1024px) {
     width: calc(100% - 32px);
     padding: 30px;
   }
@@ -193,7 +194,7 @@ const MainHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   
-  @media (max-width: 1000px) {
+  @media (max-width: 1024px) {
     flex-wrap: wrap;
     height: auto;
     gap: 16px;
@@ -208,6 +209,20 @@ const DashboardHeader = styled.div`
   background-color: var(--color-primary-500);
   
   @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+`;
+
+const DashboardHeaderInstructions = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-primary-500);
+  
+  @media (max-width: 1024px) {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
@@ -233,16 +248,56 @@ const LogoCircle = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 1280px) {
+    width: 55px;
+    height: 55px;
+  }
+
+  @media (max-width: 1024px) {
+    width: 50px;
+    height: 50px;
+  }
+
+  @media (max-width: 768px) {
+    width: 45px;
+    height: 45px;
+  }
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+  }
 `;
 
 const LogoIcon = styled.img`
   width: 60px;
   height: 60px;
   object-fit: contain;
+
+  @media (max-width: 1280px) {
+    width: 55px;
+    height: 55px;
+  }
+
+  @media (max-width: 1024px) {
+    width: 50px;
+    height: 50px;
+  }
+
+  @media (max-width: 768px) {
+    width: 45px;
+    height: 45px;
+  }
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+  }
 `;
 
 const LogoName = styled.span`
-  @media (max-width: 1000px) {
+  @media (max-width: 1024px) {
     display: none;
   }
 `;
@@ -252,8 +307,16 @@ const LogoContainer = styled.div`
   align-items: center;
   gap: 12px;
 
-  @media (max-width: 1000px) {
+  @media (max-width: 1280px) {
+    gap: 10px;
+  }
+
+  @media (max-width: 1024px) {
     gap: 8px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 6px;
   }
 `;
 
@@ -265,9 +328,24 @@ const MobileMenuToggle = styled.button`
   font-size: 24px;
   cursor: pointer;
   padding: 8px;
+  transition: transform 0.2s ease;
   
-  @media (max-width: 1000px) {
+  &:hover {
+    transform: scale(1.1);
+  }
+  
+  @media (max-width: 1024px) {
     display: block;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 22px;
+    padding: 6px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+    padding: 5px;
   }
 `;
 
@@ -275,25 +353,40 @@ const Navigation = styled.nav`
   display: flex;
   gap: 8px;
   
-  @media (max-width: 1000px) {
+  @media (max-width: 1024px) {
     position: fixed;
-    top: 120px;
-    left: 55px; 
+    top: 100px;
+    left: 40px;
     flex-direction: column;
     width: auto;
-    min-width: 200px;
-    background-color: rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    background-color: var(--color-neutral-100);
     backdrop-filter: blur(10px);
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
     z-index: 100;
     display: ${props => props.$mobileMenuOpen ? 'flex' : 'none'};
-    gap: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 6px;
+    border: 1px solid var(--color-neutral-200);
+  }
+
+  @media (max-width: 768px) {
+    top: 90px;
+    left: 30px;
+    min-width: 160px;
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  @media (max-width: 480px) {
+    top: 85px;
+    left: 20px;
+    min-width: 140px;
+    padding: 8px;
+    border-radius: 12px;
   }
 `;
-
 
 const NavLink = styled.a`
   font-family: 'Manrope', sans-serif;
@@ -301,43 +394,59 @@ const NavLink = styled.a`
   line-height: 20px;
   letter-spacing: 0%;
   min-width: 120px;
-  max-width: 120px;
   width: auto;
-  height: 52px;
-  border-radius: 20px;
-  padding: 16px 24px;
+  height: 48px;
+  border-radius: 16px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
   
   ${props => props.$active ? `
     font-weight: 700;
-    color: #FFFFFF;
-    background-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0px 2px 8px 0px #00000026;
+    color: var(--color-text-dark);
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
   ` : `
-    font-weight: 400;
-    color: #E5E5E5;
+    font-weight: 500;
+    color: var(--color-text-lite);
     background-color: transparent;
   `}
   
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.7);
   }
   
-  @media (max-width: 1000px) {
-    min-width: 100px;
-    padding: 12px 16px;
+  @media (max-width: 1280px) {
+    min-width: 110px;
+    padding: 12px 18px;
     height: 44px;
+  }
+
+  @media (max-width: 1024px) {
+    min-width: 100%;
+    height: 42px;
+    padding: 10px 16px;
+    font-size: 15px;
+    border-radius: 12px;
+    justify-content: flex-start;
   }
   
   @media (max-width: 768px) {
-    height: 35px;
-    padding: 12px 16px;
+    height: 40px;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  @media (max-width: 480px) {
+    height: 36px;
+    padding: 8px 12px;
+    font-size: 13px;
+    border-radius: 10px;
   }
 `;
 
@@ -345,6 +454,23 @@ const UserActions = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
+
+  
+  @media (max-width: 1280px) {
+    gap: 14px;
+  }
+
+  @media (max-width: 1024px) {
+    gap: 12px;
+  }
+
+  @media (max-width: 768px) {
+    gap: 10px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
 `;
 
 
@@ -364,12 +490,48 @@ const IconButton = styled.button`
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
+
+  
+  @media (max-width: 1280px) {
+    width: 48px;
+    height: 48px;
+  }
+
+  @media (max-width: 1024px) {
+    width: 44px;
+    height: 44px;
+  }
+
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+  }
+
+  @media (max-width: 480px) {
+    width: 36px;
+    height: 36px;
+  }
 `;
 
 const IconImg = styled.img`
   width: 24px;
   height: 24px;
   object-fit: contain;
+
+  @media (max-width: 1024px) {
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 768px) {
+    width: 20px;
+    height: 20px;
+  }
+
+  @media (max-width: 480px) {
+    width: 18px;
+    height: 18px;
+  }
 `;
 
 const UserAvatar = styled.img`
@@ -384,6 +546,26 @@ const UserAvatar = styled.img`
   
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  @media (max-width: 1280px) {
+    width: 55px;
+    height: 55px;
+  }
+
+  @media (max-width: 1024px) {
+    width: 50px;
+    height: 50px;
+  }
+
+  @media (max-width: 768px) {
+    width: 45px;
+    height: 45px;
+  }
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
   }
 `;
 
@@ -411,30 +593,105 @@ const Title = styled.h1`
 `;
 
 const NewButton = styled.button`
+  width: 232px;
+  height: 56px;
+  border-radius: 16px;
+  gap: 16px;
   background-color: #AE8119;
   color: #FFFFFF;
-  padding: 12px 24px;
+  padding: 8px 40px;
   border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   font-weight: 600;
   font-size: 16px;
   border: none;
   cursor: pointer;
-  transition: all 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; 
   align-self: flex-end;
   
   &:hover {
-    background-color:rgb(230, 184, 0);
-    transform: translateY(-1px);
+    background-color: rgb(230, 184, 0);
+    animation: smartHover 300ms ease-out forwards;
   }
-  
+
+  @keyframes smartHover {
+    0% {
+      transform: translateY(0);
+      box-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+    100% {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+  }
+
   span {
     font-size: 20px;
   }
-  
-  @media (max-width: 1000px) {
-    justify-content: center;
+
+  @media (max-width: 1440px) {
+    width: 210px;
+    height: 52px;
+    font-size: 15px;
+    gap: 14px;
+    padding: 8px 36px;
+
+    span {
+      font-size: 18px;
+    }
+  }
+
+  @media (max-width: 1280px) {
+    width: 190px;
+    height: 48px;
+    font-size: 14px;
+    gap: 12px;
+    padding: 8px 32px;
+
+    span {
+      font-size: 17px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    width: 180px;
+    height: 44px;
+    font-size: 14px;
+    gap: 10px;
+    padding: 6px 28px;
+
+    span {
+      font-size: 16px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    width: 160px;
+    height: 40px;
+    font-size: 13px;
+    gap: 8px;
+    padding: 6px 24px;
+    border-radius: 6px;
+
+    span {
+      font-size: 15px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 140px;
+    height: 36px;
+    font-size: 12px;
+    gap: 6px;
+    padding: 4px 20px;
+    border-radius: 4px;
+
+    span {
+      font-size: 14px;
+    }
   }
 `;

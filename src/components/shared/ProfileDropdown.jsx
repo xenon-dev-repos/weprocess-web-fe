@@ -81,8 +81,8 @@ export const ProfileDropdown = ({ onClose, avatarRef }) => {
 
 const DropdownContainer = styled.div`
   position: absolute;
-  right: 40px;
-  top: 130px;
+  right: 35px;
+  top: 133px;
   width: 374px;
   min-height: 226px;
   border-radius: 20px;
@@ -96,45 +96,50 @@ const DropdownContainer = styled.div`
 
   /* Large desktop */
   @media (max-width: 1440px) {
-    width: 350px;
-    right: 30px;
+    width: 340px;
+    right: 35px;
+    top: 130px;
+    padding: 20px 16px;
   }
 
   /* Medium desktop */
   @media (max-width: 1280px) {
-    width: 330px;
-    right: 25px;
-    top: 110px;
+    width: 320px;
+    right: 30px;
+    top: 125px;
+    padding: 18px 14px;
   }
 
   /* Small desktop */
   @media (max-width: 1024px) {
-    width: 310px;
-    right: 20px;
-    top: 105px;
-    padding: 20px 12px;
+    width: 300px;
+    right: 25px;
+    top: 110px;
+    padding: 16px 12px;
   }
 
   /* Tablet */
   @media (max-width: 768px) {
-    width: 280px;
-    right: 15px;
-    top: 95px;
-    padding: 16px 12px;
+    width: 260px;
+    right: 23px;
+    top: 105px;
+    padding: 14px 10px;
+    min-height: 200px;
   }
 
   /* Large mobile */
   @media (max-width: 480px) {
-    width: 260px;
-    right: 10px;
-    top: 85px;
+    width: 220px;
+    top: 100px;
+    padding: 12px 8px;
+    min-height: 180px;
+    border-radius: 16px;
   }
 
   /* Small mobile */
   @media (max-width: 375px) {
-    width: 240px;
-    right: 8px;
-    padding: 14px 10px;
+    width: 200px;
+    padding: 10px 6px;
   }
 `;
 
@@ -151,13 +156,19 @@ const DropdownItem = styled.div`
     background-color: rgba(0, 0, 0, 0.05);
   }
 
+  @media (max-width: 1024px) {
+    gap: 14px;
+    padding: 10px 6px;
+  }
+
   @media (max-width: 768px) {
     gap: 12px;
-    padding: 10px 6px;
+    padding: 8px 6px;
   }
 
   @media (max-width: 480px) {
     gap: 10px;
+    padding: 6px 4px;
   }
 `;
 
@@ -172,14 +183,19 @@ const IconContainer = styled.div`
   justify-content: center;
   flex-shrink: 0;
 
+  @media (max-width: 1024px) {
+    width: 40px;
+    height: 40px;
+  }
+
   @media (max-width: 768px) {
-    width: 42px;
-    height: 42px;
+    width: 36px;
+    height: 36px;
   }
 
   @media (max-width: 480px) {
-    width: 38px;
-    height: 38px;
+    width: 32px;
+    height: 32px;
   }
 `;
 
@@ -188,8 +204,13 @@ const Icon = styled.img`
   height: 24px;
 
   @media (max-width: 768px) {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 480px) {
+    width: 16px;
+    height: 16px;
   }
 `;
 
@@ -206,13 +227,14 @@ const Title = styled.span`
   line-height: 20px;
   color: var(--color-text-dark);
 
-  @media (max-width: 768px) {
-    font-size: 15px;
+  @media (max-width: 1024px) {
+    font-size: 14px;
     line-height: 18px;
   }
 
   @media (max-width: 480px) {
-    font-size: 14px;
+    font-size: 13px;
+    line-height: 16px;
   }
 `;
 
@@ -223,9 +245,9 @@ const Description = styled.span`
   line-height: 20px;
   color: var(--color-text-lite);
 
-  @media (max-width: 768px) {
+  @media (max-width: 480px) {
     font-size: 11px;
-    line-height: 18px;
+    line-height: 14px;
   }
 `;
 
@@ -233,4 +255,8 @@ const Divider = styled.div`
   height: 1px;
   background-color: var(--color-neutral-700);
   margin: 4px 0;
+
+  @media (max-width: 480px) {
+    margin: 1px 0;
+  }
 `;

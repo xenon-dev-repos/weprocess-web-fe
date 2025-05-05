@@ -143,7 +143,7 @@ const SignInLink = styled.div`
     margin-bottom: 2rem;
   }
 
-    @media (max-width: 500px) {
+    @media (max-width: 480px) {
     margin-bottom: 2rem;
     align-self: center;
   }
@@ -177,11 +177,11 @@ const Title = styled.h1`
   white-space: nowrap;
   overflow: hidden;
 
-  @media (max-width: 1200px) {
+  @media (max-width: 1280px) {
     font-size: 40px
   }
 
-  @media (max-width: 1000px) {
+  @media (max-width: 1024px) {
     font-size: 28px
   }
 

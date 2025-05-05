@@ -243,11 +243,11 @@ const MainContent = styled.div`
   flex-direction: column;
   width: 100%;
 
-  @media (min-width: 1200px) {
+  @media (min-width: 1280px) {
     flex-direction: row;
   }
   
-  @media (max-width: 1200px) {
+  @media (max-width: 1280px) {
   gap: 24px;
 }
 `;
@@ -266,7 +266,7 @@ const RightColumn = styled.div`
   flex-direction: column;
   gap: 24px;
 
-  @media (min-width: 1200px) {
+  @media (min-width: 1280px) {
     width: 400px;
     min-width: 400px;
     margin-left: 24px;

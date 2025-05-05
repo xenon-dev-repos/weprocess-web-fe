@@ -29,10 +29,19 @@ export const PageHeader = ({ title, filterButtons, onFilterChange }) => {
   );
 };
 
-const PageHeaderContainer = styled.h1`
-display: flex;
-flex-direction: column;
-gap: 10px;
+const PageHeaderContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+
+  @media (max-width: 1280px) {
+    gap: 8px;
+  }
+
+  @media (max-width: 768px) {
+    gap: 6px;
+  }
 `;
 
 const HeaderTitle = styled.h1`
@@ -42,12 +51,50 @@ const HeaderTitle = styled.h1`
   letter-spacing: 0%;
   color: ${({ theme }) => theme.color.WhiteText};
   margin: 0;
+
+  @media (max-width: 1440px) {
+    font-size: 28px;
+    line-height: 50px;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 24px;
+    line-height: 40px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+    line-height: 32px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 18px;
+    line-height: 28px;
+  }
 `;
 
 const FilterButtonsContainer = styled.div`
   display: flex;
+  justify-content: flex-start;
   gap: 16px;
-  justify-content: space-between;
+  flex-wrap: wrap;
+
+  @media (max-width: 1280px) {
+    gap: 12px;
+  }
+
+  @media (max-width: 1024px) {
+    gap: 10px;
+    justify-content: flex-start;
+  }
+
+  @media (max-width: 768px) {
+    gap: 8px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 6px;
+  }
 `;
 
 const FilterButton = styled.button`
@@ -69,9 +116,48 @@ const FilterButton = styled.button`
   width: 165px;
   height: 52px;
   transition: all 0.2s ease;
+  white-space: nowrap;
 
   &:hover {
-    // background-color: ${({ theme }) => theme.color.background};
+    background-color: ${({ theme, active }) => !active && theme.color.background};
+  }
+
+  @media (max-width: 1440px) {
+    width: 150px;
+    height: 48px;
+    padding: 14px;
+    font-size: 15px;
+  }
+
+  @media (max-width: 1280px) {
+    width: 140px;
+    height: 44px;
+    padding: 12px;
+  }
+
+  @media (max-width: 1024px) {
+    width: auto;
+    min-width: 120px;
+    height: 40px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    min-width: 100px;
+    height: 36px;
+    padding: 8px 12px;
+    font-size: 13px;
+    border-radius: 16px;
+  }
+
+  @media (max-width: 480px) {
+    min-width: 80px;
+    height: 32px;
+    padding: 6px 10px;
+    font-size: 12px;
+    gap: 6px;
+    border-radius: 12px;
   }
 `;
 
@@ -80,4 +166,14 @@ const StatusDot = styled.span`
   height: 8px;
   border-radius: 50%;
   background-color: ${({ dotColor, theme }) => theme.color[dotColor] || dotColor};
+
+  @media (max-width: 768px) {
+    width: 6px;
+    height: 6px;
+  }
+
+  @media (max-width: 480px) {
+    width: 5px;
+    height: 5px;
+  }
 `;
