@@ -149,11 +149,11 @@ const MainContent = styled.div`
   flex-direction: column;
   width: 100%;
 
-  @media (min-width: 1200px) {
+  @media (min-width: 1280px) {
     flex-direction: row;
   }
   
-  @media (max-width: 1200px) {
+  @media (max-width: 1280px) {
   gap: 24px;
 }
 `;
