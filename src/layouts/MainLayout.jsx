@@ -124,9 +124,11 @@ export const MainLayout = ({
         {showDashboardPageHeader && (
           <DashboardHeader>
             <Title>Good Morning, Andrew!</Title>
-            <NewButton>
-              <span>+</span> New Instruction
-            </NewButton>
+            <ButtonContainer>
+              <NewButton>
+                <span>+</span> New Instruction
+              </NewButton>
+            </ButtonContainer>
           </DashboardHeader>
         )}
 
@@ -137,9 +139,11 @@ export const MainLayout = ({
               filterButtons={filterButtons} 
               onFilterChange={handleStatusFilterChange} 
             />
+          <ButtonContainer>
             <NewButton>
               <span>+</span> New Instruction
             </NewButton>
+          </ButtonContainer>
           </DashboardHeaderInstructions>
         }
 
@@ -380,8 +384,8 @@ const Navigation = styled.nav`
   }
 
   @media (max-width: 480px) {
-    top: 85px;
-    left: 20px;
+    top: 90px;
+    left: 23px;
     min-width: 140px;
     padding: 8px;
     border-radius: 12px;
@@ -592,8 +596,31 @@ const Title = styled.h1`
   }
 `;
 
-const NewButton = styled.button`
+const ButtonContainer = styled.div`
   width: 232px;
+  flex-shrink: 0;
+  display: flex;
+  align-self: flex-end;
+  justify-content: center;
+  
+  @media (max-width: 1440px) {
+    width: 180px;
+  }
+  @media (max-width: 1280px) {
+    width: 170px;
+  }
+  @media (max-width: 1024px) {
+    width: 160px;
+  }
+  @media (max-width: 768px) {
+    width: 140px;
+    align-self: flex-end;
+  }
+`;
+
+
+const NewButton = styled.button`
+  width: 100%; 
   height: 56px;
   border-radius: 16px;
   gap: 16px;
@@ -634,64 +661,34 @@ const NewButton = styled.button`
   }
 
   @media (max-width: 1440px) {
-    width: 210px;
     height: 52px;
     font-size: 15px;
-    gap: 14px;
-    padding: 8px 36px;
-
-    span {
-      font-size: 18px;
-    }
+    span { font-size: 18px; }
   }
 
   @media (max-width: 1280px) {
-    width: 190px;
     height: 48px;
     font-size: 14px;
-    gap: 12px;
-    padding: 8px 32px;
-
-    span {
-      font-size: 17px;
-    }
+    span { font-size: 17px; }
   }
 
   @media (max-width: 1024px) {
-    width: 180px;
     height: 44px;
     font-size: 14px;
-    gap: 10px;
-    padding: 6px 28px;
-
-    span {
-      font-size: 16px;
-    }
+    span { font-size: 16px; }
   }
 
   @media (max-width: 768px) {
-    width: 160px;
     height: 40px;
     font-size: 13px;
-    gap: 8px;
-    padding: 6px 24px;
-    border-radius: 6px;
-
-    span {
-      font-size: 15px;
-    }
+    border-radius: 12px;
+    span { font-size: 15px; }
   }
 
   @media (max-width: 480px) {
-    width: 140px;
     height: 36px;
     font-size: 12px;
-    gap: 6px;
-    padding: 4px 20px;
-    border-radius: 4px;
-
-    span {
-      font-size: 14px;
-    }
+    border-radius: 10px;
+    span { font-size: 14px; }
   }
 `;

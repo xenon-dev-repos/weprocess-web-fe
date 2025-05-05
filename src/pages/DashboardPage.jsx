@@ -192,7 +192,7 @@ const DashboardPage = () => {
                   }
                   return value;
                 }}
-                minHeight={356}
+                minHeight={348}
                 noDataCellHeight={309}
               />
             </TableContainer>
