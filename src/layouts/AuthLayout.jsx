@@ -82,7 +82,7 @@ const Sidebar = styled.div`
 const Logo = styled.img`
   height: 60px;
   margin-bottom: 2rem;
-  z-index: 5;
+  z-index: 2;
   display: flex;
   align-self: flex-start;
 `;
