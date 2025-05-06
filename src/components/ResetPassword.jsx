@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '../hooks/useNavigation';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -10,7 +11,7 @@ const ResetPassword = () => {
   const [message, setMessage] = useState('');
   
   const { resetPassword } = useAuth();
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   const location = useLocation();
   
   const email = location.state?.email || '';
@@ -18,9 +19,9 @@ const ResetPassword = () => {
   
   useEffect(() => {
     if (!email || !verified) {
-      navigate('/forgot-password');
+      navigateTo('/forgot-password');
     }
-  }, [email, verified, navigate]);
+  }, [email, verified, navigateTo]);
   
   const validatePassword = (password) => {
     // Password must be at least 8 characters and contain at least one number, one uppercase and one lowercase letter
@@ -57,7 +58,7 @@ const ResetPassword = () => {
       if (success) {
         setMessage('Password reset successful');
         setTimeout(() => {
-          navigate('/login', { state: { message: 'Your password has been reset successfully. You can now login with your new password.' } });
+          navigateTo('/login', { state: { message: 'Your password has been reset successfully. You can now login with your new password.' } });
         }, 2000);
       } else {
         setError('Failed to reset password. Please try again.');

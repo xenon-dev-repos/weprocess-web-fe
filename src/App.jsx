@@ -1,28 +1,62 @@
+import { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ToastProvider, useToast } from './services/ToastService';
 import GlobalStyles from './styles/GlobalStyles';
-import SignupPage from './pages/SignupPage';
-import SigninPage from './pages/SigninPage';
-import FirmSetupPage from './pages/FirmSetupPage';
-import IndividualSetupPage from './pages/IndividualSetupPage';
-import DashboardPage from './pages/DashboardPage';
+import { ThemeProvider } from 'styled-components';
+import { theme } from './styles/theme';
+import { ROUTE_CONFIG } from './config/routes.config';
+import { ROUTES } from './constants/routes';
+// import LoadingSpinner from './components/LoadingSpinner';
 
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <GlobalStyles />
-        <Routes>
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/signin" element={<SigninPage />} />
-          <Route path="/firm-setup" element={<FirmSetupPage />} />
-          <Route path="/individual-setup" element={<IndividualSetupPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="*" element={<Navigate to="/signup" replace />} />
-        </Routes>
-      </AuthProvider>
+      <ToastProvider>
+        <AuthWithToast>
+          <ThemeProvider theme={theme}>
+            <GlobalStyles />
+            <Toaster />
+            <AppRoutes />
+          </ThemeProvider>
+        </AuthWithToast>
+      </ToastProvider>
     </Router>
   );
 }
+
+function AppRoutes() {
+  const { isAuthenticated = true, loading } = useAuth();
+
+  if (loading) {
+    // return <LoadingSpinner />;
+  }
+
+  return (
+    <Suspense 
+      // fallback={<LoadingSpinner />}
+    >
+      <Routes>
+        {ROUTE_CONFIG.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={
+              route.isPublic || isAuthenticated
+                ? route.element 
+                : <Navigate to={ROUTES.SIGNIN} state={{ from: route.path }} replace />
+            }
+          />
+        ))}
+      </Routes>
+    </Suspense>
+  );
+}
+
+const AuthWithToast = ({ children }) => {
+  const toast = useToast();
+  return <AuthProvider toast={toast}>{children}</AuthProvider>;
+};
 
 export default App;
