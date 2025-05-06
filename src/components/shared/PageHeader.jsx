@@ -1,35 +1,39 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 
-export const PageHeader = ({ title, filterButtons, onFilterChange }) => {
+export const PageHeader = ({ title, filterButtons = [], onFilterChange }) => {
   const [activeFilter, setActiveFilter] = useState(filterButtons[0]?.id);
 
   const handleFilterClick = (filterId) => {
     setActiveFilter(filterId);
-    onFilterChange(filterId);
+    if (onFilterChange) {
+      onFilterChange(filterId);
+    }
   };
 
   return (
     <PageHeaderContainer>
       <HeaderTitle>{title}</HeaderTitle>
-      <FilterButtonsContainer>
-        {filterButtons.map((button) => (
-          <FilterButton
-            key={button.id}
-            onClick={() => handleFilterClick(button.id)}
-            active={activeFilter === button.id}
-            dotColor={button.dotColor}
-          >
-            <StatusDot dotColor={button.dotColor} />
-            {button.label}
-          </FilterButton>
-        ))}
-      </FilterButtonsContainer>
+      {filterButtons && filterButtons.length > 0 && (
+        <FilterButtonsContainer>
+          {filterButtons.map((button) => (
+            <FilterButton
+              key={button.id}
+              onClick={() => handleFilterClick(button.id)}
+              active={activeFilter === button.id}
+              dotColor={button.dotColor}
+            >
+              <StatusDot dotColor={button.dotColor} />
+              {button.label}
+            </FilterButton>
+          ))}
+        </FilterButtonsContainer>
+      )}
     </PageHeaderContainer>
   );
 };
 
-const PageHeaderContainer = styled.h1`
+const PageHeaderContainer = styled.div`
 display: flex;
 flex-direction: column;
 gap: 10px;

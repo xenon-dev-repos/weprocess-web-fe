@@ -7,6 +7,7 @@ import NotificationIcon from '../assets/images/dashboard/notification-icon.svg';
 import MessageIcon from '../assets/images/dashboard/message-icon.svg';
 import { useNavigation } from '../hooks/useNavigation';
 import { PageHeader } from '../components/shared/PageHeader';
+import { useAuth } from '../contexts/AuthContext';
 
 export const MainLayout = ({ 
   children,
@@ -14,8 +15,12 @@ export const MainLayout = ({
   showDashboardPageHeader = false,
   showInstructionsPageHeader = false,
   showInvoicePageHeader = false,
+  showMessagesPageHeader = false,
   filterButtons,
   handleStatusFilterChange,
+  onToggleChat,
+  totalUnreadCount = 0,
+  messagesLayout = false
 }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -26,13 +31,24 @@ export const MainLayout = ({
   const {
     navigateToDashboard,
     navigateToInstructions,
-    navigateToInvoices
+    navigateToInvoices,
+    navigateToMessages
   } = useNavigation();
+
+  const { user } = useAuth();
 
   const handleNavigation = (path, linkName) => {
     setActiveLink(linkName);
     path();
     setMobileMenuOpen(false);
+  };
+
+  const handleToggleChat = () => {
+    if (onToggleChat) {
+      onToggleChat();
+    } else if (location.pathname !== '/messages') {
+      navigateToMessages();
+    }
   };
 
   useEffect(() => {
@@ -43,6 +59,8 @@ export const MainLayout = ({
       setActiveLink('Instructions');
     } else if (path.includes('/invoices')) {
       setActiveLink('Invoices');
+    } else if (path.includes('/messages')) {
+      setActiveLink('Messages');
     }
   }, [location]);
 
@@ -61,9 +79,12 @@ export const MainLayout = ({
     };
   }, [mobileMenuOpen]);
 
+  // Determine if we should show headers based on the current path
+  const shouldShowHeader = showDashboardPageHeader || showInstructionsPageHeader || showInvoicePageHeader || showMessagesPageHeader;
+
   return (
     <AppContainer>
-      <AppHeader>
+      <AppHeader $messagesLayout={messagesLayout}>
         <MainHeader>
           <LogoContainer>
             <MobileMenuToggle ref={toggleRef} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -95,55 +116,76 @@ export const MainLayout = ({
             >
               Invoices
             </NavLink>
+            {/* <NavLink 
+              $active={activeLink === 'Messages'} 
+              onClick={() => handleNavigation(navigateToMessages, 'Messages')}
+            >
+              Messages
+            </NavLink> */}
           </Navigation>
           <UserActions>
-          <IconButton>
+            <IconButton>
               <IconImg src={SearchIcon} alt="Search" />
             </IconButton>
             <IconButton>
               <IconImg src={NotificationIcon} alt="Notifications" />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={handleToggleChat}>
               <IconImg src={MessageIcon} alt="Messages" />
+              {totalUnreadCount > 0 && <UnreadBadge>{totalUnreadCount}</UnreadBadge>}
             </IconButton>
             <UserAvatar src="https://i.sstatic.net/l60Hf.png" alt="User" />
           </UserActions>
         </MainHeader>
         
-        {showDashboardPageHeader && (
-          <DashboardHeader>
-            <Title>Good Morning, <David></David>!</Title>
-            <NewButton>
-              <span>+</span> New Instruction
-            </NewButton>
-          </DashboardHeader>
+        {shouldShowHeader && (
+          <>
+            {showDashboardPageHeader && (
+              <DashboardHeader>
+                <Title>Good Morning, {user?.name || user?.first_name || 'User'}!</Title>
+                <NewButton>
+                  <span>+</span> New Instruction
+                </NewButton>
+              </DashboardHeader>
+            )}
+
+            {showInvoicePageHeader && (
+              <DashboardHeader style={{flexDirection: 'column', alignItems: 'flex-start'}}>
+                <PageHeader
+                  title={title} 
+                  filterButtons={filterButtons} 
+                  onFilterChange={handleStatusFilterChange} 
+                />
+              </DashboardHeader>
+            )}
+
+            {showInstructionsPageHeader && (
+              <DashboardHeader>
+                <PageHeader
+                  title={title}
+                  filterButtons={filterButtons} 
+                  onFilterChange={handleStatusFilterChange} 
+                />
+                <NewButton>
+                  <span>+</span> New Instruction
+                </NewButton>
+              </DashboardHeader>
+            )}
+
+            {showMessagesPageHeader && (
+              <DashboardHeader>
+                <PageHeader
+                  title={title}
+                  filterButtons={filterButtons} 
+                  onFilterChange={handleStatusFilterChange} 
+                />
+              </DashboardHeader>
+            )}
+          </>
         )}
-
-        {showInvoicePageHeader &&
-          <DashboardHeader style={{flexDirection: 'column', alignItems: 'flex-start'}}>
-            <PageHeader
-              title={title} 
-              filterButtons={filterButtons} 
-              onFilterChange={handleStatusFilterChange} 
-            />
-          </DashboardHeader>
-        }
-
-        {showInstructionsPageHeader &&
-          <DashboardHeader>
-            <PageHeader
-              title={title}
-              filterButtons={filterButtons} 
-              onFilterChange={handleStatusFilterChange} 
-            />
-            <NewButton>
-              <span>+</span> New Instruction
-            </NewButton>
-          </DashboardHeader>
-        }
       </AppHeader>
       
-      <PageContent>
+      <PageContent $messagesLayout={messagesLayout}>
         {children}
       </PageContent>
     </AppContainer>
@@ -165,15 +207,15 @@ const AppHeader = styled.header`
   margin: 24px auto 0;
   border-radius: 20px;
   overflow: hidden;
-  min-height: 314px;
+  min-height: ${props => props.$messagesLayout ? '180px' : '314px'};
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 40px;
+  padding: ${props => props.$messagesLayout ? '20px 40px' : '40px'};
   
   @media (max-width: 1000px) {
     width: calc(100% - 32px);
-    padding: 30px;
+    padding: ${props => props.$messagesLayout ? '20px 30px' : '30px'};
   }
 `;
 
@@ -337,17 +379,16 @@ const UserActions = styled.div`
 
 
 const IconButton = styled.button`
-  width: 52px;
-  height: 52px;
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: transparent;
+  background: none;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
-  padding: 0;
+  position: relative;
   
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
@@ -374,11 +415,11 @@ const PageContent = styled.main`
   max-width: 1728px;
   width: calc(100% - 48px);
   margin: 0 auto;
-  padding: 24px 0;
+  padding: ${props => props.$messagesLayout ? '10px 0 24px' : '24px 0'};
   
   @media (max-width: 768px) {
     width: calc(100% - 32px);
-    padding: 16px 0;
+    padding: ${props => props.$messagesLayout ? '10px 0 16px' : '16px 0'};
   }
 `;
 
@@ -419,4 +460,21 @@ const NewButton = styled.button`
   @media (max-width: 1000px) {
     justify-content: center;
   }
+`;
+
+const UnreadBadge = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #FF4D4F;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
 `;

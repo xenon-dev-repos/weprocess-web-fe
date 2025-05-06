@@ -9,6 +9,7 @@ const IndividualSetupPage = lazy(() => import('../pages/IndividualSetupPage'));
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const InstructionsPage = lazy(() => import('../pages/InstructionsPage'))
 const InvoicesPage = lazy(() => import('../pages/InvoicesPage'));
+const MessagesPage = lazy(() => import('../pages/MessagesPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
 
@@ -46,6 +47,11 @@ export const ROUTE_CONFIG = [
   {
     path: ROUTES.INVOICES,
     element: <InvoicesPage />,
+    isPublic: false
+  },
+  {
+    path: ROUTES.MESSAGES,
+    element: <MessagesPage />,
     isPublic: false
   },
   {
