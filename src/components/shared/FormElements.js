@@ -83,35 +83,26 @@ export const ForgotPasswordLink = styled.div`
 `;
 
 export const PhoneInputContainer = styled.div`
-display: flex;
-align-items: center;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 export const CountryCode = styled.div`
   display: flex;
   align-items: center;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem 0 0 0.5rem;
-  border-right: none;
-  background-color: #f9f9f9;
+  padding: 16px;
+  border: 2px solid var(--color-border-secondary);
+  border-radius: 12px;
   font-size: 1rem;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--color-border-primary);
+  }
 `;
 
 export const FlagIcon = styled.img`
   width: 27px;
   height: 20px;
-`;
-
-export const PhoneInput = styled.input`
-  flex: 1;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 0 0.5rem 0.5rem 0;
-  font-size: 1rem;
-  
-  &:focus {
-    outline: none;
-    border-color: var(--color-primary-500);
-  }
 `;

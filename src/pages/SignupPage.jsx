@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
-import { ForgotPasswordLink, FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
+import { FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
 import { useNavigation } from '../hooks/useNavigation';
 import { useApi } from '../hooks/useApi';
 import { ROUTES } from '../constants/routes';

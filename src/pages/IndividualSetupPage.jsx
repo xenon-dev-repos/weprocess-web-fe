@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import FlagImg from '../assets/images/auth/uk-flag.svg'
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
-import { CountryCode, FlagIcon, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, PhoneInput, PhoneInputContainer, SubmitButton } from '../components/shared/FormElements';
+import { CountryCode, FlagIcon, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, PhoneInputContainer, SubmitButton } from '../components/shared/FormElements';
 import { useNavigate } from 'react-router-dom';
 
 const IndividualSetupPage = () => {
@@ -152,7 +152,7 @@ const IndividualSetupPage = () => {
             <FlagIcon src={FlagImg} alt='Flag'/>
             <span>+44</span>
             </CountryCode>
-            <PhoneInput
+            <Input
               type="tel"
               name="phone_number"
               placeholder="7946 095862"
