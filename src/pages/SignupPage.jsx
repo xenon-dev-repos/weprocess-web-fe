@@ -16,6 +16,13 @@ const SignupPage = () => {
   const { navigateTo } = useNavigation();
   const api = useApi();
 
+  // Determine subtitle based on account type
+  const getSubtitle = () => {
+    return accountType === 'firm' 
+      ? "let's get your law firm set up."
+      : "let's get your account set up.";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -44,7 +51,7 @@ const SignupPage = () => {
   return (
     <AuthLayout
       title="Welcome to WeProcess"
-      subtitle="Register below"
+      subtitle={getSubtitle()}
       signInText="Already have an account?"
       signInLink="/signin"
       signInLinkText="Sign In"
