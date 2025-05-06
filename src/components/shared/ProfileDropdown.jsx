@@ -87,7 +87,7 @@ const DropdownContainer = styled.div`
   min-height: 226px;
   border-radius: 20px;
   background-color: var(--color-neutral-100);
-  padding: 24px 16px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -254,9 +254,9 @@ const Description = styled.span`
 const Divider = styled.div`
   height: 1px;
   background-color: var(--color-neutral-700);
-  margin: 4px 0;
+  // margin: 4px 0;
 
-  @media (max-width: 480px) {
-    margin: 1px 0;
-  }
+  // @media (max-width: 480px) {
+  //   margin: 1px 0;
+  // }
 `;

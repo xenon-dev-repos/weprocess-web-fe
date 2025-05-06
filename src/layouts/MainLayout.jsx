@@ -8,6 +8,7 @@ import MessageIcon from '../assets/images/dashboard/message-icon.svg';
 import { useNavigation } from '../hooks/useNavigation';
 import { PageHeader } from '../components/shared/PageHeader';
 import { ProfileDropdown } from '../components/shared/ProfileDropdown';
+import { useAuth } from '../contexts/AuthContext';
 
 export const MainLayout = ({ 
   children,
@@ -22,9 +23,12 @@ export const MainLayout = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState(''); 
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const { user } = useAuth();
   const navRef = useRef(null);
   const toggleRef = useRef(null);
   const avatarRef = useRef(null);
+  // const firstLetter = user.userName.charAt(0).toUpperCase();
+  const firstLetter = 'A';
 
   const {
     navigateToDashboard,
@@ -71,7 +75,7 @@ export const MainLayout = ({
 
   return (
     <AppContainer>
-      <AppHeader>
+      <AppHeader $applyMinHeight={showDashboardPageHeader || showInstructionsPageHeader || showInvoicePageHeader}>
         <MainHeader>
           <LogoContainer>
             <MobileMenuToggle ref={toggleRef} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -114,7 +118,22 @@ export const MainLayout = ({
             <IconButton>
               <IconImg src={MessageIcon} alt="Messages" />
             </IconButton>
-            <UserAvatar src="https://i.sstatic.net/l60Hf.png" alt="User"  ref={avatarRef}  onClick={(e) => toggleProfileDropdown(e)} />
+            {user ? (
+              <AvatarCircle 
+                ref={avatarRef} 
+                onClick={(e) => toggleProfileDropdown(e)}
+              >
+                {firstLetter}
+              </AvatarCircle>
+            ) : (
+              <UserAvatar 
+                src="https://i.sstatic.net/l60Hf.png" 
+                alt="User"  
+                ref={avatarRef}  
+                onClick={(e) => toggleProfileDropdown(e)} 
+              />
+            )}
+
             {showProfileDropdown && (
               <ProfileDropdown avatarRef={avatarRef} onClose={() => setShowProfileDropdown(false)} />
             )}
@@ -177,11 +196,11 @@ const AppHeader = styled.header`
   background-color: var(--color-primary-500);
   color: white;
   max-width: 1728px;
+  min-height: ${props => props.$applyMinHeight ? '314px' : 'auto'};
   width: calc(100% - 48px);
   margin: 24px auto 0;
   border-radius: 20px;
   overflow: hidden;
-  min-height: 314px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -570,6 +589,50 @@ const UserAvatar = styled.img`
   @media (max-width: 480px) {
     width: 40px;
     height: 40px;
+  }
+`;
+
+const AvatarCircle = styled.div`
+  width: 60px;
+  height: 60px;
+  border: 2px solid white;
+  border-radius: 50%;
+  color: var(--color-primary-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: white;
+
+  &:hover {
+    background-color: rgb(230, 184, 0);
+  }
+  
+  @media (max-width: 1280px) {
+    width: 55px;
+    height: 55px;
+    font-size: 22px;
+  }
+
+  @media (max-width: 1024px) {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+
+  @media (max-width: 768px) {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
   }
 `;
 

@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
-import { FormGroup, Input, Label, SubmitButton } from '../components/shared/FormElements';
+import { FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, SubmitButton } from '../components/shared/FormElements';
+
 import { AuthLayout } from '../layouts/AuthLayout';
 import { useNavigation } from '../hooks/useNavigation';
 import { useApi } from '../hooks/useApi';
@@ -282,21 +283,5 @@ const OtpInput = styled.input`
     box-shadow: 0 0 0 2px rgba(0, 100, 0, 0.1);
   }
 `;
-
-const PasswordInputContainer = styled.div`
-  position: relative;
-`;
-
-const PasswordToggle = styled.button`
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-`;
-
 
 export default ForgotPasswordPage;
