@@ -3,40 +3,31 @@ import styled from 'styled-components';
 import ProfileIcon from '../../assets/images/dashboard/profile-icon.svg';
 import PasswordIcon from '../../assets/images/dashboard/lock-icon.svg';
 import LogoutIcon from '../../assets/images/dashboard/logout-icon.svg';
+import { Images } from '../../assets/images/index.js'
+import { useNavigate } from 'react-router-dom';
 
 export const ProfileDropdown = ({ onClose, avatarRef }) => {
-    const dropdownRef = useRef(null);
-  
-    useEffect(() => {
-      const handleClickOutside = (event) => {
-        if (dropdownRef.current && 
-            !dropdownRef.current.contains(event.target) &&
-            avatarRef.current &&
-            !avatarRef.current.contains(event.target)) {
-          onClose();
-        }
-      };
-  
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }, [onClose, avatarRef]);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && 
+          !dropdownRef.current.contains(event.target) &&
+          avatarRef.current &&
+          !avatarRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose, avatarRef]);
     
   const handleItemClick = (action) => {
-    switch(action) {
-      case 'profile':
-        console.log('Profile clicked');
-        break;
-      case 'password':
-        console.log('Change Password clicked');
-        break;
-      case 'logout':
-        console.log('Logout clicked');
-        break;
-      default:
-        break;
-    }
+    navigate(`/settings?${action}`);
     onClose();
   };
 

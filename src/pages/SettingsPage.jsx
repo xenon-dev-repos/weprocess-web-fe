@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-// import { useNavigate } from 'react-router-dom';
 import { SubLayout } from '../layouts/SubLayout';
 import { 
   FormGroup, 
@@ -15,10 +14,20 @@ import {
 
 import { Images } from '../assets/images/index.js'
 import { useAuth } from '../contexts/AuthContext.jsx';
+import { useLocation, useNavigate } from 'react-router-dom';
 // import { useNavigation } from '../hooks/useNavigation.js';
 // import { useApi } from '../hooks/useApi.js';
 
 const SettingsPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { loading } = useAuth();
+  // const { navigateToSignIn } = useNavigation();
+  // const api = useApi();
+  const searchParams = new URLSearchParams(location.search);
+  const urlTab = [...searchParams.keys()][0] || 'profile';
+  const [activeTab, setActiveTab] = useState(urlTab || 'profile');
+
   const [formData, setFormData] = useState({
     email: '',
     name: '',
@@ -32,16 +41,12 @@ const SettingsPage = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [cursorPosition, setCursorPosition] = useState(null);
-  const [activeTab, setActiveTab] = useState('profile');
   const [headerData, setHeaderData] = useState({
     title: 'Profile',
     icon: Images.dashboard.profileIcon
   });
   const phoneInputRef = useRef(null);
-  // const navigate = useNavigate();
-  const { loading } = useAuth();
-    // const { navigateToSignIn } = useNavigation();
-  // const api = useApi();
+
 
   useEffect(() => {
     if (cursorPosition !== null && phoneInputRef.current) {
@@ -83,6 +88,16 @@ const SettingsPage = () => {
     console.log('Form submitted:', formData);
     // Add your form submission logic here
   };
+
+  useEffect(() => {
+    navigate(`/settings?${activeTab}`, { replace: true });
+  }, [activeTab, navigate]);
+
+  useEffect(() => {
+    if (urlTab && urlTab !== activeTab) {
+      handleItemClick(urlTab);
+    }
+  }, [urlTab, activeTab]);
 
   const handleItemClick = (action) => {
     switch(action) {

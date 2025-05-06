@@ -27,8 +27,7 @@ export const MainLayout = ({
   const navRef = useRef(null);
   const toggleRef = useRef(null);
   const avatarRef = useRef(null);
-  // const firstLetter = user.userName.charAt(0).toUpperCase();
-  const firstLetter = 'A';
+  const firstLetter = user.name.charAt(0).toUpperCase();
 
   const {
     navigateToDashboard,
@@ -412,7 +411,6 @@ const Navigation = styled.nav`
 `;
 
 const NavLink = styled.a`
-  font-family: 'Manrope', sans-serif;
   font-size: 16px;
   line-height: 20px;
   letter-spacing: 0%;
@@ -431,17 +429,17 @@ const NavLink = styled.a`
   
   ${props => props.$active ? `
     font-weight: 700;
-    color: var(--color-text-dark);
-    background-color: rgba(255, 255, 255, 0.9);
+    color: #FFFFFF;
+    background-color: #FFFFFF1A;
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
   ` : `
-    font-weight: 500;
-    color: var(--color-text-lite);
+    font-weight: 400;
+    color: #E5E5E5;
     background-color: transparent;
   `}
   
   &:hover {
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: #FFFFFF1A;
   }
   
   @media (max-width: 1280px) {
@@ -608,7 +606,7 @@ const AvatarCircle = styled.div`
   background-color: white;
 
   &:hover {
-    background-color: rgb(230, 184, 0);
+    background-color: var(--color-primary-100);
   }
   
   @media (max-width: 1280px) {
