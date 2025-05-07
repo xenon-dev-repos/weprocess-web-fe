@@ -74,7 +74,6 @@ export const ForgotPasswordLink = styled.div`
   a {
     color: var(--color-primary-500);
     text-decoration: none;
-    font-weight: bold;
     
     &:hover {
       text-decoration: underline;
