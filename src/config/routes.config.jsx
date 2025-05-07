@@ -1,3 +1,4 @@
+import React from 'react';
 import { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
@@ -6,9 +7,12 @@ const SignupPage = lazy(() => import('../pages/SignupPage'));
 const SigninPage = lazy(() => import('../pages/SigninPage'));
 const FirmSetupPage = lazy(() => import('../pages/FirmSetupPage'));
 const IndividualSetupPage = lazy(() => import('../pages/IndividualSetupPage'));
-const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
+const DashboardPage = lazy(() => import('../pages/DashboardPage'));
+const InstructionsPage = lazy(() => import('../pages/InstructionsPage'))
+const InvoicesPage = lazy(() => import('../pages/InvoicesPage'));
+const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 
 export const ROUTE_CONFIG = [
   {
@@ -32,11 +36,6 @@ export const ROUTE_CONFIG = [
     isPublic: true
   },
   {
-    path: ROUTES.DASHBOARD,
-    element: <DashboardPage />,
-    isPublic: false
-  },
-  {
     path: ROUTES.FORGOT_PASSWORD,
     element: <ForgotPasswordPage />,
     isPublic: true
@@ -45,6 +44,26 @@ export const ROUTE_CONFIG = [
     path: ROUTES.RESET_PASSWORD,
     element: <ResetPasswordPage />,
     isPublic: true
+  },
+  {
+    path: ROUTES.DASHBOARD,
+    element: <DashboardPage />,
+    isPublic: false
+  },
+  {
+    path: ROUTES.INSTRUCTIONS,
+    element: <InstructionsPage />,
+    isPublic: false
+  },
+  {
+    path: ROUTES.INVOICES,
+    element: <InvoicesPage />,
+    isPublic: false
+  },
+  {
+    path: ROUTES.SETTINGS,
+    element: <SettingsPage />,
+    isPublic: false
   },
   {
     path: ROUTES.ROOT,

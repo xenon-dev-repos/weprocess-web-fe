@@ -1,5 +1,7 @@
+import React from 'react';
 import { createContext, useState, useContext, useEffect } from 'react';
 import { API_ENDPOINTS } from '../constants/api';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -11,6 +13,7 @@ const createLogger = () => ({
 });
 
 export const AuthProvider = ({ children, toast = createLogger() }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -49,6 +52,32 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
 
     checkAuth();
   }, []);
+
+  const formatPhoneNumber = (value, phoneNumber) => {
+    const isAdding = value.length > phoneNumber.length;
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    if (!isAdding) {
+      return value;
+    }
+    
+    // UK mobile format: 7700 900123 (10 digits)
+    if (digitsOnly.startsWith('7')) {
+      if (digitsOnly.length <= 4) return digitsOnly;
+      if (digitsOnly.length <= 7) return `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4)}`;
+      return `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4, 7)} ${digitsOnly.slice(7, 10)}`;
+    }
+    // UK landline format without leading 0: 20 7946 0958 (10 digits)
+    else {
+      if (digitsOnly.length <= 2) return digitsOnly;
+      if (digitsOnly.length <= 6) return `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2)}`;
+      return `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2, 6)} ${digitsOnly.slice(6, 10)}`;
+    }
+  };
+
+  // const togglePasswordVisibility = () => {
+  //   setShowPassword(!showPassword);
+  // };
 
   const startRegistration = async (email, accountType) => {
     try {
@@ -105,6 +134,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       
       setUser(userData);
       setRegistrationData(null);
+      navigate('/dashboard'); 
       
       console.log('Registration successful:', data);
       toast.showSuccess(data.message || 'Registration successful!');
@@ -179,6 +209,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
     setToken(null);
     setUser(null);
     toast.showInfo('You have been logged out');
+    navigate('signin');
   };
 
   const forgotPassword = async (email) => {
@@ -360,6 +391,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
   const value = {
     user,
     loading,
+    setLoading,
     error,
     token,
     registrationData,
@@ -376,6 +408,8 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
     resetPassword,
     clearError,
     isAuthenticated,
+    navigate,
+    formatPhoneNumber,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import AuthImage from '../assets/images/auth/auth-image.png';
 import { Link } from 'react-router-dom';
@@ -135,7 +136,7 @@ const SignInLink = styled.div`
   margin-bottom: 3rem;
   
   a {
-    color: var(--primary-color);
+    color: var(--color-primary-500);
     font-weight: 600;
   }
 
@@ -143,7 +144,7 @@ const SignInLink = styled.div`
     margin-bottom: 2rem;
   }
 
-    @media (max-width: 500px) {
+    @media (max-width: 480px) {
     margin-bottom: 2rem;
     align-self: center;
   }
@@ -172,16 +173,16 @@ const Title = styled.h1`
   font-weight: 700;
   font-size: 48px;
   letter-spacing: 0%;
-  color: var(--primary-color);
-  margin-bottom: 1rem;
+  color: var(--color-primary-500);
+  padding-bottom: 1rem;
   white-space: nowrap;
   overflow: hidden;
 
-  @media (max-width: 1200px) {
+  @media (max-width: 1280px) {
     font-size: 40px
   }
 
-  @media (max-width: 1000px) {
+  @media (max-width: 1024px) {
     font-size: 28px
   }
 

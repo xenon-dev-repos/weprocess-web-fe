@@ -12,21 +12,14 @@ INDIVIDUAL_SETUP: '/individual-setup',
 
 // App routes
 DASHBOARD: '/dashboard',
+INSTRUCTIONS: '/instructions',
+INVOICES: '/invoices',
+SETTINGS: '/settings',
 
 // Fallback route
 NOT_FOUND: '*',
 };
 
-// Route component mappings
-// export const ROUTE_COMPONENTS = {
-// [ROUTES.SIGNUP]: 'SignupPage',
-// [ROUTES.SIGNIN]: 'SigninPage',
-// [ROUTES.FIRM_SETUP]: 'FirmSetupPage',
-// [ROUTES.INDIVIDUAL_SETUP]: 'IndividualSetupPage',
-// [ROUTES.DASHBOARD]: 'DashboardPage',
-// [ROUTES.FORGOT_PASSWORD]: 'ForgotPasswordPage',
-// [ROUTES.RESET_PASSWORD]: 'ResetPasswordPage',
-// };
 
 // Optional: Create route builder functions
 export const buildVerifyOtpRoute = (email) => `${ROUTES.VERIFY_OTP}?email=${encodeURIComponent(email)}`;

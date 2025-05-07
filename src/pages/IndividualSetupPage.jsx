@@ -1,46 +1,53 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
+import { useState, useEffect, useRef } from 'react';
+import FlagImg from '../assets/images/auth/uk-flag.svg'
 import { useAuth } from '../contexts/AuthContext';
 import { AuthLayout } from '../layouts/AuthLayout';
-import { CountryCode, ErrorMessage, FlagIcon, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, PhoneInput, PhoneInputContainer, SubmitButton } from '../components/shared/FormElements';
+import { CountryCode, FlagIcon, FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, PhoneInputContainer, SubmitButton } from '../components/shared/FormElements';
 import { useNavigate } from 'react-router-dom';
-// import { useNavigation } from '../hooks/useNavigation';
 
 const IndividualSetupPage = () => {
-  const { registrationData, completeRegistration, loading } = useAuth();
-  // const { navigateTo } = useNavigation();
-  const { navigate } = useNavigate();
-  
+  const { registrationData, completeRegistration, loading, formatPhoneNumber } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     name: '',
     phone_number: '',
     password: '',
   });
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [cursorPosition, setCursorPosition] = useState(null);
+  const phoneInputRef = useRef(null);
 
-  // Pre-fill email if we have it from the previous step
   useEffect(() => {
-    if (registrationData?.email) {
+    if (cursorPosition !== null && phoneInputRef.current) {
+      phoneInputRef.current.setSelectionRange(cursorPosition, cursorPosition);
+      setCursorPosition(null);
+    }
+  }, [phoneNumber, cursorPosition]);
+    
+  useEffect(() => {
+    if (registrationData?.email && !formData.email) {
       setFormData(prev => ({
         ...prev,
         email: registrationData.email
       }));
-    } else {
-      // If no registration data, redirect back to the first step
-      // navigateTo('/signup');
-      navigate('/signup')
     }
-  }, [registrationData, navigate]);
-
+  }, [registrationData, formData.email]);
+  
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, selectionStart } = e.target;
     
     if (name === 'phone_number') {
-      // Format phone number input
-      const formattedValue = formatPhoneNumber(value);
+      setCursorPosition(selectionStart);
+  
+      const formattedValue = formatPhoneNumber(value, phoneNumber);
+      setPhoneNumber(formattedValue);
+
       setFormData(prev => ({
         ...prev,
-        [name]: formattedValue
+        phone_number: formattedValue.replace(/\s/g, '')
       }));
     } else {
       setFormData(prev => ({
@@ -50,47 +57,27 @@ const IndividualSetupPage = () => {
     }
   };
 
-  // Format phone number as user types
-  const formatPhoneNumber = (value) => {
-    // Remove all non-digits
-    const digitsOnly = value.replace(/\D/g, '');
-    
-    // Format with hyphens (XXX-XXX-XXXX)
-    if (digitsOnly.length <= 3) {
-      return digitsOnly;
-    } else if (digitsOnly.length <= 6) {
-      return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3)}`;
-    } else {
-      return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}`;
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Create FormData object for backend submission
     const formDataForSubmit = new FormData();
     
-    // Add all form fields
     Object.keys(formData).forEach(key => {
-      // Add +1 country code to phone number if it doesn't have it
       if (key === 'phone_number' && !formData[key].startsWith('+')) {
-        formDataForSubmit.append(key, `+1${formData[key]}`);
+        const digitsOnly = formData[key].replace(/\D/g, '');
+        formDataForSubmit.append(key, `+44${digitsOnly}`);
       } else {
         formDataForSubmit.append(key, formData[key]);
       }
     });
     
-    // Add account type
     formDataForSubmit.append('type', 'individual');
     
-    console.log('About to call completeRegistration');
     const success = await completeRegistration(formDataForSubmit);
-    console.log('Registration success:', success);
-    
     if (success) {
       // Force a full page navigation to dashboard to avoid SPA routing issues
-      window.location.href = '/dashboard';
+      // window.location.href = '/dashboard';
+      navigate('/dashboard')
     }
   };
 
@@ -116,6 +103,7 @@ const IndividualSetupPage = () => {
             value={formData.email}
             onChange={handleChange}
             required
+            disabled
           />
         </FormGroup>
         
@@ -162,16 +150,17 @@ const IndividualSetupPage = () => {
           <Label>Phone number</Label>
           <PhoneInputContainer>
             <CountryCode>
-              <FlagIcon>🇺🇸</FlagIcon>
-              <span>+1</span>
+            <FlagIcon src={FlagImg} alt='Flag'/>
+            <span>+44</span>
             </CountryCode>
-            <PhoneInput
+            <Input
               type="tel"
               name="phone_number"
-              placeholder="875-523-5940"
-              value={formData.phone_number}
+              placeholder="7946 095862"
+              value={phoneNumber}
               onChange={handleChange}
               required
+              ref={phoneInputRef}
             />
           </PhoneInputContainer>
         </FormGroup>

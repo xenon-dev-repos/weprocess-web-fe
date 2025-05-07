@@ -17,7 +17,9 @@ const handleResponse = async (response) => {
  * @param {Object} toast - Toast service for displaying notifications
  * @returns {Object} API methods with toast integration
  */
-export const createApiService = (toast) => {
+export const CreateApiService = (toast, setLoading) => {
+  let tempToken = null;
+
   // Ensure we have at least a console logger if toast is not provided
   const toastObj = toast || {
     showSuccess: (msg) => console.log('Success:', msg),
@@ -26,36 +28,44 @@ export const createApiService = (toast) => {
     showWarning: (msg) => console.warn('Warning:', msg),
   };
 
-  // Generic API request handler with toast notifications
-  const apiRequest = async (url, options = {}, successMsg = null) => {
+  const apiRequest = async (url, options = {}, successMsg = null, useTempToken = false, removeTempToken = false) => {
     try {
+      setLoading(true)
+
+      const headers = {
+        ...(options.headers || {}),
+      };
+
+      if (useTempToken) {
+        headers['Authorization'] = `Bearer ${localStorage.getItem('tempToken') || ''}`;
+      } else {
+        headers['Authorization'] = `Bearer ${localStorage.getItem('token') || ''}`;
+      }
+
       const response = await fetch(url, {
         ...options,
-        headers: {
-          ...(options.headers || {}),
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
-        }
+        headers
       });
       
       const data = await handleResponse(response);
       
-      // Show success toast if provided
       if (successMsg) {
+        setLoading(false);
         toastObj.showSuccess(data.message || successMsg);
+        {removeTempToken && localStorage.removeItem('tempToken')}
       }
       
       return data;
     } catch (error) {
+      setLoading(false);
       console.error('API request error:', error);
-      
-      // Show error toast
+
       toastObj.showError(error.message || 'An error occurred');
-      
+
       throw error;
     }
   };
 
-  // Email validation function
   const validateEmail = async (email, accountType) => {
     const endpoint = accountType === 'firm' 
       ? API_ENDPOINTS.VALIDATE_FIRM_EMAIL 
@@ -70,6 +80,60 @@ export const createApiService = (toast) => {
     });
   };
 
+  const verifyOtp = async (email, otp) => {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('otp', otp);
+    
+    return apiRequest(
+      API_ENDPOINTS.VERIFY_OTP, 
+      {
+        method: 'POST',
+        body: formData
+      },
+      'OTP verified successfully',
+      true // Use temporary token for this request
+    );
+  };
+
+  const requestPasswordReset = async (email) => {
+    const formData = new FormData();
+    formData.append('email', email);
+    
+    const response = await apiRequest(
+      API_ENDPOINTS.FORGOT_PASSWORD, 
+      {
+        method: 'POST',
+        body: formData
+      },
+      'Password reset email sent successfully'
+    );
+
+    // Store the temporary token if received
+    if (response.token) {
+      tempToken = response.token;
+      localStorage.setItem('tempToken',tempToken)
+    }
+
+    return response;
+  };
+
+
+  const resetPassword = async (email, newPassword) => {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('password', newPassword);
+    
+    return apiRequest(API_ENDPOINTS.CHANGE_PASSWORD, {
+      method: 'POST',
+      body: formData
+    }, 'Password reset successfully',
+    true, // Use temporary token for this request
+    true  // remove temporary token from storage after this request success
+  );
+  };
+
+
   // Get user profile
   const getUserProfile = async () => {
     return apiRequest(
@@ -80,12 +144,14 @@ export const createApiService = (toast) => {
   };
 
   // Update user profile
-  const updateUserProfile = async (profileData) => {
+  const updateUserProfile = async (data) => {
     const formData = new FormData();
     
-    Object.entries(profileData).forEach(([key, value]) => {
+    Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
     });
+
+    formData.append('_method', 'PATCH')
     
     return apiRequest(
       API_ENDPOINTS.UPDATE_PROFILE, 
@@ -97,11 +163,33 @@ export const createApiService = (toast) => {
     );
   };
 
+  const updateUserPassword = async (data) => {
+    const formData = new FormData();
+    
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    formData.append('_method', 'PATCH')
+    
+    return apiRequest(
+      API_ENDPOINTS.UPDATE_PROFILE, 
+      {
+        method: 'POST',
+        body: formData
+      },
+      'Password updated successfully'
+    );
+  };
+
   return {
     validateEmail,
     getUserProfile,
     updateUserProfile,
-    // Add more API methods as needed
+    updateUserPassword,
+    verifyOtp,
+    requestPasswordReset,
+    resetPassword,
   };
 };
 

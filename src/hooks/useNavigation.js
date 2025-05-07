@@ -23,6 +23,8 @@ const navigateToIndividualSetup = () => navigateTo(ROUTES.INDIVIDUAL_SETUP);
 
 // App routes
 const navigateToDashboard = () => navigateTo(ROUTES.DASHBOARD);
+const navigateToInstructions = () => navigateTo(ROUTES.INSTRUCTIONS);
+const navigateToInvoices = () => navigateTo(ROUTES.INVOICES);
 
 // Special routes
 const navigateToRoot = () => navigateTo(ROUTES.ROOT);
@@ -41,6 +43,8 @@ return {
   navigateToFirmSetup,
   navigateToIndividualSetup,
   navigateToDashboard,
+  navigateToInstructions,
+  navigateToInvoices,
   navigateToRoot,
   navigateToNotFound,
   navigateToVerifyOtp,
