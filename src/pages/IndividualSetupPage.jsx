@@ -40,10 +40,12 @@ const IndividualSetupPage = () => {
     const { name, value, selectionStart } = e.target;
     
     if (name === 'phone_number') {
-      setCursorPosition(selectionStart);
-  
       const formattedValue = formatPhoneNumber(value, phoneNumber);
+      const cursorOffset = formattedValue.length - value.length;
+      const newCursorPosition = selectionStart + cursorOffset;
+      
       setPhoneNumber(formattedValue);
+      setCursorPosition(newCursorPosition);
 
       setFormData(prev => ({
         ...prev,

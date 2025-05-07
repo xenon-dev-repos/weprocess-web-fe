@@ -61,18 +61,29 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       return value;
     }
     
+    let formattedValue = '';
     // UK mobile format: 7700 900123 (10 digits)
     if (digitsOnly.startsWith('7')) {
-      if (digitsOnly.length <= 4) return digitsOnly;
-      if (digitsOnly.length <= 7) return `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4)}`;
-      return `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4, 7)} ${digitsOnly.slice(7, 10)}`;
+      if (digitsOnly.length <= 4) {
+        formattedValue = digitsOnly;
+      } else if (digitsOnly.length <= 7) {
+        formattedValue = `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4)}`;
+      } else {
+        formattedValue = `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4, 7)} ${digitsOnly.slice(7, 10)}`;
+      }
     }
     // UK landline format without leading 0: 20 7946 0958 (10 digits)
     else {
-      if (digitsOnly.length <= 2) return digitsOnly;
-      if (digitsOnly.length <= 6) return `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2)}`;
-      return `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2, 6)} ${digitsOnly.slice(6, 10)}`;
+      if (digitsOnly.length <= 2) {
+        formattedValue = digitsOnly;
+      } else if (digitsOnly.length <= 6) {
+        formattedValue = `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2)}`;
+      } else {
+        formattedValue = `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2, 6)} ${digitsOnly.slice(6, 10)}`;
+      }
     }
+    
+    return formattedValue;
   };
 
   // const togglePasswordVisibility = () => {
