@@ -1,3 +1,4 @@
+import React from 'react';
 import { createContext, useState, useContext, useEffect } from 'react';
 import { API_ENDPOINTS } from '../constants/api';
 import { useNavigate } from 'react-router-dom';
@@ -208,6 +209,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
     setToken(null);
     setUser(null);
     toast.showInfo('You have been logged out');
+    navigate('signin');
   };
 
   const forgotPassword = async (email) => {
