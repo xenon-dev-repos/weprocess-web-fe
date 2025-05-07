@@ -5,18 +5,14 @@ import { Chart } from 'chart.js/auto';
 import { MainLayout } from '../layouts/MainLayout';
 import { StatCard } from '../components/dashboard/StatCard';
 import InstructionsTable from '../components/InstructionsTable';
-import { instructionsTableData, statusData, monthlyInstructionsData } from '../constants/mockData';
+import { instructionsTableData, statusMockData, InstructionsMockData } from '../constants/mockData';
 
 const DashboardPage = () => {
   const barChartRef = useRef(null);
   const pieChartRef = useRef(null);
   const [filteredData, setFilteredData] = useState(instructionsTableData);
-  
-  // Removed unused activeTab state since we're using the tabId directly from onTabChange
-  // If you need activeTab for other purposes, keep it but use it somewhere in your component
 
   const handleTabChange = (tabId) => {
-    // Filter data based on selected tab
     let filtered = [];
     switch(tabId) {
       case 'new-requests':
@@ -51,7 +47,7 @@ const DashboardPage = () => {
         data: {
           labels: ['On Hold', 'In Progress', 'Completed'],
           datasets: [{
-            data: [statusData.onHold, statusData.inProgress, statusData.completed],
+            data: [statusMockData.onHold, statusMockData.inProgress, statusMockData.completed],
             backgroundColor: ['#6B7280', '#FF5B5B', '#8B5CF6'],
           }],
         },
@@ -80,32 +76,14 @@ const DashboardPage = () => {
           labels: ['January', 'February', 'March'],
           datasets: [
             {
-              label: 'New requests',
+              label: 'Total requests',
               data: [
-                monthlyInstructionsData.january.newRequests,
-                monthlyInstructionsData.february.newRequests,
-                monthlyInstructionsData.march.newRequests
+                InstructionsMockData.january.totalRequests,
+                InstructionsMockData.february.totalRequests,
+                InstructionsMockData.march.totalRequests
               ],
               backgroundColor: '#000',
-            },
-            {
-              label: 'In progress',
-              data: [
-                monthlyInstructionsData.january.inProgress,
-                monthlyInstructionsData.february.inProgress,
-                monthlyInstructionsData.march.inProgress
-              ],
-              backgroundColor: '#FF5B5B',
-            },
-            {
-              label: 'Completed',
-              data: [
-                monthlyInstructionsData.january.completed,
-                monthlyInstructionsData.february.completed,
-                monthlyInstructionsData.march.completed
-              ],
-              backgroundColor: '#E6E6FA',
-            },
+            }
           ],
         },
         options: {
@@ -162,11 +140,6 @@ const DashboardPage = () => {
             </StatsGrid>
             
             <TableContainer>
-              {/* <InstructionsTable 
-                data={instructionsTableData} 
-                title="Instructions In Progress"
-                subtitle="Monthly instructions requested by firm"
-              /> */}
               <InstructionsTable 
                 data={filteredData}
                 title="Instructions In Progress"

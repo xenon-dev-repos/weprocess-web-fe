@@ -11,14 +11,14 @@ export const instructionsTableData = [
   { wpr: 6230, owner: "Robert Downey Jr.", serve: "Serve to Tony", court: "Court A", type: "Standard", deadline: "11/11/2022", status: "2nd attempt" },
 ];
 
-export const statusData = {
+export const statusMockData = {
   onHold: 35,
   inProgress: 15,
   completed: 50,
 };
 
-export const monthlyInstructionsData = {
-  january: { newRequests: 455, inProgress: 300, completed: 200 },
-  february: { newRequests: 409, inProgress: 350, completed: 250 },
-  march: { newRequests: 222, inProgress: 180, completed: 150 },
-}; 
+export const InstructionsMockData = {
+  january: { totalRequests: 955 },
+  february: { totalRequests: 1009 },
+  march: { totalRequests: 552 },
+};
