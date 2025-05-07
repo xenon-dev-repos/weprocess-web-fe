@@ -87,7 +87,7 @@ const SigninPage = () => {
         </SubmitButton>
         
         <ForgotPasswordLink>
-          <Link to="/forgot-password">Forgot your password?</Link>
+          <Link to="/forgot-password">Forgot password?</Link>
         </ForgotPasswordLink>
       </form>
     </AuthLayout>
