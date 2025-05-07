@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -27,7 +28,7 @@ export const MainLayout = ({
   const navRef = useRef(null);
   const toggleRef = useRef(null);
   const avatarRef = useRef(null);
-  const firstLetter = user.name.charAt(0).toUpperCase();
+  const firstLetter = user?.name?.charAt(0).toUpperCase() || 'U';
 
   const {
     navigateToDashboard,
@@ -117,22 +118,21 @@ export const MainLayout = ({
             <IconButton>
               <IconImg src={MessageIcon} alt="Messages" />
             </IconButton>
-            {user ? (
               <AvatarCircle 
                 ref={avatarRef} 
                 onClick={(e) => toggleProfileDropdown(e)}
               >
                 {firstLetter}
               </AvatarCircle>
-            ) : (
-              <UserAvatar 
+
+              {/* Can be used in future */}
+
+              {/* <UserAvatar 
                 src="https://i.sstatic.net/l60Hf.png" 
                 alt="User"  
                 ref={avatarRef}  
                 onClick={(e) => toggleProfileDropdown(e)} 
-              />
-            )}
-
+              /> */}
             {showProfileDropdown && (
               <ProfileDropdown avatarRef={avatarRef} onClose={() => setShowProfileDropdown(false)} />
             )}
@@ -141,7 +141,7 @@ export const MainLayout = ({
         
         {showDashboardPageHeader && (
           <DashboardHeader>
-            <Title>Good Morning, Andrew!</Title>
+            <Title>Good Morning, {user?.name || 'User'}!</Title>
             <ButtonContainer>
               <NewButton>
                 <span>+</span> New Instruction

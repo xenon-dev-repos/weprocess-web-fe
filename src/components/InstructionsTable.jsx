@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -63,7 +64,7 @@ const InstructionsTable = ({
                 {tabs.map(tab => (
                   <Tab 
                     key={tab.id}
-                    active={activeTab === tab.id}
+                    $active={activeTab === tab.id}
                     onClick={() => handleTabChange(tab.id)}
                   >
                     {tab.label}

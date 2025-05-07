@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 
@@ -17,10 +18,10 @@ export const PageHeader = ({ title, filterButtons, onFilterChange }) => {
           <FilterButton
             key={button.id}
             onClick={() => handleFilterClick(button.id)}
-            active={activeFilter === button.id}
-            dotColor={button.dotColor}
+            $active={activeFilter === button.id}
+            $dotColor={button.dotColor}
           >
-            <StatusDot dotColor={button.dotColor} />
+            <StatusDot $dotColor={button.dotColor} />
             {button.label}
           </FilterButton>
         ))}
@@ -106,20 +107,20 @@ const FilterButton = styled.button`
   font-size: 16px;
   line-height: 20px;
   letter-spacing: 0%;
-  color: ${({ theme, active }) => active ? theme.color.primary : theme.color.lightText};
-  background-color: ${({ theme, active }) => active ? theme.color.white : 'transparent'};
+  color: ${({ $active }) => $active ? '#043F35' : '#E5E5E5'};
+  background-color: ${({ $active }) => $active ? '#FFFFFF' : 'transparent'};
   border: none;
   cursor: pointer;
   padding: 16px;
-  border-radius: 20px;
-  box-shadow: ${({ active }) => active ? '0px 2px 8px 0px #00000026' : 'none'};
+  border-radius: 16px;
+  box-shadow: ${({ $active }) => $active ? '0px 2px 8px 0px #00000026' : 'none'};
   width: 165px;
   height: 52px;
   transition: all 0.2s ease;
   white-space: nowrap;
 
   &:hover {
-    background-color: ${({ theme, active }) => !active && theme.color.background};
+    background-color: ${({ $active }) => !$active && '#FFFFFF1A'};
   }
 
   @media (max-width: 1440px) {
@@ -165,7 +166,7 @@ const StatusDot = styled.span`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: ${({ dotColor, theme }) => theme.color[dotColor] || dotColor};
+  background-color: ${({ $dotColor, theme }) => theme.color[$dotColor] || $dotColor};
 
   @media (max-width: 768px) {
     width: 6px;

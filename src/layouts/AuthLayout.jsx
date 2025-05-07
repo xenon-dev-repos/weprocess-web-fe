@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import AuthImage from '../assets/images/auth/auth-image.png';
 import { Link } from 'react-router-dom';

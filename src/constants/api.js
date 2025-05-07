@@ -15,6 +15,10 @@ export const API_ENDPOINTS = {
   FORGOT_PASSWORD: `${API_BASE_URL}/clients/forgot/password`,
   VERIFY_OTP: `${API_BASE_URL}/clients/validate/otp`,
   CHANGE_PASSWORD: `${API_BASE_URL}/clients/change/password`,
+
+  // data fetch and update
+  GET_PROFILE:  `${API_BASE_URL}/clients/:id`,
+  UPDATE_PROFILE:  `${API_BASE_URL}/clients/update`,
 };
 
 export default API_ENDPOINTS;

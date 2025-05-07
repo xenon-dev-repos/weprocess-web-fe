@@ -17,7 +17,7 @@ const handleResponse = async (response) => {
  * @param {Object} toast - Toast service for displaying notifications
  * @returns {Object} API methods with toast integration
  */
-export const createApiService = (toast) => {
+export const CreateApiService = (toast, setLoading) => {
   let tempToken = null;
 
   // Ensure we have at least a console logger if toast is not provided
@@ -30,13 +30,7 @@ export const createApiService = (toast) => {
 
   const apiRequest = async (url, options = {}, successMsg = null, useTempToken = false, removeTempToken = false) => {
     try {
-      // const response = await fetch(url, {
-      //   ...options,
-      //   headers: {
-      //     ...(options.headers || {}),
-      //     'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
-      //   }
-      // });
+      setLoading(true)
 
       const headers = {
         ...(options.headers || {}),
@@ -56,12 +50,14 @@ export const createApiService = (toast) => {
       const data = await handleResponse(response);
       
       if (successMsg) {
+        setLoading(false);
         toastObj.showSuccess(data.message || successMsg);
         {removeTempToken && localStorage.removeItem('tempToken')}
       }
       
       return data;
     } catch (error) {
+      setLoading(false);
       console.error('API request error:', error);
 
       toastObj.showError(error.message || 'An error occurred');
@@ -148,12 +144,14 @@ export const createApiService = (toast) => {
   };
 
   // Update user profile
-  const updateUserProfile = async (profileData) => {
+  const updateUserProfile = async (data) => {
     const formData = new FormData();
     
-    Object.entries(profileData).forEach(([key, value]) => {
+    Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
     });
+
+    formData.append('_method', 'PATCH')
     
     return apiRequest(
       API_ENDPOINTS.UPDATE_PROFILE, 
@@ -165,11 +163,30 @@ export const createApiService = (toast) => {
     );
   };
 
+  const updateUserPassword = async (data) => {
+    const formData = new FormData();
+    
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    formData.append('_method', 'PATCH')
+    
+    return apiRequest(
+      API_ENDPOINTS.UPDATE_PROFILE, 
+      {
+        method: 'POST',
+        body: formData
+      },
+      'Password updated successfully'
+    );
+  };
+
   return {
     validateEmail,
     getUserProfile,
     updateUserProfile,
-    // Add more API methods as needed
+    updateUserPassword,
     verifyOtp,
     requestPasswordReset,
     resetPassword,

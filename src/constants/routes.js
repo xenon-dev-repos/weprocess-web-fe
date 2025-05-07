@@ -14,7 +14,7 @@ INDIVIDUAL_SETUP: '/individual-setup',
 DASHBOARD: '/dashboard',
 INSTRUCTIONS: '/instructions',
 INVOICES: '/invoices',
-PROFILE: '/settings',
+SETTINGS: '/settings',
 
 // Fallback route
 NOT_FOUND: '*',
