@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import FlagImg from '../assets/images/auth/uk-flag.svg'
 import { useAuth } from '../contexts/AuthContext';

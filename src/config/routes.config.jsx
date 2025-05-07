@@ -1,3 +1,4 @@
+import React from 'react';
 import { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
@@ -60,7 +61,7 @@ export const ROUTE_CONFIG = [
     isPublic: false
   },
   {
-    path: ROUTES.PROFILE,
+    path: ROUTES.SETTINGS,
     element: <SettingsPage />,
     isPublic: false
   },

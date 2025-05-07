@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { MainLayout } from './MainLayout';
@@ -195,7 +196,7 @@ const RightSectionContent = styled.div`
 const RightSectionTitle = styled.h2`
   font-family: 'Manrope', sans-serif;
   font-weight: 500;
-  font-size: 24px;
+  font-size: 28px;
   color: #121F24;
 
   @media (max-width: 768px) {
@@ -207,7 +208,7 @@ const IconContainer = styled.div`
   width: ${props => props.$width || '48px'};
   height: ${props => props.$height || '48px'};
   border-radius: 100px;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: #043F35;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -219,8 +220,9 @@ const IconContainer = styled.div`
 `;
 
 const Icon = styled.img`
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
+  filter: brightness(0) invert(1);
 `;
 
 const MobileMenuButton = styled.button`

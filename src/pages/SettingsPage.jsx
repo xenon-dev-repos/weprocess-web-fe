@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { SubLayout } from '../layouts/SubLayout';
 import { 
@@ -15,17 +15,20 @@ import {
 import { Images } from '../assets/images/index.js'
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useToast } from '../services/ToastService';
 // import { useNavigation } from '../hooks/useNavigation.js';
-// import { useApi } from '../hooks/useApi.js';
+import { useApi } from '../hooks/useApi.js';
+import { ROUTES } from '../constants/routes.js';
 
 const SettingsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { loading } = useAuth();
+  const { user, logout } = useAuth();
   // const { navigateToSignIn } = useNavigation();
-  // const api = useApi();
+  const { showError } = useToast();
+  const api = useApi();
   const searchParams = new URLSearchParams(location.search);
-  const urlTab = [...searchParams.keys()][0] || 'profile';
+  const urlTab = searchParams.get('tab') || 'profile';
   const [activeTab, setActiveTab] = useState(urlTab || 'profile');
 
   const [formData, setFormData] = useState({
@@ -34,11 +37,14 @@ const SettingsPage = () => {
     phone_number: '',
     billing_address: '',
   });
+
+  const [passwordFormData, setPasswordFormData] = useState({
+    current_password: '',
+    new_password: '',
+  });
   const [phoneNumber, setPhoneNumber] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [cursorPosition, setCursorPosition] = useState(null);
   const [headerData, setHeaderData] = useState({
@@ -57,7 +63,15 @@ const SettingsPage = () => {
 
   const handleChange = (e) => {
     const { name, value, selectionStart } = e.target;
-    
+    if (activeTab === 'password') {
+      setPasswordFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+
+      return;
+    }
+
     if (name === 'phone_number') {
       setCursorPosition(selectionStart);
       const digitsOnly = value.replace(/\D/g, '');
@@ -85,19 +99,86 @@ const SettingsPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Add your form submission logic here
+    
+    try {
+      await api.updateUserProfile(formData);
+      
+      const existingUserData = JSON.parse(localStorage.getItem('userData')) || {};
+      const newUserData = {
+        ...existingUserData,
+        name: formData.name,
+        email: formData.email,
+        phone_number: formData.phone_number,
+        billing_address: formData.billing_address
+      };
+      localStorage.setItem('userData', JSON.stringify(newUserData));
+    } catch (err) {
+      console.error('Profile update error:', err);
+    }
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (passwordFormData.new_password !== confirmPassword) {
+      showError("New passwords don't match");
+      return;
+    }
+  
+    try {
+      await api.updateUserPassword({
+        current_password: passwordFormData.current_password,
+        new_password: passwordFormData.new_password
+      });
+      
+      // setPasswordFormData({
+      //   current_password: '',
+      //   new_password: ''
+      // });
+      // setConfirmPassword('');
+      
+    } catch (err) {
+      console.error('password update error:', err);
+    }
   };
 
   useEffect(() => {
-    navigate(`/settings?${activeTab}`, { replace: true });
+    if (activeTab === 'profile' && user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        phone_number: user.phone_number?.replace(/\D/g, '') || '',
+        billing_address: user.billing_address || '',
+      });
+  
+      // Format phone number visually for display
+      const digitsOnly = user.phone_number?.replace(/\D/g, '') || '';
+      let formattedPhone = digitsOnly;
+  
+      if (digitsOnly.startsWith('7')) {
+        if (digitsOnly.length > 5) {
+          formattedPhone = `${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5, 8)} ${digitsOnly.slice(8, 11)}`;
+        }
+      } else {
+        if (digitsOnly.length > 3) {
+          formattedPhone = `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 6)} ${digitsOnly.slice(6, 10)}`;
+        }
+      }
+  
+      setPhoneNumber(formattedPhone);
+    }
+  }, [user, activeTab]);  
+
+  useEffect(() => {
+    navigate(`${ROUTES.SETTINGS}?tab=${activeTab}`, { replace: true });
   }, [activeTab, navigate]);
 
   useEffect(() => {
     if (urlTab && urlTab !== activeTab) {
       handleItemClick(urlTab);
     }
-  }, [urlTab, activeTab]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlTab]);
 
   const handleItemClick = (action) => {
     switch(action) {
@@ -189,8 +270,8 @@ const SettingsPage = () => {
               </FormGroup>
               
               <ButtonGroup>
-                <FormButton type="submit" disabled={loading}>
-                {loading ? 'Processing...' : 'Update'}
+                <FormButton type="submit" disabled={api.loading}>
+                {api.loading ? 'Processing...' : 'Update'}
                 </FormButton>
                 <CancelButton type="button" onClick={() => console.log('Cancel clicked')}>
                   Cancel
@@ -202,15 +283,16 @@ const SettingsPage = () => {
       case 'password':
         return (
           <FormContainer>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handlePasswordSubmit}>
             <FormGroup>
                 <Label>Current Password</Label>
                 <PasswordInputContainer>
                   <Input
                     type={showPassword ? "text" : "password"}
+                    name="current_password"
                     placeholder="********"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    value={passwordFormData.current_password}
+                    onChange={handleChange}
                     required
                     minLength="8"
                   />
@@ -235,9 +317,10 @@ const SettingsPage = () => {
                 <PasswordInputContainer>
                   <Input
                     type={showPassword ? "text" : "password"}
+                    name="new_password"
                     placeholder="********"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    value={passwordFormData.new_password}
+                    onChange={handleChange}
                     required
                     minLength="8"
                   />
@@ -285,10 +368,16 @@ const SettingsPage = () => {
               </FormGroup>
 
               <ButtonGroup>
-                <FormButton type="submit" disabled={loading}>
-                {loading ? 'Processing...' : 'Update'}
+                <FormButton type="submit" disabled={api.loading}>
+                {api.loading ? 'Updating' : 'Update'}
                 </FormButton>
-                <CancelButton type="button" onClick={() => console.log('Cancel clicked')}>
+                <CancelButton type="button" onClick={() => {
+                  setPasswordFormData({
+                    current_password: '',
+                    new_password: ''
+                  });
+                  setConfirmPassword('');
+                }}>
                   Cancel
                 </CancelButton>
               </ButtonGroup>
@@ -300,8 +389,8 @@ const SettingsPage = () => {
           <FormContainer>
             <h2>Are you sure you want to logout?</h2>
             <ButtonGroup>
-                <FormButton type="submit" disabled={loading}>
-                {loading ? 'Processing...' : 'Logout'}
+                <FormButton type="submit" disabled={api.loading} onClick={() => logout()}>
+                {api.loading ? 'Processing...' : 'Logout'}
                 </FormButton>
               </ButtonGroup>
           </FormContainer>

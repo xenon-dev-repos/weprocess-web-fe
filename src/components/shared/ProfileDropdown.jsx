@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import ProfileIcon from '../../assets/images/dashboard/profile-icon.svg';
@@ -5,10 +6,13 @@ import PasswordIcon from '../../assets/images/dashboard/lock-icon.svg';
 import LogoutIcon from '../../assets/images/dashboard/logout-icon.svg';
 import { Images } from '../../assets/images/index.js'
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext.jsx';
+import { ROUTES } from '../../constants/routes.js';
 
 export const ProfileDropdown = ({ onClose, avatarRef }) => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -27,7 +31,11 @@ export const ProfileDropdown = ({ onClose, avatarRef }) => {
   }, [onClose, avatarRef]);
     
   const handleItemClick = (action) => {
-    navigate(`/settings?${action}`);
+    if (action === 'logout') {
+      logout();
+      return;
+    }
+    navigate(`${ROUTES.SETTINGS}?tab=${action}`);
     onClose();
   };
 
@@ -78,10 +86,10 @@ const DropdownContainer = styled.div`
   min-height: 226px;
   border-radius: 20px;
   background-color: var(--color-neutral-100);
-  padding: 10px;
+  padding: 10px 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 
@@ -90,7 +98,7 @@ const DropdownContainer = styled.div`
     width: 340px;
     right: 35px;
     top: 130px;
-    padding: 20px 16px;
+    padding: 10px 8px;
   }
 
   /* Medium desktop */
@@ -98,7 +106,7 @@ const DropdownContainer = styled.div`
     width: 320px;
     right: 30px;
     top: 125px;
-    padding: 18px 14px;
+    padding: 9px 7px;
   }
 
   /* Small desktop */
@@ -106,7 +114,7 @@ const DropdownContainer = styled.div`
     width: 300px;
     right: 25px;
     top: 110px;
-    padding: 16px 12px;
+    padding: 7px 5px;
   }
 
   /* Tablet */
@@ -114,7 +122,7 @@ const DropdownContainer = styled.div`
     width: 260px;
     right: 23px;
     top: 105px;
-    padding: 14px 10px;
+    padding: 6px 4px;
     min-height: 200px;
   }
 
@@ -122,7 +130,7 @@ const DropdownContainer = styled.div`
   @media (max-width: 480px) {
     width: 220px;
     top: 100px;
-    padding: 12px 8px;
+    padding: 5px 3px;
     min-height: 180px;
     border-radius: 16px;
   }
@@ -130,7 +138,7 @@ const DropdownContainer = styled.div`
   /* Small mobile */
   @media (max-width: 375px) {
     width: 200px;
-    padding: 10px 6px;
+    padding: 5px 3px;
   }
 `;
 

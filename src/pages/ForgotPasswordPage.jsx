@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,7 +7,7 @@ import { FormGroup, Input, Label, PasswordInputContainer, PasswordToggle, Submit
 import { AuthLayout } from '../layouts/AuthLayout';
 import { useNavigation } from '../hooks/useNavigation';
 import { useApi } from '../hooks/useApi';
-import { ToastProvider } from '../services/ToastService';
+import { useToast } from '../services/ToastService';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -20,6 +21,7 @@ const ForgotPasswordPage = () => {
   const { loading, setLoading } = useAuth();
   const { navigateTo } = useNavigation();
   const api = useApi();
+  const { showError } = useToast();
   const otpInputs = useRef([]);
 
   const handleSubmit = async (e) => {
@@ -30,9 +32,7 @@ const ForgotPasswordPage = () => {
       await api.requestPasswordReset(email);
       setIsSubmitted(true);
     } catch (err) {
-      ToastProvider.showError(err.message || 'Failed to send password reset email');
-    } finally {
-      setLoading(false);
+      console.error(err.message || 'Failed to send password reset email');
     }
   };
 
@@ -70,13 +70,12 @@ const ForgotPasswordPage = () => {
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+    
     const otpCode = otp.join('');
     if (otpCode.length !== 4) {
-      ToastProvider.showError('Please enter a 4-digit OTP');
+      showError('Please enter a 4-digit OTP');
       return;
     }
-    
-    setLoading(true);
     
     try {
       const response = await api.verifyOtp(email, otpCode);
@@ -84,16 +83,14 @@ const ForgotPasswordPage = () => {
         setIsOtpVerified(true);
       }
     } catch (err) {
-      ToastProvider.showError(err.message || 'OTP verification failed');
-    } finally {
-      setLoading(false);
+      console.error(err.message || 'OTP verification failed');
     }
   };
   
   const handlePasswordReset = async (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      ToastProvider.showError('Password do not match');
+      console.error('Password do not match');
       return;
     }
     
@@ -103,7 +100,7 @@ const ForgotPasswordPage = () => {
       await api.resetPassword(email, newPassword);
       navigateTo('/signin');
     } catch (err) {
-      ToastProvider.showError(err.message || 'Password reset failed');
+      console.error(err.message || 'Password reset failed');
     } finally {
       setLoading(false);
     }
