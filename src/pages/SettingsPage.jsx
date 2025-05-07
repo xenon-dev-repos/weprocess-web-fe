@@ -47,9 +47,28 @@ const SettingsPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [cursorPosition, setCursorPosition] = useState(null);
-  const [headerData, setHeaderData] = useState({
-    title: 'Profile',
-    icon: Images.dashboard.profileIcon
+  // const [headerData, setHeaderData] = useState({
+  //   title: 'Profile',
+  //   icon: Images.dashboard.profileIcon
+  // });
+  const [headerData, setHeaderData] = useState(() => {
+    switch(urlTab) {
+      case 'password':
+        return {
+          title: 'Change Password', 
+          icon: Images.dashboard.lockIcon
+        };
+      case 'logout':
+        return {
+          title: 'Logout',
+          icon: Images.dashboard.logoutIcon
+        };
+      default:
+        return {
+          title: 'Profile',
+          icon: Images.dashboard.profileIcon
+        };
+    }
   });
   const phoneInputRef = useRef(null);
 
@@ -266,7 +285,7 @@ const SettingsPage = () => {
               
               <ButtonGroup>
                 <FormButton type="submit" disabled={api.loading}>
-                {api.loading ? 'Processing...' : 'Update'}
+                {api.loading ? 'Updating' : 'Update'}
                 </FormButton>
                 <CancelButton type="button" onClick={() => console.log('Cancel clicked')}>
                   Cancel
