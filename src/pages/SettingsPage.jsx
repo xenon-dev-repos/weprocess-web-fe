@@ -23,7 +23,7 @@ import { ROUTES } from '../constants/routes.js';
 const SettingsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, formatPhoneNumber } = useAuth();
   // const { navigateToSignIn } = useNavigation();
   const { showError } = useToast();
   const api = useApi();
@@ -47,9 +47,28 @@ const SettingsPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [cursorPosition, setCursorPosition] = useState(null);
-  const [headerData, setHeaderData] = useState({
-    title: 'Profile',
-    icon: Images.dashboard.profileIcon
+  // const [headerData, setHeaderData] = useState({
+  //   title: 'Profile',
+  //   icon: Images.dashboard.profileIcon
+  // });
+  const [headerData, setHeaderData] = useState(() => {
+    switch(urlTab) {
+      case 'password':
+        return {
+          title: 'Change Password', 
+          icon: Images.dashboard.lockIcon
+        };
+      case 'logout':
+        return {
+          title: 'Logout',
+          icon: Images.dashboard.logoutIcon
+        };
+      default:
+        return {
+          title: 'Profile',
+          icon: Images.dashboard.profileIcon
+        };
+    }
   });
   const phoneInputRef = useRef(null);
 
@@ -73,21 +92,16 @@ const SettingsPage = () => {
     }
 
     if (name === 'phone_number') {
-      setCursorPosition(selectionStart);
-      const digitsOnly = value.replace(/\D/g, '');
-      let formattedValue = digitsOnly;
-      
-      // UK phone number formatting
-      if (digitsOnly.startsWith('7')) {
-        if (digitsOnly.length > 5) formattedValue = `${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5, 8)} ${digitsOnly.slice(8, 11)}`;
-      } else {
-        if (digitsOnly.length > 3) formattedValue = `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 6)} ${digitsOnly.slice(6, 10)}`;
-      }
+      const formattedValue = formatPhoneNumber(value, phoneNumber);
+      const cursorOffset = formattedValue.length - value.length;
+      const newCursorPosition = selectionStart + cursorOffset;
       
       setPhoneNumber(formattedValue);
+      setCursorPosition(newCursorPosition);
+
       setFormData(prev => ({
         ...prev,
-        phone_number: digitsOnly
+        phone_number: formattedValue.replace(/\s/g, '')
       }));
     } else {
       setFormData(prev => ({
@@ -271,7 +285,7 @@ const SettingsPage = () => {
               
               <ButtonGroup>
                 <FormButton type="submit" disabled={api.loading}>
-                {api.loading ? 'Processing...' : 'Update'}
+                {api.loading ? 'Updating' : 'Update'}
                 </FormButton>
                 <CancelButton type="button" onClick={() => console.log('Cancel clicked')}>
                   Cancel
