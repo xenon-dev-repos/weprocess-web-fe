@@ -273,9 +273,6 @@ const SettingsPage = () => {
                 <FormButton type="submit" disabled={api.loading}>
                 {api.loading ? 'Processing...' : 'Update'}
                 </FormButton>
-                <CancelButton type="button" onClick={() => console.log('Cancel clicked')}>
-                  Cancel
-                </CancelButton>
               </ButtonGroup>
             </form>
           </FormContainer>
