@@ -52,7 +52,7 @@ const SettingsPage = () => {
     icon: Images.dashboard.profileIcon
   });
   const phoneInputRef = useRef(null);
-
+  const [emailError, setEmailError] = useState('');
 
   useEffect(() => {
     if (cursorPosition !== null && phoneInputRef.current) {
@@ -97,12 +97,20 @@ const SettingsPage = () => {
     }
   };
 
+  const validateEmail = (email) => {
+    // Basic email regex
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setEmailError('');
+    if (!validateEmail(formData.email)) {
+      setEmailError('Please enter a valid email address.');
+      return;
+    }
     try {
       await api.updateUserProfile(formData);
-      
       const existingUserData = JSON.parse(localStorage.getItem('userData')) || {};
       const newUserData = {
         ...existingUserData,
@@ -228,14 +236,18 @@ const SettingsPage = () => {
               </FormGroup>
 
               <FormGroup>
-                <Label>Email address (optional)</Label>
+                <Label>Email address</Label>
                 <Input
                   type="email"
                   name="email"
                   placeholder="example@email.com"
                   value={formData.email}
                   onChange={handleChange}
+                  required
                 />
+                {emailError && (
+                  <span style={{ color: 'red', fontSize: '13px' }}>{emailError}</span>
+                )}
               </FormGroup>
                   
               <FormGroup>
