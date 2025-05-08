@@ -48,7 +48,7 @@ const InstructionsPage = () => {
         onChange={(e) => handleTimeFilterChange(e.target.value)}
         style={{
           padding: '8px 12px',
-          borderRadius: '4px',
+          borderRadius: '12px',
           border: '1px solid #ddd'
         }}
       >
