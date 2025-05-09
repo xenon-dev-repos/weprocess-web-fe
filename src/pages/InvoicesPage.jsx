@@ -128,7 +128,7 @@ const InvoicesPage = () => {
                   }}
                 minHeight={495}
                 noDataCellHeight={420}
-                itemsPerPage={8}
+                itemsPerPage={10}
                 />
             </TableContainer>
         </MainContent>
