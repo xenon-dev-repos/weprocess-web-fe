@@ -64,7 +64,7 @@ const InstructionsPage = () => {
             });
             
             if (response.success) {
-                setFilteredData(response.data);
+                setFilteredData(response.serves.data || []);
             } else {
                 setError(response.message || 'Failed to fetch serves');
             }
@@ -98,12 +98,11 @@ const InstructionsPage = () => {
     );
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
+        if (!dateString) return '';
+        // Handles both "YYYY-MM-DD" and "DD/MM/YYYY"
+        if (dateString.includes('/')) return dateString;
+        const d = new Date(dateString);
+        return d.toLocaleDateString('en-GB');
     };
 
     const getStatusBadgeColor = (status) => {
@@ -114,10 +113,22 @@ const InstructionsPage = () => {
                 return { bg: '#fef3c7', color: '#92400e' };
             case 'completed':
                 return { bg: '#dbeafe', color: '#1e40af' };
+            case 'new':
+                return { bg: '#e0e7ff', color: '#3730a3' };
             default:
                 return { bg: '#e5e7eb', color: '#374151' };
         }
     };
+
+    const columns = [
+        { key: 'id', header: 'Process ID' },
+        { key: 'issuing_court', header: 'Court name' },
+        { key: 'recipient_name', header: "Recipient's name" },
+        { key: 'recipient_address', header: "Recipient's address" },
+        { key: 'date_of_submission', header: 'Date issues' },
+        { key: 'deadline', header: 'Deadline' },
+        { key: 'status', header: 'Process status' },
+    ];
 
     return (
         <MainLayout 
@@ -133,15 +144,7 @@ const InstructionsPage = () => {
                             data={filteredData}
                             title="Instructions In Progress"
                             subtitle="Monthly instructions requested by firm"
-                            columns={[
-                                { key: 'id', header: 'WPR no.' },
-                                { key: 'title', header: 'Title' },
-                                { key: 'recipient_name', header: 'Recipient' },
-                                { key: 'recipient_address', header: 'Address' },
-                                { key: 'priority', header: 'Priority' },
-                                { key: 'deadline', header: 'Deadline' },
-                                { key: 'status', header: 'Status' },
-                            ]}
+                            columns={columns}
                             customFilters={customFilters}
                             renderCell={(key, value, row) => {
                                 if (key === 'status') {
@@ -152,7 +155,7 @@ const InstructionsPage = () => {
                                         </StatusBadge>
                                     );
                                 }
-                                if (key === 'deadline') {
+                                if (key === 'date_of_submission' || key === 'deadline') {
                                     return formatDate(value);
                                 }
                                 if (key === 'price') {
