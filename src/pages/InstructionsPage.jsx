@@ -141,7 +141,6 @@ const InstructionsPage = () => {
                                 { key: 'priority', header: 'Priority' },
                                 { key: 'deadline', header: 'Deadline' },
                                 { key: 'status', header: 'Status' },
-                                { key: 'price', header: 'Amount' },
                             ]}
                             customFilters={customFilters}
                             renderCell={(key, value, row) => {
