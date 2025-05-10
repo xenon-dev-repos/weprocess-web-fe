@@ -392,7 +392,7 @@ const SettingsPage = () => {
                 <FormButton type="submit" disabled={api.loading}>
                 {api.loading ? 'Updating' : 'Update'}
                 </FormButton>
-                <CancelButton type="button" onClick={() => {
+                {/* <CancelButton type="button" onClick={() => {
                   setPasswordFormData({
                     current_password: '',
                     new_password: ''
@@ -400,7 +400,7 @@ const SettingsPage = () => {
                   setConfirmPassword('');
                 }}>
                   Cancel
-                </CancelButton>
+                </CancelButton> */}
               </ButtonGroup>
             </form>
           </FormContainer>
