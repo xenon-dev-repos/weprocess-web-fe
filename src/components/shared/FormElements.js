@@ -4,19 +4,38 @@ export const FormGroup = styled.div`
   margin-bottom: 24px;
 `;
 
+export const FormGroup2 = styled.div`
+  width: ${props => props.$isDateField ? '100%' : '50%'};
+
+  @media (max-width: 1024px) {
+   width: 100%;
+  }
+
+  @media (max-width: 768px) {
+   width: 100%;
+  }
+`;
+
 export const Label = styled.label`
   display: block;
   margin-bottom: 8px;
-  font-size: 1rem;
-  color: var(--color-primary-500);
+  color: #656565;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  vertical-align: middle;
+
 `;
 
 export const Input = styled.input`
   width: 100%;
-  padding: 16px;
+  padding: 8px 16px;
   border: 2px solid var(--color-border-secondary);
   border-radius: 12px;
   font-size: 1rem;
+  height: ${({ $height }) => $height || '48px'};
+  box-size: border-box;
   
   &:focus {
     outline: none;

@@ -1,20 +1,19 @@
 export const ROUTES = {
 // Public routes
-ROOT: '/',
 SIGNUP: '/signup',
 SIGNIN: '/signin',
 FORGOT_PASSWORD: '/forgot-password',
 RESET_PASSWORD: '/reset-password',
-
-// Setup routes
 FIRM_SETUP: '/firm-setup',
 INDIVIDUAL_SETUP: '/individual-setup',
 
 // App routes
+ROOT: '/',
 DASHBOARD: '/dashboard',
 INSTRUCTIONS: '/instructions',
 INVOICES: '/invoices',
 SETTINGS: '/settings',
+ADD_INSTRUCTION: '/add-new-instruction',
 
 // Fallback route
 NOT_FOUND: '*',
