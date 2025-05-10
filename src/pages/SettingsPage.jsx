@@ -23,9 +23,9 @@ import { ROUTES } from '../constants/routes.js';
 const SettingsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, setUser } = useAuth();
   // const { navigateToSignIn } = useNavigation();
-  const { showError } = useToast();
+  const { showError, showSuccess } = useToast();
   const api = useApi();
   const searchParams = new URLSearchParams(location.search);
   const urlTab = searchParams.get('tab') || 'profile';
@@ -112,18 +112,25 @@ const SettingsPage = () => {
       return;
     }
     try {
-      await api.updateUserProfile(formData);
-      const existingUserData = JSON.parse(localStorage.getItem('userData')) || {};
-      const newUserData = {
-        ...existingUserData,
-        name: formData.name,
-        email: formData.email,
-        phone_number: formData.phone_number,
-        billing_address: formData.billing_address
-      };
-      localStorage.setItem('userData', JSON.stringify(newUserData));
+      const response = await api.updateUserProfile(formData);
+      if (response.success) {
+        // Update local storage
+        const existingUserData = JSON.parse(localStorage.getItem('userData')) || {};
+        const newUserData = {
+          ...existingUserData,
+          ...response.client // Use the client data from the API response
+        };
+        localStorage.setItem('userData', JSON.stringify(newUserData));
+        
+        // Update auth context
+        setUser(newUserData);
+        
+        // Show success message
+        showSuccess('Profile updated successfully');
+      }
     } catch (err) {
       console.error('Profile update error:', err);
+      showError(err.message || 'Failed to update profile');
     }
   };
 
@@ -240,6 +247,12 @@ const SettingsPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
+                  disabled
+                  style={{ 
+                    backgroundColor: '#f5f5f5',
+                    cursor: 'not-allowed',
+                    opacity: 0.8
+                  }}
                 />
                 {emailError && (
                   <span style={{ color: 'red', fontSize: '13px' }}>{emailError}</span>
