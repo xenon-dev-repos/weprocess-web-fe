@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
@@ -211,7 +210,7 @@ InstructionsTable.propTypes = {
 
 const TableContainer = styled.div`
   background-color: white;
-  border-radius: 12px;
+  border-radius: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;
@@ -219,7 +218,7 @@ const TableContainer = styled.div`
   height: 100%;
 
   @media (max-width: 768px) {
-    border-radius: 10px;
+    border-radius: 16px;
   }
 `;
 
@@ -383,50 +382,43 @@ const EmptyStateContainerRow = styled.tr`
 
 const Table = styled.table`
   width: 100%;
-  border-collapse: collapse;
-  
-  @media (min-width: 1025px) {
-    table-layout: fixed;
-    width: 100%;
-  }
-  
-  
-  @media (max-width: 1024px) {
-    table-layout: auto;
-    min-width: 1024px; 
-  }
+  border-collapse: separate;
+  border-spacing: 0;
 `;
 
 const TableHead = styled.thead`
-  background-color: #F5F5F5;
+  // background-color: #f5f6fa;
 `;
 
 const TableHeaderCell = styled.th`
-  padding: 12px 16px;
+  padding: 16px 12px;
   font-family: 'Manrope', sans-serif;
   color: #656565;
   font-weight: 400;
   font-size: 16px;
-  line-height: 100%;
-  letter-spacing: 0%;
-  padding: 16px 12px;
+  background: #f5f6fa;
   text-align: ${props => props.align || 'left'};
   vertical-align: middle;
   width: ${props => props.width || 'auto'};
-  
+  border-bottom: 1px solid #e5e7eb;
+
   &:first-child {
-    padding-left: 20px;
+    border-top-left-radius: 24px;
+    border-bottom-left-radius: 24px;
+
+  }
+  &:last-child {
+    border-top-right-radius: 24px;
+    border-bottom-right-radius: 24px;
   }
 
   @media (max-width: 1024px) {
     padding: 10px 14px;
   }
-
   @media (max-width: 768px) {
     padding: 10px 12px;
     font-size: 13px;
   }
-
   @media (max-width: 480px) {
     padding: 8px 10px;
     font-size: 12px;
