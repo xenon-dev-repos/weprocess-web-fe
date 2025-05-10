@@ -22,6 +22,9 @@ export const API_ENDPOINTS = {
 
   // Serves endpoint
   SERVES: `${API_BASE_URL}/serves`,
+
+  // Invoices endpoint
+  INVOICES: `${API_BASE_URL}/invoices`,
 };
 
 export default API_ENDPOINTS;
