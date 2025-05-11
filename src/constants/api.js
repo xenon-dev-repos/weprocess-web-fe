@@ -19,6 +19,12 @@ export const API_ENDPOINTS = {
   // data fetch and update
   GET_PROFILE:  `${API_BASE_URL}/clients/:id`,
   UPDATE_PROFILE:  `${API_BASE_URL}/clients/update`,
+
+  // Serves endpoint
+  SERVES: `${API_BASE_URL}/serves`,
+
+  // Invoices endpoint
+  INVOICES: `${API_BASE_URL}/invoices`,
 };
 
 export default API_ENDPOINTS;

@@ -1,46 +1,85 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { MainLayout } from '../layouts/MainLayout';
 import InstructionsTable from '../components/InstructionsTable';
-import { instructionsTableData } from '../constants/mockData';
+import { useAuth } from '../contexts/AuthContext';
 
 const InstructionsPage = () => {
     const [timeFilter, setTimeFilter] = useState('monthly');
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [filteredData, setFilteredData] = useState(instructionsTableData);
+    const [statusFilter, setStatusFilter] = useState('');
+    const [filteredData, setFilteredData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const { user, getServes } = useAuth();
+
+    const getDeadlineDate = (filter) => {
+        const today = new Date();
+        switch(filter) {
+            case 'weekly':
+                return new Date(today.setDate(today.getDate() + 7)).toISOString().split('T')[0];
+            case 'biweekly':
+                return new Date(today.setDate(today.getDate() + 14)).toISOString().split('T')[0];
+            case 'monthly':
+                return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
+            default:
+                return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
+        }
+    };
 
     const filterButtons = [
-        { id: 'all', label: 'All', dotColor: 'white' },
-        { id: 'newrequest', label: 'New Requests', dotColor: 'info' },
-        { id: 'inprogress', label: 'In Progress', dotColor: 'warning' },
+        { id: '', label: 'All', dotColor: 'white' },
+        { id: 'pending', label: 'Pending', dotColor: 'info' },
+        { id: 'in_progress', label: 'In Progress', dotColor: 'warning' },
         { id: 'completed', label: 'Completed', dotColor: 'success' }
     ];
   
     const handleTimeFilterChange = (value) => {
-      setTimeFilter(value);
-      // Filter data based on time period
-      let filtered = [];
-      switch(value) {
-        case 'weekly':
-          filtered = instructionsTableData.slice(0, 3); // Example
-          break;
-        case 'biweekly':
-          filtered = instructionsTableData.slice(0, 6); // Example
-          break;
-        case 'monthly':
-          filtered = instructionsTableData; // All data
-          break;
-        default:
-          filtered = instructionsTableData;
-      }
-      setFilteredData(filtered);
+        setTimeFilter(value);
+        fetchServes();
     };
 
     const handleStatusFilterChange = (filterId) => {
         setStatusFilter(filterId);
-        console.log('Filter changed to:', filterId);
+        fetchServes();
     };
+
+    const fetchServes = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            
+            if (!user?.id) {
+                setError('User ID not found');
+                return;
+            }
+
+            const response = await getServes({
+                status: statusFilter,
+                deadline: getDeadlineDate(timeFilter),
+                sort_by: 'deadline,price',
+                sort_order: 'desc,asc',
+                per_page: 10,
+                user_id: user.id
+            });
+            
+            if (response.success) {
+                setFilteredData(response.serves.data || []);
+            } else {
+                setError(response.message || 'Failed to fetch serves');
+            }
+        } catch (error) {
+            console.error('Error fetching serves:', error);
+            setError(error.message || 'Failed to fetch serves');
+            setFilteredData([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+  
+    useEffect(() => {
+        fetchServes();
+    }, []);
   
     const customFilters = (
       <select 
@@ -48,7 +87,7 @@ const InstructionsPage = () => {
         onChange={(e) => handleTimeFilterChange(e.target.value)}
         style={{
           padding: '8px 12px',
-          borderRadius: '4px',
+          borderRadius: '12px',
           border: '1px solid #ddd'
         }}
       >
@@ -57,85 +96,85 @@ const InstructionsPage = () => {
         <option value="monthly">Monthly</option>
       </select>
     );
-  
-  
-  // Removed unused activeTab state since we're using the tabId directly from onTabChange
-  // If you need activeTab for other purposes, keep it but use it somewhere in your component
 
-//   const handleTabChange = (tabId) => {
-//     // Filter data based on selected tab
-//     let filtered = [];
-//     switch(tabId) {
-//       case 'new-requests':
-//         filtered = instructionsTableData.filter(item => item.status === '1st attempt');
-//         break;
-//       case 'in-progress':
-//         filtered = instructionsTableData.filter(item => 
-//           ['1st attempt', '2nd attempt', '3rd attempt', 'In Transit'].includes(item.status)
-//         );
-//         break;
-//       case 'completed':
-//         filtered = instructionsTableData.filter(item => item.status === 'Completed');
-//         break;
-//       case 'invoices':
-//         filtered = instructionsTableData.filter(item => item.type === 'Urgent');
-//         break;
-//       default:
-//         filtered = instructionsTableData;
-//     }
-//     setFilteredData(filtered);
-//   };
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        // Handles both "YYYY-MM-DD" and "DD/MM/YYYY"
+        if (dateString.includes('/')) return dateString;
+        const d = new Date(dateString);
+        return d.toLocaleDateString('en-GB');
+    };
 
-  return (
-    <MainLayout 
-    showInstructionsPageHeader={true}
-    title="Instructions" 
-    filterButtons={filterButtons} 
-    onFilterChange={handleStatusFilterChange} 
-    >
-      <DashboardContainer>
-        <MainContent>
-            <TableContainer>
-                <InstructionsTable 
-                data={filteredData}
-                title="Instructions In Progress"
-                subtitle="Monthly instructions requested by firm"
-                // tabs={[
-                //     { id: 'new-requests', label: 'New requests' },
-                //     { id: 'in-progress', label: 'In progress' },
-                //     { id: 'completed', label: 'Completed' },
-                //     { id: 'invoices', label: 'Invoices' }
-                // ]}
-                columns={[
-                    { key: 'wpr', header: 'WPR no.' },
-                    { key: 'owner', header: 'Owner' },
-                    { key: 'serve', header: 'Serve name' },
-                    { key: 'court', header: 'Court name' },
-                    { key: 'type', header: 'Service type' },
-                    { key: 'deadline', header: 'Deadline' },
-                    { key: 'status', header: 'Process status' },
-                    { key: 'amount', header: 'Amount' },
-                ]}
-                // onTabChange={handleTabChange}
-                customFilters={customFilters}
-                renderCell={(key, value) => {
-                    if (key === 'status') {
-                      return <StatusBadge status={value}>{value}</StatusBadge>;
-                    }
-                    if (key === 'amount') {
-                      return `$${(Math.random() * 1000).toFixed(2)}`; // Example
-                    }
-                    return value;
-                  }}
-                minHeight={495}
-                noDataCellHeight={420}
-                itemsPerPage={8}
-                />
-            </TableContainer>
-        </MainContent>
-      </DashboardContainer>
-    </MainLayout>
-  );
+    const getStatusBadgeColor = (status) => {
+        switch (status) {
+            case 'pending':
+                return { bg: '#dcfce7', color: '#166534' };
+            case 'in_progress':
+                return { bg: '#fef3c7', color: '#92400e' };
+            case 'completed':
+                return { bg: '#dbeafe', color: '#1e40af' };
+            case 'new':
+                return { bg: '#e0e7ff', color: '#3730a3' };
+            default:
+                return { bg: '#e5e7eb', color: '#374151' };
+        }
+    };
+
+    const columns = [
+        { key: 'id', header: 'Process ID' },
+        { key: 'issuing_court', header: 'Court name' },
+        { key: 'recipient_name', header: "Recipient's name" },
+        { key: 'recipient_address', header: "Recipient's address" },
+        { key: 'date_of_submission', header: 'Date issues' },
+        { key: 'deadline', header: 'Deadline' },
+        { key: 'status', header: 'Process status' },
+    ];
+
+    return (
+        <MainLayout 
+            showInstructionsPageHeader={true}
+            title="Instructions" 
+            filterButtons={filterButtons} 
+            onFilterChange={handleStatusFilterChange} 
+        >
+            <DashboardContainer>
+                <MainContent>
+                    <TableContainer>
+                        <InstructionsTable 
+                            data={filteredData}
+                            title="Instructions In Progress"
+                            subtitle="Monthly instructions requested by firm"
+                            columns={columns}
+                            customFilters={customFilters}
+                            renderCell={(key, value, row) => {
+                                if (key === 'status') {
+                                    const { bg, color } = getStatusBadgeColor(value);
+                                    return (
+                                        <StatusBadge style={{ backgroundColor: bg, color }}>
+                                            {value.replace('_', ' ')}
+                                        </StatusBadge>
+                                    );
+                                }
+                                if (key === 'date_of_submission' || key === 'deadline') {
+                                    return formatDate(value);
+                                }
+                                if (key === 'price') {
+                                    return `£${parseFloat(value).toFixed(2)}`;
+                                }
+                                if (key === 'priority') {
+                                    return value.charAt(0).toUpperCase() + value.slice(1);
+                                }
+                                return value;
+                            }}
+                            minHeight={495}
+                            noDataCellHeight={420}
+                            itemsPerPage={10}
+                        />
+                    </TableContainer>
+                </MainContent>
+            </DashboardContainer>
+        </MainLayout>
+    );
 };
 
 const DashboardContainer = styled.div`
@@ -168,26 +207,11 @@ const TableContainer = styled.div`
 `;
 
 const StatusBadge = styled.span`
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  
-  ${props => {
-    switch (props.status) {
-      case '1st attempt':
-        return 'background-color: #dcfce7; color: #166534;';
-      case '2nd attempt':
-        return 'background-color: #fef3c7; color: #92400e;';
-      case '3rd attempt':
-        return 'background-color: #fee2e2; color: #b91c1c;';
-      case 'In Transit':
-        return 'background-color: #dbeafe; color: #1e40af;';
-      default:
-        return 'background-color: #e5e7eb; color: #374151;';
-    }
-  }}
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: capitalize;
 `;
-
 
 export default InstructionsPage;
