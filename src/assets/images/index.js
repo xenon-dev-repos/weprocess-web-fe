@@ -23,6 +23,13 @@ import applePay from './instructions/apple-icon.svg';
 import googlePay from './instructions/android-icon.svg';
 import creditCard from './instructions/cards-icon.svg';
 
+import jobsTakenIcon from './instructions/jobs-taken-icon.svg';
+import jobsCompletedIcon from './instructions/jobs-completed-icon.svg';
+import trendIcon from './instructions/trend-icon.svg';
+
+import arrowRight from './instructions/arrow-right.png';
+import arrowDown from './instructions/arrow-down.png';
+
 export const Images = {
   auth: {
     ukFlag,
@@ -50,6 +57,13 @@ export const Images = {
     applePay,
     googlePay,
     creditCard,
+
+    jobsTakenIcon,
+    jobsCompletedIcon,
+    trendIcon,
+
+    arrowRight,
+    arrowDown,
   },
   
   shared: {

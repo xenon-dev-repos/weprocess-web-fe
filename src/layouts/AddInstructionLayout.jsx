@@ -1,9 +1,8 @@
 import React from 'react';
-import { useState } from 'react';
 import styled from 'styled-components';
 import { MainLayout } from './MainLayout';
 import { Images } from '../assets/images/index.js';
-import { ContentSection, SideBarSection } from './SubLayout.jsx';
+import { ContentSection, SideBarSectionAddInstruction } from './SubLayout.jsx';
 
 export const AddInstructionLayout = ({ 
   children, 
@@ -17,12 +16,11 @@ export const AddInstructionLayout = ({
   stepsData,
   // isSubmitted,
   }) => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <MainLayout title={'New instruction'} isAddInstructionPage={isAddInstructionPage} currentStep={currentStep} stepsData={stepsData}>
       <LayoutContainer>
-
+        
         <ContentSection>
           <ContentSectionHeader>
             <ContentSectionTitle>{tabTitle}</ContentSectionTitle>
@@ -58,14 +56,10 @@ export const AddInstructionLayout = ({
           </ButtonGroup>
         </ContentSection>
 
-        <SideBarSection $height={'376px'} $drawerOpen={drawerOpen}>
+        <SideBarSectionAddInstruction $height={'376px'}>
           {children[0]}
-        </SideBarSection>
+        </SideBarSectionAddInstruction>
 
-        <DrawerOverlay 
-          $drawerOpen={drawerOpen} 
-          onClick={() => setDrawerOpen(false)}
-        />
       </LayoutContainer>
     </MainLayout>
   );
@@ -77,7 +71,6 @@ export const LayoutContainer = styled.div`
   gap: 24px;
   overflow: hidden;
   position: relative;
-  // min-height: calc(100vh - 160px);
 
   @media (max-width: 1440px) {
     gap: 22px;
@@ -92,7 +85,7 @@ export const LayoutContainer = styled.div`
   }
 
   @media (max-width: 768px) {
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 16px;
     min-height: auto;
   }

@@ -13,7 +13,7 @@ export const DisplayField = ({ label, value }) => {
 const FieldContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   width: 100%;
 `;
 

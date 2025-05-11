@@ -1,10 +1,11 @@
 // Step5PaymentMethod.js
 import React from 'react';
-import { InstructionsMainContainer } from '../../styles/Shared';
+import { CustomDivider, InstructionsMainContainer } from '../../styles/Shared';
 import { RecipientDetailsLayout } from '../../layouts/RecipientDetailsLayout';
 import { useInstruction } from '../../contexts/InstructionContext';
 import { Images } from '../../assets/images';
 import styled from 'styled-components';
+import { SharedInstructionInvoiceDetails } from './SharedInstructionInvoiceDetails';
 
 export const Step5PaymentMethod = () => {
   const { formData, handleInputChange } = useInstruction();
@@ -39,63 +40,16 @@ export const Step5PaymentMethod = () => {
         </PaymentOption>
       </PaymentMethodContainer>
 
-      <RecipientDetailsLayout title="Invoice details">
+      {/* shared InvoiceDetails component */}
+      <SharedInstructionInvoiceDetails formData={formData} isAddNewInstructionStep5={true} />
 
-        <InvoiceDetailsContainer>
-          <InvoiceLeftColumn>
-            <DetailValue>Andrew Garfield</DetailValue>
-            <DetailValue>ABC street 4, NY</DetailValue>
-          </InvoiceLeftColumn>
-          <InvoiceRightColumn>
-            <DetailLabel>Invoice no.</DetailLabel>
-            <DetailValue>51026712</DetailValue>
-          </InvoiceRightColumn>
-        </InvoiceDetailsContainer>
-
-        <Divider />
-
-        <ClientReceipentInfoContainer>
-          {/* Client Contact Info */}
-          <InfoSection>
-            <DetailLabel>Client contact info</DetailLabel>
-            <DetailValue>Andrew Garfield</DetailValue>
-            <DetailValue>andrew@example.com</DetailValue>
-            <DetailValue>+44 20 7946 0958</DetailValue>
-            <DetailValue>ABC street 4, NY</DetailValue>
-          </InfoSection>
-
-          {/* Bill To */}
-          <InfoSection>
-            <DetailLabel>Bill to</DetailLabel>
-            <DetailValue>WeProcess Ltd</DetailValue>
-            <DetailValue>accounts@weprocess.com</DetailValue>
-            <DetailValue>+44 20 7946 0000</DetailValue>
-            <DetailValue>123 Business Ave, London</DetailValue>
-          </InfoSection>
-
-          {/* Client Name Details */}
-          <ClientNameSection>
-            <DetailRow>
-              <DetailLabel>Client name</DetailLabel>
-              <DetailValue>Andrew Garfield</DetailValue>
-            </DetailRow>
-            <DetailRow>
-              <DetailLabel>Invoice date</DetailLabel>
-              <DetailValue>May 10, 2025</DetailValue>
-            </DetailRow>
-            <DetailRow>
-              <DetailLabel>Due date</DetailLabel>
-              <DetailValue>May 24, 2025</DetailValue>
-            </DetailRow>
-          </ClientNameSection>
-        </ClientReceipentInfoContainer>
-      </RecipientDetailsLayout>
+      <CustomDivider />
 
       <PaymentContainerTitle>Pay with</PaymentContainerTitle>
 
       {/* Payment Method Cards */}
       <PaymentCardsContainer>
-        <PaymentCard 
+        {/* <PaymentCard 
           onClick={() => handleInputChange('payment_method', 'apple_pay')}
           $isSelected={formData.payment_method === 'apple_pay'}
         >
@@ -109,9 +63,9 @@ export const Step5PaymentMethod = () => {
             <PaymentCardLabel>Pay with Apple Pay</PaymentCardLabel>
           </PaymentCardLeft>
           <AppleIcon src={Images.instructions.applePay} alt="Apple Pay" />
-        </PaymentCard>
+        </PaymentCard> */}
 
-        <PaymentCard 
+        {/* <PaymentCard 
           onClick={() => handleInputChange('payment_method', 'google_pay')}
           $isSelected={formData.payment_method === 'google_pay'}
         >
@@ -125,7 +79,7 @@ export const Step5PaymentMethod = () => {
             <PaymentCardLabel>Pay with Google Pay</PaymentCardLabel>
           </PaymentCardLeft>
           <GoogleIcon src={Images.instructions.googlePay} alt="Google Pay" />
-        </PaymentCard>
+        </PaymentCard> */}
 
         <PaymentCard 
           onClick={() => handleInputChange('payment_method', 'card')}
@@ -142,130 +96,11 @@ export const Step5PaymentMethod = () => {
           </PaymentCardLeft>
           <CardIcon src={Images.instructions.creditCard} alt="Credit Card" />
         </PaymentCard>
+
       </PaymentCardsContainer>
     </InstructionsMainContainer>
   );
 };
-
-const InvoiceDetailsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 24px;
-  width: 100%;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 16px;
-  }
-`;
-
-const InvoiceLeftColumn = styled.div`
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  @media (max-width: 768px) {
-    width: 100%;
-  }
-`;
-
-const InvoiceRightColumn = styled.div`
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-start;
-
-  @media (max-width: 768px) {
-    width: 100%;
-  }
-`;
-
-const ClientReceipentInfoContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 24px;
-  width: 100%;
-
-    @media (max-width: 1280px) {
-    gap: 16px;
-    flex-direction: column;
-  }
-
-  @media (max-width: 1024px) {
-    gap: 16px;
-  }
-
-  @media (max-width: 768px) {
-    gap: 24px;
-  }
-`;
-
-const InfoSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-start;
-  flex: 1;
-
-  @media (max-width: 480px) {
-    width: 100%;
-  }
-`;
-
-const ClientNameSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-
-  @media (max-width: 480px) {
-    width: 100%;
-  }
-`;
-
-const DetailRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  height: 22px;
-
-  @media (max-width: 480px) {
-    align-items: flex-start;
-    gap: 4px;
-    height: auto;
-  }
-`;
-
-const DetailLabel = styled.div`
-  font-family: 'Manrope', sans-serif;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 100%;
-  letter-spacing: 0%;
-  color: #656565;
-  text-wrap: nowrap;
-
-  @media (max-width: 480px) {
-    font-size: 13px;
-  }
-`;
-
-const DetailValue = styled.div`
-  font-family: 'Manrope', sans-serif;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 100%;
-  letter-spacing: 0%;
-  color: #333333;
-  text-wrap: nowrap;
-
-  @media (max-width: 480px) {
-    font-size: 15px;
-  }
-`;
 
 const PaymentContainerTitle = styled.div`
   font-family: Manrope;
@@ -389,10 +224,4 @@ const PaymentOptionLabel = styled.span`
   font-size: 16px;
   line-height: 100%;
   text-wrap: nowrap;
-`;
-
-const Divider = styled.div`
-  width: 100%;
-  height: 1px;
-  background-color: #E4E8EE;
 `;

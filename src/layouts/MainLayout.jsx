@@ -87,12 +87,23 @@ export const MainLayout = ({
             <MobileMenuToggle ref={toggleRef} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               ☰
             </MobileMenuToggle>
-            <Logo>
+
+            {(isInstructionDetailsPage || isInvoiceDetailsPage) ?
+              <Logo>
+                <LogoCircle>
+                  <LogoIcon src={WeProcessLogoIcon} alt="Logo" />
+                </LogoCircle>
+                <LogoName>Back</LogoName>
+              </Logo>
+              :
+              <Logo>
               <LogoCircle>
                 <LogoIcon src={WeProcessLogoIcon} alt="Logo" />
               </LogoCircle>
               <LogoName>WeProcess</LogoName>
-            </Logo>
+              </Logo>
+            }
+
           </LogoContainer>
           <Navigation ref={navRef} $mobileMenuOpen={mobileMenuOpen}>
             <NavLink 
