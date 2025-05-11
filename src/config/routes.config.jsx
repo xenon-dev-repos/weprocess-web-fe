@@ -2,6 +2,8 @@ import React from 'react';
 import { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
+import InstructionDetailsPage from '../pages/InstructionDetailsPage';
+import InvoiceDetailsPage from '../pages/InvoiceDetailsPage';
 
 const SignupPage = lazy(() => import('../pages/SignupPage'));
 const SigninPage = lazy(() => import('../pages/SigninPage'));
@@ -74,6 +76,16 @@ export const ROUTE_CONFIG = [
   {
     path: ROUTES.ROOT,
     element: <DashboardPage />,
+    isPublic: false
+  },
+  {
+    path: ROUTES.INSTRUCTION_DETAILS,
+    element: <InstructionDetailsPage />,
+    isPublic: false
+  },
+  {
+    path: ROUTES.INVOICE_DETAILS,
+    element: <InvoiceDetailsPage />,
     isPublic: false
   },
   {

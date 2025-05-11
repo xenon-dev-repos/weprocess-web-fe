@@ -58,7 +58,7 @@ const InvoicesPage = () => {
 
     return (
         <MainLayout 
-            showInvoicePageHeader={true}
+            isInvoicePage={true}
             title="Invoices"
             filterButtons={[
                 { id: '', label: 'All', dotColor: 'white' },

@@ -132,7 +132,7 @@ const InstructionsPage = () => {
 
     return (
         <MainLayout 
-            showInstructionsPageHeader={true}
+            isInstructionsPage={true}
             title="Instructions" 
             filterButtons={filterButtons} 
             onFilterChange={handleStatusFilterChange} 

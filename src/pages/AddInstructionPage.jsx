@@ -50,7 +50,7 @@ const AddInstructionPage = () => {
 
   return (
     <AddInstructionLayout
-      showAddInstructionPageHeader={true}
+      isAddInstructionPage={true}
       tabTitle={stepsConfig[currentStep - 1].title}
       tabDescription={stepsConfig[currentStep - 1].description}
       handlePrevStep={handlePrevStep} 

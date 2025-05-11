@@ -106,7 +106,7 @@ const DashboardPage = () => {
   }, []);
 
   return (
-    <MainLayout showDashboardPageHeader={true}>
+    <MainLayout isDashboardPage={true}>
       <DashboardContainer>
         <MainContent>
           <LeftColumn>

@@ -14,10 +14,12 @@ import { useAuth } from '../contexts/AuthContext';
 export const MainLayout = ({ 
   children,
   title,
-  showDashboardPageHeader = false,
-  showInstructionsPageHeader = false,
-  showInvoicePageHeader = false,
-  showAddInstructionPageHeader = false,
+  isDashboardPage = false,
+  isInstructionsPage = false,
+  isInvoicePage = false,
+  isAddInstructionPage = false,
+  isInstructionDetailsPage = false,
+  isInvoiceDetailsPage = false,
   filterButtons,
   handleStatusFilterChange,
   currentStep='1',
@@ -79,7 +81,7 @@ export const MainLayout = ({
 
   return (
     <AppContainer>
-      <AppHeader $applyMinHeight={showDashboardPageHeader || showInstructionsPageHeader || showInvoicePageHeader || showAddInstructionPageHeader}>
+      <AppHeader $applyMinHeight={isDashboardPage || isInstructionsPage || isInvoicePage || isAddInstructionPage || isInstructionDetailsPage || isInvoiceDetailsPage}>
         <MainHeader>
           <LogoContainer>
             <MobileMenuToggle ref={toggleRef} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -143,7 +145,7 @@ export const MainLayout = ({
           </UserActions>
         </MainHeader>
         
-        {showDashboardPageHeader && (
+        {isDashboardPage && (
           <DashboardHeader>
             <Title>Good Morning, {user?.name || 'User'}!</Title>
             <ButtonContainer>
@@ -154,7 +156,7 @@ export const MainLayout = ({
           </DashboardHeader>
         )}
 
-        {showInstructionsPageHeader &&
+        {isInstructionsPage &&
           <DashboardHeaderInstructions>
             <PageHeader
               title={title}
@@ -169,7 +171,7 @@ export const MainLayout = ({
           </DashboardHeaderInstructions>
         }
 
-        {showInvoicePageHeader &&
+        {isInvoicePage &&
           <DashboardHeader style={{flexDirection: 'column', alignItems: 'flex-start'}}>
             <PageHeader
               title={title} 
@@ -179,7 +181,7 @@ export const MainLayout = ({
           </DashboardHeader>
         }
 
-        {showAddInstructionPageHeader &&
+        {isAddInstructionPage &&
           <DashboardHeader style={{flexDirection: 'column'}}>
             <PageHeader
               title={title} 
@@ -191,6 +193,18 @@ export const MainLayout = ({
             />
           </DashboardHeader>
         }
+
+        {isInstructionDetailsPage && (
+          <DashboardHeader>
+            <Title>#5102 | Serve to Alex</Title>
+          </DashboardHeader>
+        )}
+
+        {isInvoiceDetailsPage && (
+          <DashboardHeader>
+            <Title>#5103 | Serve to Aamir</Title>
+          </DashboardHeader>
+        )}
 
       </AppHeader>
       

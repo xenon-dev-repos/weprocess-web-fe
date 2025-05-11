@@ -117,16 +117,6 @@ const ArrowIcon = styled.img`
   height: 24px;
 `;
 
-// const ContentSectionContent = styled.div`
-//   padding: 24px;
-//   overflow-y: auto;
-//   flex-grow: 1;
-
-//   @media (max-width: 768px) {
-//     padding: 20px;
-//   }
-// `;
-
 const ContentSectionTitle = styled.h2`
   font-family: 'Manrope', sans-serif;
   font-weight: 500;
