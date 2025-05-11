@@ -18,7 +18,7 @@ export const StatCard = ({
       <StatValue>
         <StatNumber>{value}</StatNumber>
         {subtext && (
-          <StatSubtext bg={subtextBg} color={subtextColor}>
+          <StatSubtext $bg={subtextBg} color={subtextColor}>
             {subtext}
           </StatSubtext>
         )}
@@ -171,7 +171,7 @@ const StatSubtext = styled.span`
   line-height: 100%;
   letter-spacing: 0%;
   color: ${props => props.color};
-  background-color: ${props => props.bg};
+  background-color: ${props => props.$bg};
   opacity: 0.8;
   border-radius: 20px;
   display: flex;

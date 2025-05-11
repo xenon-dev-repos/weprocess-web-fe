@@ -85,8 +85,8 @@ const InstructionsTable = ({
                   {columns.map(column => (
                     <TableHeaderCell 
                       key={column.key} 
-                      width={column.width}
-                      align={column.align}
+                      $width={column.width}
+                      $align={column.align}
                     >
                       {column.header}
                     </TableHeaderCell>
@@ -105,7 +105,7 @@ const InstructionsTable = ({
                       {columns.map(column => (
                         <TableCell 
                           key={column.key}
-                          align={column.align}
+                          $align={column.align}
                         >
                           {renderCell 
                             ? renderCell(column.key, row[column.key], row, index)
@@ -117,7 +117,7 @@ const InstructionsTable = ({
                   ))
                 ) : (
                   <EmptyStateContainerRow style={{height: noDataCellHeight}}>
-                    <TableCell colSpan={columns.length} align="center">
+                    <TableCell colSpan={columns.length} $align="center">
                       No data available
                     </TableCell>
                   </EmptyStateContainerRow>
@@ -397,9 +397,9 @@ const TableHeaderCell = styled.th`
   font-weight: 400;
   font-size: 16px;
   background: #f5f6fa;
-  text-align: ${props => props.align || 'left'};
+  text-align: ${props => props.$align || 'left'};
   vertical-align: middle;
-  width: ${props => props.width || 'auto'};
+  width: ${props => props.$width || 'auto'};
   border-bottom: 1px solid #e5e7eb;
 
   &:first-child {
@@ -428,7 +428,7 @@ const TableHeaderCell = styled.th`
 const TableRow = styled.tr`
   &:hover {
     background-color: ${props => props.$clickable ? 'rgba(18, 100, 86, 0.08)' : 'transparent'};
-    cursor: ${props => props.clickable ? 'pointer' : 'default'};
+    cursor: ${props => props.$clickable ? 'pointer' : 'default'};
   }
 
   ${props => props.$selected && `

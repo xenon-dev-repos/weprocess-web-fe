@@ -162,7 +162,7 @@ const DashboardPage = () => {
                 onTabChange={handleTabChange}
                 renderCell={(key, value) => {
                   if (key === 'status') {
-                    return <StatusBadge status={value}>{value}</StatusBadge>;
+                    return <StatusBadge $status={value}>{value}</StatusBadge>;
                   }
                   return value;
                 }}
@@ -329,7 +329,7 @@ const StatusBadge = styled.span`
   font-weight: 500;
   
   ${props => {
-    switch (props.status) {
+    switch (props.$status) {
       case '1st attempt':
         return 'background-color: #dcfce7; color: #166534;';
       case '2nd attempt':
