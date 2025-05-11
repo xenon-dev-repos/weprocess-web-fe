@@ -4,9 +4,23 @@ import { MainLayout } from '../layouts/MainLayout';
 import InstructionsTable from '../components/InstructionsTable';
 import { API_ENDPOINTS } from '../constants/api';
 import axios from 'axios';
+import { useToast } from '../services/ToastService';
 
 const InvoicesPage = () => {
     const [filteredData, setFilteredData] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [filters, setFilters] = useState({
+        is_paid: '',
+        sort_by: 'invoice_number',
+        sort_order: 'asc',
+        from_date: '',
+        to_date: '',
+        per_page: 10
+    });
+    const { showError } = useToast();
 
     const columns = [
         { key: 'invoice_number', header: 'Invoice no.' },
@@ -16,32 +30,61 @@ const InvoicesPage = () => {
         { key: 'paid_at', header: 'Paid at' },
     ];
 
-    // Query params for the API call
-    const isPaid = 0;
-    const sortBy = 'price';
-    const sortOrder = 'asc';
+    const fetchInvoices = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
 
-    useEffect(() => {
-        const fetchInvoices = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                  throw new Error('No authentication token found');
+            const queryParams = new URLSearchParams({
+                ...filters,
+                page: currentPage
+            }).toString();
+
+            const response = await axios.get(`${API_ENDPOINTS.INVOICES}?${queryParams}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
-                const response = await axios.get(`${API_ENDPOINTS.INVOICES}?is_paid=${isPaid}&sort_by=${sortBy}&sort_order=${sortOrder}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                      }
-                });
-                setFilteredData(response.data?.data || []);
-            } catch {
+            });
+
+            if (response.data?.data) {
+                setFilteredData(response.data.data);
+                setTotalPages(Math.ceil(response.data.total / filters.per_page));
+            } else {
                 setFilteredData([]);
             }
-        };
+        } catch (error) {
+            console.error('Error fetching invoices:', error);
+            setError(error.message || 'Failed to fetch invoices');
+            showError(error.message || 'Failed to fetch invoices');
+            setFilteredData([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchInvoices();
-    }, []);
+    }, [currentPage, filters]);
+
+    const handleFilterChange = (filterId) => {
+        setFilters(prev => ({
+            ...prev,
+            is_paid: filterId === 'paid' ? '1' : filterId === 'unpaid' ? '0' : '',
+            page: 1
+        }));
+        setCurrentPage(1);
+    };
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
 
     const renderCell = (key, value) => {
         if (key === 'is_paid') {
@@ -65,9 +108,7 @@ const InvoicesPage = () => {
                 { id: 'paid', label: 'Paid', dotColor: 'success' },
                 { id: 'unpaid', label: 'Unpaid', dotColor: 'warning' }
             ]}
-            onFilterChange={(filterId) => {
-                // Filter logic here if needed
-            }}
+            onFilterChange={handleFilterChange}
         >
             <DashboardContainer>
                 <MainContent>
@@ -80,7 +121,12 @@ const InvoicesPage = () => {
                             renderCell={renderCell}
                             minHeight={495}
                             noDataCellHeight={420}
-                            itemsPerPage={10}
+                            itemsPerPage={filters.per_page}
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                            loading={loading}
+                            error={error}
                         />
                     </TableContainer>
                 </MainContent>
