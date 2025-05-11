@@ -455,6 +455,10 @@ const NavLink = styled.a`
     font-size: 15px;
     border-radius: 12px;
     justify-content: flex-start;
+    color: #043F35 !important;
+    font-weight: 700;
+    background-color: transparent;
+    box-shadow: none;
   }
   
   @media (max-width: 768px) {

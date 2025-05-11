@@ -204,7 +204,10 @@ const DashboardPage = () => {
               <ChartHeader>
                 <ChartTitle>Instructions requested</ChartTitle>
                 <Select>
-                  <option>Quantity</option>
+                  <option>Weekly</option>
+                  <option>Monthly</option>
+                  <option>Quarterly</option>
+                  <option>Annually</option>
                 </Select>
               </ChartHeader>
               <SubTitle>Monthly instructions requested by firm</SubTitle>
@@ -218,6 +221,9 @@ const DashboardPage = () => {
                 <ChartTitle>Instructions status</ChartTitle>
                 <Select>
                   <option>Weekly</option>
+                  <option>Monthly</option>
+                  <option>Quarterly</option>
+                  <option>Annually</option>
                 </Select>
               </ChartHeader>
               <SubTitle>Monthly instructions requested by firm</SubTitle>
