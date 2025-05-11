@@ -17,8 +17,11 @@ export const MainLayout = ({
   showDashboardPageHeader = false,
   showInstructionsPageHeader = false,
   showInvoicePageHeader = false,
+  showAddInstructionPageHeader = false,
   filterButtons,
   handleStatusFilterChange,
+  currentStep='1',
+  stepsData=[],
 }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -33,7 +36,8 @@ export const MainLayout = ({
   const {
     navigateToDashboard,
     navigateToInstructions,
-    navigateToInvoices
+    navigateToInvoices,
+    navigateToAddInstruction,
   } = useNavigation();
 
   const handleNavigation = (path, linkName) => {
@@ -75,7 +79,7 @@ export const MainLayout = ({
 
   return (
     <AppContainer>
-      <AppHeader $applyMinHeight={showDashboardPageHeader || showInstructionsPageHeader || showInvoicePageHeader}>
+      <AppHeader $applyMinHeight={showDashboardPageHeader || showInstructionsPageHeader || showInvoicePageHeader || showAddInstructionPageHeader}>
         <MainHeader>
           <LogoContainer>
             <MobileMenuToggle ref={toggleRef} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -143,7 +147,7 @@ export const MainLayout = ({
           <DashboardHeader>
             <Title>Good Morning, {user?.name || 'User'}!</Title>
             <ButtonContainer>
-              <NewButton>
+              <NewButton onClick={navigateToAddInstruction}>
                 <span>+</span> New Instruction
               </NewButton>
             </ButtonContainer>
@@ -158,7 +162,7 @@ export const MainLayout = ({
               onFilterChange={handleStatusFilterChange} 
             />
           <ButtonContainer>
-            <NewButton>
+            <NewButton onClick={navigateToAddInstruction}>
               <span>+</span> New Instruction
             </NewButton>
           </ButtonContainer>
@@ -171,6 +175,19 @@ export const MainLayout = ({
               title={title} 
               filterButtons={filterButtons} 
               onFilterChange={handleStatusFilterChange} 
+            />
+          </DashboardHeader>
+        }
+
+        {showAddInstructionPageHeader &&
+          <DashboardHeader style={{flexDirection: 'column'}}>
+            <PageHeader
+              title={title} 
+              filterButtons={filterButtons} 
+              onFilterChange={handleStatusFilterChange}
+              stepsData={stepsData}
+              currentStep={currentStep}
+              isAddInstruction={true}
             />
           </DashboardHeader>
         }
@@ -455,10 +472,25 @@ const NavLink = styled.a`
     font-size: 15px;
     border-radius: 12px;
     justify-content: flex-start;
-    color: #043F35 !important;
+
+    ${props => props.$active ? `
     font-weight: 700;
+    color: var(--color-primary-500);
+    background-color:rgba(9, 0, 0, 0.1);
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  ` : `
+    font-weight: 400;
+    color: var(--color-primary-500);
     background-color: transparent;
-    box-shadow: none;
+
+    &:hover {
+      background-color: rgba(9, 0, 0, 0.1);
+    }
+  `}
+    // color: #043F35 !important;
+    // font-weight: 700;
+    // background-color: transparent;
+    // box-shadow: none;
   }
   
   @media (max-width: 768px) {
@@ -704,21 +736,11 @@ const NewButton = styled.button`
   overflow: hidden;
   text-overflow: ellipsis; 
   align-self: flex-end;
-  
-  &:hover {
-    background-color: rgb(230, 184, 0);
-    animation: smartHover 300ms ease-out forwards;
-  }
+  transition: transform 300ms ease-out;
 
-  @keyframes smartHover {
-    0% {
-      transform: translateY(0);
-      box-shadow: 0 0 0 rgba(0,0,0,0);
-    }
-    100% {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
+  &:hover {
+    background-color: rgb(194, 155, 0);
+    transform: scale(1.02);
   }
 
   span {

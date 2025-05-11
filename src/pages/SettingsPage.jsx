@@ -240,7 +240,7 @@ const SettingsPage = () => {
         return (
           <FormContainer>
             <form onSubmit={handleSubmit}>
-            <FormGroup>
+              <FormGroup>
                 <Label>Full name</Label>
                 <Input
                   type="text"
@@ -249,6 +249,7 @@ const SettingsPage = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
+                  $height="56px"
                 />
               </FormGroup>
 
@@ -260,6 +261,7 @@ const SettingsPage = () => {
                   placeholder="example@email.com"
                   value={formData.email}
                   onChange={handleChange}
+                  $height="56px"
                   required
                   disabled
                   style={{ 
@@ -276,7 +278,7 @@ const SettingsPage = () => {
               <FormGroup>
                 <Label>Contact number</Label>
                 <PhoneInputContainer>
-                  <CountryCode>
+                  <CountryCode $height={'56px'}>
                     <FlagIcon src={Images.auth.ukFlag} alt='Flag'/>
                     <span>+44</span>
                   </CountryCode>
@@ -288,6 +290,7 @@ const SettingsPage = () => {
                     onChange={handleChange}
                     required
                     ref={phoneInputRef}
+                    $height="56px"
                   />
                 </PhoneInputContainer>
               </FormGroup>
@@ -301,6 +304,7 @@ const SettingsPage = () => {
                   value={formData.billing_address}
                   onChange={handleChange}
                   required
+                  $height="56px"
                 />
               </FormGroup>
               
@@ -327,6 +331,7 @@ const SettingsPage = () => {
                     onChange={handleChange}
                     required
                     minLength="8"
+                    $height="56px"
                   />
                   <PasswordToggle onClick={toggleCurrentPasswordVisibility} type="button">
                     {showCurrentPassword ? (
@@ -355,6 +360,7 @@ const SettingsPage = () => {
                     onChange={handleChange}
                     required
                     minLength="8"
+                    $height="56px"
                   />
                   <PasswordToggle onClick={toggleNewPasswordVisibility} type="button">
                     {showNewPassword ? (
@@ -385,6 +391,7 @@ const SettingsPage = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     minLength="8"
+                    $height="56px"
                   />
                   <PasswordToggle onClick={toggleConfirmPasswordVisibility} type="button">
                     {showConfirmPassword ? (

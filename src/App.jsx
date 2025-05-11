@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { InstructionProvider } from './contexts/InstructionContext';
 import { ToastProvider, useToast } from './services/ToastService';
 import GlobalStyles from './styles/GlobalStyles';
 import { ThemeProvider } from 'styled-components';
@@ -16,11 +17,13 @@ function App() {
     <Router>
       <ToastProvider>
         <AuthWithToast>
-          <ThemeProvider theme={theme}>
-            <GlobalStyles />
-            <Toaster />
-            <AppRoutes />
-          </ThemeProvider>
+          <InstructionProvider>
+            <ThemeProvider theme={theme}>
+              <GlobalStyles />
+              <Toaster />
+              <AppRoutes />
+            </ThemeProvider>
+          </InstructionProvider>
         </AuthWithToast>
       </ToastProvider>
     </Router>
@@ -59,5 +62,10 @@ const AuthWithToast = ({ children }) => {
   const toast = useToast();
   return <AuthProvider toast={toast}>{children}</AuthProvider>;
 };
+
+// const InstructionProviderWithToast = ({ children }) => {
+//   const toast = useToast();
+//   return <InstructionProvider toast={toast}>{children}</InstructionProvider>;
+// };
 
 export default App;
