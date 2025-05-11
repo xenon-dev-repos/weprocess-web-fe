@@ -10,6 +10,8 @@ import { useNavigation } from '../hooks/useNavigation';
 import { PageHeader } from '../components/shared/PageHeader';
 import { ProfileDropdown } from '../components/shared/ProfileDropdown';
 import { useAuth } from '../contexts/AuthContext';
+import NotificationModal from '../components/shared/NotificationModal';
+import NotificationBadge from '../components/NotificationBadge';
 
 export const MainLayout = ({ 
   children,
@@ -29,6 +31,7 @@ export const MainLayout = ({
   const toggleRef = useRef(null);
   const avatarRef = useRef(null);
   const firstLetter = user?.name?.charAt(0).toUpperCase() || 'U';
+  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
 
   const {
     navigateToDashboard,
@@ -112,8 +115,9 @@ export const MainLayout = ({
           <IconButton>
               <IconImg src={SearchIcon} alt="Search" />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={() => setNotificationModalOpen(true)}>
               <IconImg src={NotificationIcon} alt="Notifications" />
+              <NotificationBadge />
             </IconButton>
             <IconButton>
               <IconImg src={MessageIcon} alt="Messages" />
@@ -180,6 +184,10 @@ export const MainLayout = ({
       <PageContent>
         {children}
       </PageContent>
+
+      {notificationModalOpen && (
+        <NotificationModal open={notificationModalOpen} onClose={() => setNotificationModalOpen(false)} />
+      )}
     </AppContainer>
   );
 };

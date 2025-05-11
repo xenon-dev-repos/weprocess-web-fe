@@ -3,8 +3,8 @@ import { useToast } from '../services/ToastService';
 import { CreateApiService } from '../services/ApiService';
 
 /**
- * Custom hook that provides API methods with integrated toast notifications
- * @returns {Object} API methods with toast notifications
+ * Custom hook that provides API methods with integrated toast notifications, including notifications API
+ * @returns {Object} API methods with toast notifications and notification fetching
  */
 export const useApi = () => {
   const toast = useToast();

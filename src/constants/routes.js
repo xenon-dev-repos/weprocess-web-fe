@@ -15,6 +15,7 @@ DASHBOARD: '/dashboard',
 INSTRUCTIONS: '/instructions',
 INVOICES: '/invoices',
 SETTINGS: '/settings',
+NOTIFICATIONS: '/notifications',
 
 // Fallback route
 NOT_FOUND: '*',
