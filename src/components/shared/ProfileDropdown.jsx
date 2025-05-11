@@ -91,7 +91,7 @@ const DropdownContainer = styled.div`
   flex-direction: column;
   gap: 4px;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 1001;
 
   /* Large desktop */
   @media (max-width: 1440px) {

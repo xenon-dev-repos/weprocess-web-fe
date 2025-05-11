@@ -12,6 +12,7 @@ const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const InstructionsPage = lazy(() => import('../pages/InstructionsPage'))
 const InvoicesPage = lazy(() => import('../pages/InvoicesPage'));
+const AddInstructionPage = lazy(() => import('../pages/AddInstructionPage'))
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 
 export const ROUTE_CONFIG = [
@@ -66,9 +67,14 @@ export const ROUTE_CONFIG = [
     isPublic: false
   },
   {
+    path: ROUTES.ADD_INSTRUCTION,
+    element: <AddInstructionPage />,
+    isPublic: false
+  },
+  {
     path: ROUTES.ROOT,
-    element: <Navigate to={ROUTES.SIGNIN} replace />,
-    isPublic: true
+    element: <DashboardPage />,
+    isPublic: false
   },
   {
     path: ROUTES.NOT_FOUND,
