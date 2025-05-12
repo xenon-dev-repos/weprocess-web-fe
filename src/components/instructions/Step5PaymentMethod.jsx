@@ -6,98 +6,107 @@ import { useInstruction } from '../../contexts/InstructionContext';
 import { Images } from '../../assets/images';
 import styled from 'styled-components';
 import { SharedInstructionInvoiceDetails } from './SharedInstructionInvoiceDetails';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const Step5PaymentMethod = () => {
   const { formData, handleInputChange } = useInstruction();
+  const { user } = useAuth();
 
   return (
     <InstructionsMainContainer>
-      <PaymentMethodContainer>
+
+      {user.type === "firm" &&
+        <PaymentMethodContainer>
         <PaymentOption 
           onClick={() => handleInputChange('payment_type', 'private')}
           $isSelected={formData.payment_type === 'private'}
         >
           <RadioIcon 
             src={formData.payment_type === 'private' ? 
-                 Images.instructions.selectRadioIcon : 
-                 Images.instructions.unSelectRadioIcon} 
+                Images.instructions.selectRadioIcon : 
+                Images.instructions.unSelectRadioIcon} 
             alt={formData.payment_type === 'private' ? "Selected" : "Unselected"} 
           />
           <PaymentOptionLabel>Private</PaymentOptionLabel>
         </PaymentOption>
-        
+
         <PaymentOption 
           onClick={() => handleInputChange('payment_type', 'legal_aid')}
           $isSelected={formData.payment_type === 'legal_aid'}
         >
           <RadioIcon 
             src={formData.payment_type === 'legal_aid' ? 
-                 Images.instructions.selectRadioIcon : 
-                 Images.instructions.unSelectRadioIcon} 
+                Images.instructions.selectRadioIcon : 
+                Images.instructions.unSelectRadioIcon} 
             alt={formData.payment_type === 'legal_aid' ? "Selected" : "Unselected"} 
           />
           <PaymentOptionLabel>Legal Aid</PaymentOptionLabel>
         </PaymentOption>
-      </PaymentMethodContainer>
+        </PaymentMethodContainer>
+      }
 
       {/* shared InvoiceDetails component */}
       <SharedInstructionInvoiceDetails formData={formData} isAddNewInstructionStep5={true} />
 
-      <CustomDivider />
 
-      <PaymentContainerTitle>Pay with</PaymentContainerTitle>
+      {user.type === "individual" &&
+      <>
+        <CustomDivider />
+        <PaymentContainerTitle>Pay with</PaymentContainerTitle>
 
-      {/* Payment Method Cards */}
-      <PaymentCardsContainer>
-        {/* <PaymentCard 
-          onClick={() => handleInputChange('payment_method', 'apple_pay')}
-          $isSelected={formData.payment_method === 'apple_pay'}
-        >
-          <PaymentCardLeft>
-            <RadioIcon 
-              src={formData.payment_method === 'apple_pay' ? 
-                    Images.instructions.selectRadioIcon : 
-                    Images.instructions.unSelectRadioIcon} 
-              alt={formData.payment_method === 'apple_pay' ? "Selected" : "Unselected"} 
-            />
-            <PaymentCardLabel>Pay with Apple Pay</PaymentCardLabel>
-          </PaymentCardLeft>
-          <AppleIcon src={Images.instructions.applePay} alt="Apple Pay" />
-        </PaymentCard> */}
+        <PaymentCardsContainer>
+          {/* <PaymentCard 
+            onClick={() => handleInputChange('payment_method', 'apple_pay')}
+            $isSelected={formData.payment_method === 'apple_pay'}
+          >
+            <PaymentCardLeft>
+              <RadioIcon 
+                src={formData.payment_method === 'apple_pay' ? 
+                      Images.instructions.selectRadioIcon : 
+                      Images.instructions.unSelectRadioIcon} 
+                alt={formData.payment_method === 'apple_pay' ? "Selected" : "Unselected"} 
+              />
+              <PaymentCardLabel>Pay with Apple Pay</PaymentCardLabel>
+            </PaymentCardLeft>
+            <AppleIcon src={Images.instructions.applePay} alt="Apple Pay" />
+          </PaymentCard> */}
 
-        {/* <PaymentCard 
-          onClick={() => handleInputChange('payment_method', 'google_pay')}
-          $isSelected={formData.payment_method === 'google_pay'}
-        >
-          <PaymentCardLeft>
-            <RadioIcon 
-              src={formData.payment_method === 'google_pay' ? 
-                    Images.instructions.selectRadioIcon : 
-                    Images.instructions.unSelectRadioIcon} 
-              alt={formData.payment_method === 'google_pay' ? "Selected" : "Unselected"} 
-            />
-            <PaymentCardLabel>Pay with Google Pay</PaymentCardLabel>
-          </PaymentCardLeft>
-          <GoogleIcon src={Images.instructions.googlePay} alt="Google Pay" />
-        </PaymentCard> */}
+          {/* <PaymentCard 
+            onClick={() => handleInputChange('payment_method', 'google_pay')}
+            $isSelected={formData.payment_method === 'google_pay'}
+          >
+            <PaymentCardLeft>
+              <RadioIcon 
+                src={formData.payment_method === 'google_pay' ? 
+                      Images.instructions.selectRadioIcon : 
+                      Images.instructions.unSelectRadioIcon} 
+                alt={formData.payment_method === 'google_pay' ? "Selected" : "Unselected"} 
+              />
+              <PaymentCardLabel>Pay with Google Pay</PaymentCardLabel>
+            </PaymentCardLeft>
+            <GoogleIcon src={Images.instructions.googlePay} alt="Google Pay" />
+          </PaymentCard> */}
 
-        <PaymentCard 
-          onClick={() => handleInputChange('payment_method', 'card')}
-          $isSelected={formData.payment_method === 'card'}
-        >
-          <PaymentCardLeft>
-            <RadioIcon 
-              src={formData.payment_method === 'card' ? 
-                    Images.instructions.selectRadioIcon : 
-                    Images.instructions.unSelectRadioIcon} 
-              alt={formData.payment_method === 'card' ? "Selected" : "Unselected"} 
-            />
-            <PaymentCardLabel>Pay with Card</PaymentCardLabel>
-          </PaymentCardLeft>
-          <CardIcon src={Images.instructions.creditCard} alt="Credit Card" />
-        </PaymentCard>
+          <PaymentCard 
+            onClick={() => handleInputChange('payment_method', 'card')}
+            $isSelected={formData.payment_method === 'card'}
+          >
+            <PaymentCardLeft>
+              <RadioIcon 
+                src={formData.payment_method === 'card' ? 
+                      Images.instructions.selectRadioIcon : 
+                      Images.instructions.unSelectRadioIcon} 
+                alt={formData.payment_method === 'card' ? "Selected" : "Unselected"} 
+              />
+              <PaymentCardLabel>Pay with Card</PaymentCardLabel>
+            </PaymentCardLeft>
+            <CardIcon src={Images.instructions.creditCard} alt="Credit Card" />
+          </PaymentCard>
 
-      </PaymentCardsContainer>
+        </PaymentCardsContainer>
+      </>
+      }
+
     </InstructionsMainContainer>
   );
 };

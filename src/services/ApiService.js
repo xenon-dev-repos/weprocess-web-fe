@@ -34,6 +34,7 @@ export const CreateApiService = (toast, setLoading) => {
 
       const headers = {
         ...(options.headers || {}),
+        "Accept": "application/json",
       };
 
       if (useTempToken) {
@@ -184,69 +185,18 @@ export const CreateApiService = (toast, setLoading) => {
 
   const createInstructionServe = async (formData) => {
     try {
-      // Prepare FormData for the request
-      const formDataToSend = new FormData();
-      
-      // Append all the form data fields
-      Object.entries(formData).forEach(([key, value]) => {
-        // Handle array fields
-        if (Array.isArray(value)) {
-          if (key === 'documents') {
-            // Append each document file
-            value.forEach(doc => {
-              formDataToSend.append('documents[]', doc.file);
-            });
-          } else if (key === 'document_urls') {
-            // Append each document URL
-            value.forEach(url => {
-              formDataToSend.append('document_urls[]', url);
-            });
-          } else {
-            // Join array with commas for simple string arrays
-            formDataToSend.append(key, value.join(','));
-          }
-        } 
-        // Handle file uploads
-        else if (value && typeof value === 'object' && value.file instanceof Blob) {
-          formDataToSend.append(key, value.file);
-        }
-        // Handle other fields
-        else if (value !== null && value !== undefined) {
-          formDataToSend.append(key, value);
-        }
-      });
-  
-      // Append document labels if they exist
-      if (formData.documentLabels) {
-        Object.entries(formData.documentLabels).forEach(([id, label]) => {
-          formDataToSend.append(`document_labels[${id}]`, label);
-        });
-      }
-  
-      // Make the API request
-      // const response = await apiRequest(API_ENDPOINTS.CREATE_SERVES,
-      //   {
-      //     method: 'POST',
-      //     body: formDataToSend,
-      //   },
-      //   'Serve created successfully',
-      //   false,
-      //   false
-      // )(toast, setLoading);
-
       const response = await apiRequest(
         API_ENDPOINTS.CREATE_SERVES,
         {
           method: 'POST',
-          body: formDataToSend,
+          body: formData,
         },
-        'Serve created successfully',
+        'Serve created successfully'
       );
-  
-      return response;
       
+      return response;
     } catch (error) {
-      console.error('Error creating instruction serve:', error);
+      console.error('API Error:', error);
       throw error;
     }
   };
