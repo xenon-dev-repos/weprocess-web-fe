@@ -7,15 +7,19 @@ import { ROUTES } from '../../constants/routes';
 import { NotificationUpdateContext } from '../NotificationBadge';
 
 /**
- * NotificationModal - displays user notifications in a modal
+ * NotificationModal - displays user notifications in a dropdown
  * @param {Object} props
  * @param {boolean} props.open - Whether the modal is open
  * @param {function} props.onClose - Function to close the modal
+ * @param {React.RefObject} props.anchorEl - Reference to the notification icon element
  */
-const NotificationModal = ({ open, onClose }) => {
+const NotificationModal = ({ open, onClose, anchorEl }) => {
   const contentRef = useRef(null);
+  const modalRef = useRef(null);
   const { triggerRefresh = () => {} } = useContext(NotificationUpdateContext) || {};
   const [isMarkingAll, setIsMarkingAll] = useState(false);
+  const [position, setPosition] = useState({ top: 0, right: 0 });
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const { 
     notifications, 
     loading, 
@@ -26,6 +30,54 @@ const NotificationModal = ({ open, onClose }) => {
     markAsRead,
     markAllAsRead
   } = useNotifications();
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      
+      // Recalculate position on resize
+      if (open && anchorEl && anchorEl.current) {
+        const rect = anchorEl.current.getBoundingClientRect();
+        setPosition({
+          top: rect.bottom + window.scrollY,
+          right: window.innerWidth - rect.right
+        });
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [open, anchorEl]);
+
+  // Calculate position when modal opens or anchor element changes
+  useEffect(() => {
+    if (open && anchorEl && anchorEl.current) {
+      const rect = anchorEl.current.getBoundingClientRect();
+      setPosition({
+        top: rect.bottom + window.scrollY,
+        right: window.innerWidth - rect.right
+      });
+    }
+  }, [open, anchorEl]);
+
+  // Close when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (modalRef.current && !modalRef.current.contains(event.target) &&
+          anchorEl.current && !anchorEl.current.contains(event.target)) {
+        onClose();
+      }
+    }
+    
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open, onClose, anchorEl]);
 
   // Refresh when modal opens
   useEffect(() => {
@@ -83,12 +135,22 @@ const NotificationModal = ({ open, onClose }) => {
   if (!open) return null;
 
   return (
-    <ModalOverlay>
-      <ModalContainer>
-        <Header>
-          <Title>All notifications</Title>
-          <ShowAllLink to={ROUTES.NOTIFICATIONS}>Show all</ShowAllLink>
-          <CloseButton onClick={onClose} aria-label="Close">×</CloseButton>
+    <ModalContainer 
+      ref={modalRef}
+      style={isMobile ? undefined : { 
+        top: `${position.top}px`, 
+        right: `${position.right}px` 
+      }}
+      $isMobile={isMobile}
+    >
+      {isMobile && <MobileOverlay onClick={onClose} />}
+      <ModalContent $isMobile={isMobile}>
+        <Header $isMobile={isMobile}>
+          <Title>Notifications</Title>
+          <ShowAllLink to={ROUTES.NOTIFICATIONS}>View all</ShowAllLink>
+          {isMobile && (
+            <CloseButton onClick={onClose}>×</CloseButton>
+          )}
         </Header>
         <Divider />
         <Content ref={contentRef}>
@@ -145,8 +207,8 @@ const NotificationModal = ({ open, onClose }) => {
         <Footer>
           <DismissButton onClick={onClose}>Dismiss</DismissButton>
         </Footer>
-      </ModalContainer>
-    </ModalOverlay>
+      </ModalContent>
+    </ModalContainer>
   );
 };
 
@@ -166,65 +228,134 @@ function formatTimeAgo(dateString) {
 }
 
 // Styled Components
-const ModalOverlay = styled.div`
+const MobileOverlay = styled.div`
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.3);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
+
 const ModalContainer = styled.div`
-  background: #fff;
-  border-radius: 28px;
-  width: 420px;
-  max-width: 95vw;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-  padding: 0;
-  position: relative;
+  position: ${props => props.$isMobile ? 'fixed' : 'absolute'};
+  ${props => props.$isMobile ? `
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+  ` : `
+    z-index: 1001;
+    margin-top: 8px;
+  `}
 `;
+
+const ModalContent = styled.div`
+  background: #fff;
+  border-radius: 16px;
+  width: ${props => props.$isMobile ? '90%' : '380px'};
+  max-width: 95vw;
+  max-height: ${props => props.$isMobile ? '80vh' : '600px'};
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  
+  ${props => !props.$isMobile && `
+    /* Add a subtle arrow at the top for desktop */
+    &::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      right: 20px;
+      width: 16px;
+      height: 16px;
+      background: white;
+      transform: rotate(45deg);
+      box-shadow: -3px -3px 5px rgba(0,0,0,0.04);
+    }
+  `}
+
+  @media (max-width: 480px) {
+    width: 95%;
+    max-height: 85vh;
+  }
+`;
+
 const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px 24px 0 24px;
+  padding: ${props => props.$isMobile ? '20px 24px' : '16px 20px'};
+  position: relative;
+  z-index: 1;
+  background: white;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+
+  @media (max-width: 480px) {
+    padding: 16px 20px;
+  }
 `;
+
 const Title = styled.h2`
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 600;
   margin: 0;
+
+  @media (max-width: 480px) {
+    font-size: 1.4rem;
+  }
 `;
+
 const ShowAllLink = styled(Link)`
   color: var(--color-primary-500);
-  font-size: 1rem;
+  font-size: 0.9rem;
   text-decoration: underline;
   margin-left: auto;
-  margin-right: 16px;
   cursor: pointer;
+  
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
 `;
+
 const CloseButton = styled.button`
   background: none;
   border: none;
-  font-size: 2rem;
+  font-size: 1.8rem;
   color: #888;
+  margin-left: 12px;
   cursor: pointer;
-  margin-left: 8px;
+  line-height: 1;
 `;
+
 const Divider = styled.div`
   height: 1px;
   background: #eee;
-  margin: 16px 0 0 0;
+  margin: 0;
 `;
+
 const Content = styled.div`
-  max-height: 520px;
+  max-height: 450px;
   overflow-y: auto;
   padding: 0 0 8px 0;
+  flex: 1;
+
+  @media (max-width: 768px) {
+    max-height: calc(70vh - 140px);
+  }
 `;
+
 const NotificationItem = styled.div`
   display: flex;
   align-items: flex-start;
-  padding: 20px 24px;
+  padding: 16px 20px;
   border-bottom: 1px solid #f0f0f0;
   background: ${({ $read }) => ($read ? '#f7f7f7' : '#fff')};
   position: relative;
@@ -233,7 +364,12 @@ const NotificationItem = styled.div`
   &:hover {
     background: ${({ $read }) => ($read ? '#f7f7f7' : '#f0f8f6')};
   }
+
+  @media (max-width: 480px) {
+    padding: 12px 16px;
+  }
 `;
+
 const Dot = styled.div`
   width: 12px;
   height: 12px;
@@ -241,7 +377,14 @@ const Dot = styled.div`
   background: ${({ $read }) => ($read ? '#ccc' : 'var(--color-error-500)')};
   margin-right: 16px;
   margin-top: 8px;
+
+  @media (max-width: 480px) {
+    width: 10px;
+    height: 10px;
+    margin-right: 12px;
+  }
 `;
+
 const IconWrapper = styled.div`
   width: 40px;
   height: 40px;
@@ -251,43 +394,76 @@ const IconWrapper = styled.div`
   align-items: center;
   justify-content: center;
   margin-right: 16px;
+
+  @media (max-width: 480px) {
+    width: 32px;
+    height: 32px;
+    margin-right: 12px;
+  }
 `;
+
 const IconImg = styled.img`
   width: 28px;
   height: 28px;
+
+  @media (max-width: 480px) {
+    width: 20px;
+    height: 20px;
+  }
 `;
+
 const NotificationContent = styled.div`
   flex: 1;
+  word-break: break-word;
 `;
+
 const NotifTitle = styled.div`
   font-weight: 600;
   font-size: 1.1rem;
   margin-bottom: 2px;
+
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+  }
 `;
+
 const NotifMsg = styled.div`
   color: #222;
   font-size: 1rem;
   margin-bottom: 6px;
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
 `;
+
 const NotifTime = styled.div`
   color: #b0b0b0;
   font-size: 0.95rem;
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
 `;
+
 const Loading = styled.div`
   padding: 16px;
   text-align: center;
   color: #888;
 `;
+
 const ErrorMsg = styled.div`
   padding: 16px;
   text-align: center;
   color: var(--color-error-500);
 `;
+
 const EmptyMsg = styled.div`
   padding: 32px;
   text-align: center;
   color: #888;
 `;
+
 const EndMsg = styled.div`
   padding: 16px;
   text-align: center;
@@ -311,6 +487,10 @@ const Footer = styled.div`
   display: flex;
   justify-content: center;
   border-top: 1px solid #eee;
+
+  @media (max-width: 480px) {
+    padding: 12px 16px;
+  }
 `;
 
 const DismissButton = styled.button`
@@ -327,13 +507,22 @@ const DismissButton = styled.button`
   &:hover {
     background: var(--color-primary-600);
   }
+
+  @media (max-width: 480px) {
+    padding: 7px 20px;
+    font-size: 0.9rem;
+  }
 `;
 
 const MarkAllContainer = styled.div`
-  padding: 12px 24px;
+  padding: 12px 20px;
   display: flex;
   justify-content: flex-end;
   border-bottom: 1px solid #eee;
+
+  @media (max-width: 480px) {
+    padding: 10px 16px;
+  }
 `;
 
 const MarkAllBtn = styled.button`
@@ -353,6 +542,11 @@ const MarkAllBtn = styled.button`
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  @media (max-width: 480px) {
+    padding: 5px 10px;
+    font-size: 0.8rem;
   }
 `;
 

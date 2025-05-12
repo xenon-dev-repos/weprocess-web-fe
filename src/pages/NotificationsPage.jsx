@@ -92,8 +92,11 @@ const NotificationsPage = () => {
           </FilterContainer>
           
           {filteredNotifications.some(n => !n.read) && (
-            <MarkAllButton onClick={handleMarkAllAsRead}>
-              Mark all as read
+            <MarkAllButton 
+              onClick={handleMarkAllAsRead}
+              disabled={isMarkingAll}
+            >
+              {isMarkingAll ? 'Marking...' : 'Mark all as read'}
             </MarkAllButton>
           )}
         </Header>
@@ -125,7 +128,7 @@ const NotificationsPage = () => {
             ))
           )}
 
-          {!loading && !error && notifications.length > 0 && (
+          {!loading && !error && notifications.length > 0 && pagination.last_page > 1 && (
             <Pagination>
               {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map((page) => (
                 <PageButton
@@ -169,6 +172,18 @@ const Container = styled.div`
   max-width: 1000px;
   margin: 0 auto;
   padding: 24px;
+  
+  @media (max-width: 1024px) {
+    padding: 20px;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
 `;
 
 const Header = styled.div`
@@ -181,6 +196,11 @@ const Header = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  @media (max-width: 480px) {
+    margin-bottom: 20px;
   }
 `;
 
@@ -188,11 +208,24 @@ const PageTitle = styled.h1`
   font-size: 2rem;
   font-weight: 600;
   margin: 0;
+  
+  @media (max-width: 768px) {
+    font-size: 1.8rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const FilterContainer = styled.div`
   display: flex;
   gap: 12px;
+  
+  @media (max-width: 480px) {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
 `;
 
 const FilterButton = styled.button`
@@ -208,6 +241,19 @@ const FilterButton = styled.button`
   &:hover {
     background: ${({ $active }) => ($active ? 'var(--color-primary-600)' : 'var(--color-primary-50)')};
   }
+  
+  @media (max-width: 768px) {
+    padding: 7px 14px;
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    flex: 1;
+    text-align: center;
+    min-width: 80px;
+  }
 `;
 
 const NotificationsContainer = styled.div`
@@ -215,6 +261,14 @@ const NotificationsContainer = styled.div`
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  
+  @media (max-width: 768px) {
+    border-radius: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    border-radius: 10px;
+  }
 `;
 
 const NotificationItem = styled.div`
@@ -229,6 +283,14 @@ const NotificationItem = styled.div`
   &:hover {
     background: ${({ $read }) => ($read ? '#f9f9f9' : '#f0f8f6')};
   }
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 16px;
+  }
 `;
 
 const StatusIndicator = styled.div`
@@ -238,6 +300,12 @@ const StatusIndicator = styled.div`
   background: ${({ $read }) => ($read ? '#ccc' : 'var(--color-error-500)')};
   margin-right: 16px;
   margin-top: 8px;
+  
+  @media (max-width: 480px) {
+    width: 10px;
+    height: 10px;
+    margin-right: 12px;
+  }
 `;
 
 const IconContainer = styled.div`
@@ -249,49 +317,120 @@ const IconContainer = styled.div`
   align-items: center;
   justify-content: center;
   margin-right: 16px;
+  
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+    margin-right: 14px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 36px;
+    height: 36px;
+    margin-right: 12px;
+  }
 `;
 
 const NotifIcon = styled.img`
   width: 28px;
   height: 28px;
+  
+  @media (max-width: 768px) {
+    width: 24px;
+    height: 24px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 const ContentContainer = styled.div`
   flex: 1;
+  word-break: break-word;
 `;
 
 const NotifTitle = styled.div`
   font-weight: 600;
   font-size: 1.1rem;
   margin-bottom: 4px;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+  }
 `;
 
 const NotifMessage = styled.div`
   color: #333;
   margin-bottom: 8px;
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
 `;
 
 const NotifTimestamp = styled.div`
   color: #999;
   font-size: 0.9rem;
+  
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
 `;
 
 const LoadingMessage = styled.div`
   padding: 48px;
   text-align: center;
   color: #777;
+  
+  @media (max-width: 768px) {
+    padding: 36px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 24px;
+    font-size: 0.95rem;
+  }
 `;
 
 const ErrorMessage = styled.div`
   padding: 48px;
   text-align: center;
   color: var(--color-error-500);
+  
+  @media (max-width: 768px) {
+    padding: 36px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 24px;
+    font-size: 0.95rem;
+  }
 `;
 
 const EmptyMessage = styled.div`
   padding: 48px;
   text-align: center;
   color: #777;
+  
+  @media (max-width: 768px) {
+    padding: 36px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 24px;
+    font-size: 0.95rem;
+  }
 `;
 
 const Pagination = styled.div`
@@ -299,6 +438,17 @@ const Pagination = styled.div`
   justify-content: center;
   gap: 8px;
   padding: 24px;
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+    gap: 6px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 16px;
+    gap: 4px;
+  }
 `;
 
 const PageButton = styled.button`
@@ -317,12 +467,30 @@ const PageButton = styled.button`
   &:disabled {
     cursor: default;
   }
+  
+  @media (max-width: 768px) {
+    min-width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 480px) {
+    min-width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
 `;
 
 const LoadingMore = styled.div`
   padding: 16px;
   text-align: center;
   color: #777;
+  
+  @media (max-width: 480px) {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
 `;
 
 const MarkAllButton = styled.button`
@@ -337,6 +505,24 @@ const MarkAllButton = styled.button`
   
   &:hover {
     background: var(--color-primary-50);
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 7px 14px;
+    font-size: 0.95rem;
+    align-self: flex-end;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    width: 100%;
+    text-align: center;
   }
 `;
 
