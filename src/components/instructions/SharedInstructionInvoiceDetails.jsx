@@ -12,10 +12,76 @@ export const SharedInstructionInvoiceDetails = ({
     isInstructionDetails = false, 
     isAddNewInstructionStep5 = false,
     // isAddNewInstructionStep6 = false 
+    currentInvoiceData = null,
 }) => {
   return (
     <>
-        {(isInvoiceDetails || isAddNewInstructionStep5) &&
+        {(isInvoiceDetails || isAddNewInstructionStep5) && currentInvoiceData &&
+            <RecipientDetailsLayout title="Invoice details">
+                <InvoiceDetailsContainer>
+                    <InvoiceLeftColumn>
+                        <DetailValue>{formData.applicant_name || '-'}</DetailValue>
+                        <DetailValue>{formData.applicant_address || '-'}</DetailValue>
+                    </InvoiceLeftColumn>
+                    <InvoiceRightColumn>
+                        <DetailLabel>Invoice no.</DetailLabel>
+                        <DetailValue>{currentInvoiceData.invoice_number}</DetailValue>
+                    </InvoiceRightColumn>
+                </InvoiceDetailsContainer>
+
+                <CustomDivider />
+
+                <ClientReceipentInfoContainer>
+                    {/* Client Contact Info */}
+                    <InfoSection>
+                        <DetailLabel>Client contact info</DetailLabel>
+                        <DetailValue>{formData.applicant_name || '-'}</DetailValue>
+                        <DetailValue>{formData.applicant_email || '-'}</DetailValue>
+                        <DetailValue>{formData.applicant_phone || '-'}</DetailValue>
+                        <DetailValue>{formData.applicant_address || '-'}</DetailValue>
+                    </InfoSection>
+
+                    {/* Bill To */}
+                    <InfoSection>
+                        <DetailLabel>Bill to</DetailLabel>
+                        <DetailValue>WeProcess Ltd</DetailValue>
+                        <DetailValue>accounts@weprocess.com</DetailValue>
+                        <DetailValue>+44 20 7946 0000</DetailValue>
+                        <DetailValue>123 Business Ave, London</DetailValue>
+                    </InfoSection>
+
+                    {/* Client Name Details */}
+                    <ClientNameSection>
+                        <DetailRow>
+                            <DetailLabel>Client name</DetailLabel>
+                            <DetailValue>{formData.applicant_name || '-'}</DetailValue>
+                        </DetailRow>
+                        <DetailRow>
+                            <DetailLabel>Invoice date</DetailLabel>
+                            <DetailValue>{new Date().toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric' 
+                            })}</DetailValue>
+                        </DetailRow>
+                        <DetailRow>
+                            <DetailLabel>Due date</DetailLabel>
+                            <DetailValue>
+                                {formData.deadline ? 
+                                    new Date(formData.deadline).toLocaleDateString('en-US', { 
+                                        year: 'numeric', 
+                                        month: 'short', 
+                                        day: 'numeric' 
+                                    }) : 
+                                    'May 24, 2025'
+                                }
+                            </DetailValue>
+                        </DetailRow>
+                    </ClientNameSection>
+                </ClientReceipentInfoContainer>
+            </RecipientDetailsLayout>
+        }
+        {/* {(isInvoiceDetails || isAddNewInstructionStep5) &&
             <RecipientDetailsLayout title="Invoice details">
 
             <InvoiceDetailsContainer>
@@ -32,7 +98,6 @@ export const SharedInstructionInvoiceDetails = ({
             <CustomDivider />
 
             <ClientReceipentInfoContainer>
-                {/* Client Contact Info */}
                 <InfoSection>
                     <DetailLabel>Client contact info</DetailLabel>
                     <DetailValue>Andrew Garfield</DetailValue>
@@ -41,7 +106,6 @@ export const SharedInstructionInvoiceDetails = ({
                     <DetailValue>ABC street 4, NY</DetailValue>
                 </InfoSection>
 
-                {/* Bill To */}
                 <InfoSection>
                     <DetailLabel>Bill to</DetailLabel>
                     <DetailValue>WeProcess Ltd</DetailValue>
@@ -50,7 +114,6 @@ export const SharedInstructionInvoiceDetails = ({
                     <DetailValue>123 Business Ave, London</DetailValue>
                 </InfoSection>
 
-                {/* Client Name Details */}
                 <ClientNameSection>
                 <DetailRow>
                     <DetailLabel>Client name</DetailLabel>
@@ -68,6 +131,9 @@ export const SharedInstructionInvoiceDetails = ({
             </ClientReceipentInfoContainer>
             </RecipientDetailsLayout>
         }
+ */}
+
+        
 
         {isInstructionDetails &&
             <RecipientDetailsLayout title="Applicant info">
@@ -79,9 +145,9 @@ export const SharedInstructionInvoiceDetails = ({
                 <DisplayField label="Contact number" value={formatPhoneDisplay(formData.recipient_phone)} />
                 <DisplayField label="Address" value={formData.recipient_address} />
             </FieldRow>
-            <FieldRow>
-                <DisplayField label="Additional details" value={formatPhoneDisplay(formData.recipient_name)} />
-            </FieldRow>
+            {/* <FieldRow>
+                <DisplayField label="Additional details" value={formData.instructions} />
+            </FieldRow> */}
             </RecipientDetailsLayout>
         }
 
@@ -97,7 +163,7 @@ export const SharedInstructionInvoiceDetails = ({
                 <DisplayField label="Address" value={formData.recipient_address} />
             </FieldRow>
             <FieldRow>
-                <DisplayField label="Additional details" value={formatPhoneDisplay(formData.recipient_name)} />
+                <DisplayField label="Additional details" value={formData.recipient_additional_details} />
             </FieldRow>
             </RecipientDetailsLayout>
 
@@ -129,21 +195,21 @@ export const SharedInstructionInvoiceDetails = ({
             {(isInstructionDetails || isInvoiceDetails) ? 
               <RecipientDetailsLayout title="Payment Info">
                 <FieldRow>
-                    <DisplayField label="Applicant name" value={formData.applicant_name} />
+                    <DisplayField label="Payment Mode" value={formData.payment_mode} />
                 </FieldRow>
               </RecipientDetailsLayout> 
               :
               <RecipientDetailsLayout title="Payment details">
                 <FieldRow>
-                    <DisplayField label="Account name" value={formData.applicant_name} />
-                    <DisplayField label="Account number" value={formData.applicant_email} />
+                    <DisplayField label="Account name" value={formData.account_name} />
+                    <DisplayField label="Account number" value={formData.account_number} />
                 </FieldRow>
                 <FieldRow>
-                    <DisplayField label="Billing Address" value={formatPhoneDisplay(formData.applicant_phone)} />
-                    <DisplayField label="Sort code" value={formData.applicant_address} />
+                    <DisplayField label="Billing Address" value={formatPhoneDisplay(formData.billing_address)} />
+                    <DisplayField label="Sort code" value={formData.sort_code} />
                 </FieldRow>
                 <FieldRow>
-                    <DisplayField label="Bank" value={formData.applicant_name} />
+                    <DisplayField label="Bank" value={formData.bank_name} />
                 </FieldRow>
               </RecipientDetailsLayout>
             }

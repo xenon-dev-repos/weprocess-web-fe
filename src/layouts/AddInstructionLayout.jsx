@@ -14,6 +14,7 @@ export const AddInstructionLayout = ({
   currentStep,
   stepsConfig,
   stepsData,
+  handleInstructionServeSubmit,
   // isSubmitted,
   }) => {
 
@@ -43,7 +44,7 @@ export const AddInstructionLayout = ({
               </ButtonContent>
             </FormButton>
 
-            <FormButton onClick={handleNextStep}>
+            <FormButton onClick={currentStep === stepsConfig.length ? handleInstructionServeSubmit : handleNextStep }>
               <ButtonContent>
                 {currentStep === stepsConfig.length ? 'Confirm Instruction' : (
                   <>

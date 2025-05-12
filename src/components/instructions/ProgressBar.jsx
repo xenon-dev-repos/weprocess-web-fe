@@ -15,7 +15,7 @@ export const ProgressBar = ({ steps, currentStep, isSubmitted }) => {
       <ProgressBarBackground>
         <ProgressBarFill $progress={progressPercentage} />
       </ProgressBarBackground>
-      <StepLabelsContainer>
+      {/* <StepLabelsContainer>
         {steps.map((step, index) => (
           <StepLabelsAndIconContainer key={index}>
             {index + 1 < currentStep || (index + 1 === steps.length && isSubmitted) ? (
@@ -26,7 +26,7 @@ export const ProgressBar = ({ steps, currentStep, isSubmitted }) => {
             </StepLabel>
           </StepLabelsAndIconContainer>
         ))}
-      </StepLabelsContainer>
+      </StepLabelsContainer> */}
     </ProgressBarContainer>
   );
 };

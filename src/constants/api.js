@@ -22,6 +22,9 @@ export const API_ENDPOINTS = {
 
   // Serves endpoint
   SERVES: `${API_BASE_URL}/serves`,
+  CREATE_SERVES: `${API_BASE_URL}/serves`,
+  GET_SERVE_BY_ID: `${API_BASE_URL}/serves/:id`,
+  GET_INVOICE_BY_ID: `${API_BASE_URL}/invoices/:id`,
 
   // Invoices endpoint
   INVOICES: `${API_BASE_URL}/invoices`,

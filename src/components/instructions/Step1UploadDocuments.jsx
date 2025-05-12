@@ -56,7 +56,7 @@ export const Step1UploadDocuments = () => {
       <Divider />
 
       <UploadedDocsContainer>
-        <UploadedDocsTitle>Uploaded documents</UploadedDocsTitle>
+        <UploadedDocsTitle>Upload documents</UploadedDocsTitle>
         {formData.documents.length === 0 ? (
           <ReceiptText>No docs added</ReceiptText>
         ) : (

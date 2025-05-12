@@ -1,197 +1,204 @@
-// components/shared/AttemptDetails.js
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Images } from '../../assets/images';
 
-  const AttemptDetails = () => {
+const AttemptDetails = ({ attempts }) => {
+  const [openAttemptId, setOpenAttemptId] = useState(attempts[attempts.length - 1]?.id || null);
 
-    const attempts = [
-        {
-            id: 2,
-            title: 'Attempt 1',
-            statuses: [
-              {
-                title: 'Job Failed',
-                date: 'Failed on 20th March, 2024',
-                color: '#FF3E3E'
-              },
-              {
-                title: 'In transaction',
-                date: 'Started on 19th March, 2024',
-                color: '#EDB13E'
-              },
-              {
-                title: 'Start',
-                date: 'Got the documents on 18th March 2024',
-                color: '#FF7501'
-              }
-            ]
-          },
-    {
-      id: 1,
-      title: 'Attempt 2',
-      statuses: [
-        {
-          title: 'Job Complete',
-          date: 'Completed on 24th March, 2024',
-          color: '#52D060'
-        },
-        {
-          title: 'In transaction',
-          date: 'Started on 23rd March, 2024',
-          color: '#EDB13E'
-        },
-        {
-          title: 'Start',
-          date: 'Got the documents on 22nd March 2024',
-          color: '#FF7501'
-        }
-      ]
-    },
-
-  ];
-    const [openAttemptId, setOpenAttemptId] = useState(attempts[attempts.length - 1]?.id || null);
-  
-    const toggleAttempt = (id) => {
-      setOpenAttemptId(prevId => prevId === id ? null : id);
-    };
-  
-    return (
-      <AttemptDetailsContainer>
-        <AttemptTitle>Attempt details</AttemptTitle>
-        
-        {attempts.map((attempt) => (
-          <AttemptDropdown 
-            key={attempt.id} 
-            $isOpen={openAttemptId === attempt.id}
-          >
-            <AttemptHeader onClick={() => toggleAttempt(attempt.id)}>
-              <ArrowIcon 
-                src={openAttemptId === attempt.id 
-                  ? Images.instructions.arrowDown 
-                  : Images.instructions.arrowRight} 
-                alt="Toggle" 
-              />
-              <AttemptName>{attempt.title}</AttemptName>
-            </AttemptHeader>
-            
-            {openAttemptId === attempt.id && (
-              <AttemptContent>
-                <Divider />
-                <StatusTimeline>
-                  {attempt.statuses.map((status, index) => (
-                    <StatusItem key={index}>
-                      <StatusIndicator>
-                        <StatusCircle $color={status.color} />
-                        {index !== attempt.statuses.length - 1 && (
-                          <StatusLine $color={status.color} />
-                        )}
-                      </StatusIndicator>
-                      <StatusText>
-                        <StatusTitle>{status.title}</StatusTitle>
-                        <StatusDate>{status.date}</StatusDate>
-                      </StatusText>
-                    </StatusItem>
-                  ))}
-                </StatusTimeline>
-              </AttemptContent>
-            )}
-          </AttemptDropdown>
-        ))}
-      </AttemptDetailsContainer>
-    );
+  const toggleAttempt = (id) => {
+    setOpenAttemptId(prevId => prevId === id ? null : id);
   };
 
-// const AttemptDetails = () => {
-//     const [openAttemptId, setOpenAttemptId] = useState(null);
+  const formatDateWithOrdinal = (dateString) => {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'long' });
+    const year = date.getFullYear();
+    
+    // Add ordinal suffix to day
+    const getOrdinalSuffix = (d) => {
+      if (d > 3 && d < 21) return 'th';
+      switch (d % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+    
+    return `${day}${getOrdinalSuffix(day)} ${month}, ${year}`;
+  };
 
-//     const toggleAttempt = (id) => {
-//       setOpenAttemptId(prevId => prevId === id ? null : id);
-//     };
+  const getStatusElements = (attempt) => {
+    const elements = [];
+    
+    // Completed/Failed status
+    if (attempt.complete_date) {
+      elements.push({
+        date: `Completed on ${formatDateWithOrdinal(attempt.complete_date)}`,
+        title: attempt.is_failed ? 'Job Failed' : 'Job Complete',
+        color: attempt.is_failed ? '#FF3E3E' : '#52D060',
+        icon: attempt.is_failed ? '✖' : '✓'
+      });
+    }
 
-//   const attempts = [
-//     {
-//       id: 1,
-//       title: 'Attempt 2',
-//       statuses: [
-//         {
-//           title: 'Job Complete',
-//           date: 'Completed on 24th March, 2024',
-//           color: '#52D060'
-//         },
-//         {
-//           title: 'In transaction',
-//           date: 'Started on 23rd March, 2024',
-//           color: '#EDB13E'
-//         },
-//         {
-//           title: 'Start',
-//           date: 'Got the documents on 22nd March 2024',
-//           color: '#FF7501'
-//         }
-//       ]
-//     },
-//     {
-//       id: 2,
-//       title: 'Attempt 1',
-//       statuses: [
-//         {
-//           title: 'Job Failed',
-//           date: 'Failed on 20th March, 2024',
-//           color: '#FF3E3E'
-//         },
-//         {
-//           title: 'In transaction',
-//           date: 'Started on 19th March, 2024',
-//           color: '#EDB13E'
-//         },
-//         {
-//           title: 'Start',
-//           date: 'Got the documents on 18th March 2024',
-//           color: '#FF7501'
-//         }
-//       ]
+    // In transition status
+    if (attempt.in_transition_date) {
+      elements.push({
+        date: `Started on ${formatDateWithOrdinal(attempt.in_transition_date)}`,
+        title: 'In transaction',
+        // color: '#EDB13E',
+        // icon: '🚚'
+        color: '#ACACAC',
+        icon: ''
+      });
+    }
+
+    // Start status
+    elements.push({
+      date: `Got the documents on ${formatDateWithOrdinal(attempt.start_date)}`,
+      title: 'Start',
+      // color: '#FF7501',
+      // icon: '📅'
+      color: '#ACACAC',
+      icon: ''
+    });
+
+    return elements;
+  };
+
+  return (
+    <AttemptDetailsContainer>
+      <AttemptTitle>Attempt details</AttemptTitle>
+      
+      {attempts.map((attempt) => (
+        <AttemptDropdown key={attempt.id} $isOpen={openAttemptId === attempt.id}>
+          <AttemptHeader onClick={() => toggleAttempt(attempt.id)}>
+            <ArrowIcon 
+              src={openAttemptId === attempt.id 
+                ? Images.instructions.arrowDown 
+                : Images.instructions.arrowRight} 
+              alt="Toggle" 
+            />
+            <AttemptName>Attempt {attempt.attempt_number}</AttemptName>
+          </AttemptHeader>
+          
+          {openAttemptId === attempt.id && (
+            <AttemptContent>
+              <Divider />
+              <TimelineContainer>
+                {getStatusElements(attempt).map((element, index) => (
+                  <TimelineElement key={index}>
+                    <TimelineIcon $color={element.color}>
+                      {element.icon}
+                    </TimelineIcon>
+                    <TimelineContent>
+                      <TimelineTitle>{element.title}</TimelineTitle>
+                      <TimelineDate>{element.date}</TimelineDate>
+                    </TimelineContent>
+                    {index !== getStatusElements(attempt).length - 1 && (
+                      <TimelineConnector $color={element.color} />
+                    )}
+                  </TimelineElement>
+                ))}
+              </TimelineContainer>
+            </AttemptContent>
+          )}
+        </AttemptDropdown>
+      ))}
+    </AttemptDetailsContainer>
+  );
+};
+
+// import React, { useState } from 'react';
+// import styled from 'styled-components';
+// import { Images } from '../../assets/images';
+
+// const AttemptDetails = ({ currentServeData }) => {
+//   const attempts = currentServeData?.serve?.attempts || [];
+//   const [openAttemptId, setOpenAttemptId] = useState(attempts[attempts.length - 1]?.id || null);
+
+//   const toggleAttempt = (id) => {
+//     setOpenAttemptId(prevId => prevId === id ? null : id);
+//   };
+
+//   const getStatusElements = (attempt) => {
+//     const elements = [];
+    
+//     // Completed/Failed status
+//     if (attempt.complete_date) {
+//       elements.push({
+//         date: attempt.complete_date,
+//         title: attempt.is_failed ? 'Attempt Failed' : 'Attempt Successful',
+//         color: attempt.is_failed ? '#FF3E3E' : '#52D060',
+//         icon: attempt.is_failed ? '✖' : '✅'
+//       });
 //     }
-//   ];
+
+//     // In transition status
+//     if (attempt.in_transition_date) {
+//       elements.push({
+//         date: attempt.in_transition_date,
+//         title: 'In Transit',
+//         // color: '#EDB13E',
+//         // icon: '🚚'
+//         color: '#ACACAC',
+//         icon: ''
+//       });
+//     }
+
+//     // Start status
+//     elements.push({
+//       date: attempt.start_date || 'Not started yet',
+//       title: 'Attempt Started',
+//       // color: '#FF7501',
+//       // icon: '📅'
+//       color: '#ACACAC',
+//       icon: ''
+//     });
+
+//     return elements;
+//   };
 
 //   return (
 //     <AttemptDetailsContainer>
 //       <AttemptTitle>Attempt details</AttemptTitle>
       
 //       {attempts.map((attempt) => (
-//         <AttemptDropdown 
-//           key={attempt.id} 
-//           $isOpen={openAttemptId === attempt.id}
-//         >
+//         <AttemptDropdown key={attempt.id} $isOpen={openAttemptId === attempt.id}>
 //           <AttemptHeader onClick={() => toggleAttempt(attempt.id)}>
 //             <ArrowIcon 
 //               src={openAttemptId === attempt.id 
-//                 ? Images.instructions.arrowDown
+//                 ? Images.instructions.arrowDown 
 //                 : Images.instructions.arrowRight} 
 //               alt="Toggle" 
 //             />
-//             <AttemptName>{attempt.title}</AttemptName>
+//             <AttemptName>Attempt {attempt.attempt_number}</AttemptName>
 //           </AttemptHeader>
           
 //           {openAttemptId === attempt.id && (
 //             <AttemptContent>
 //               <Divider />
-//               <StatusTimeline>
-//                 {attempt.statuses.map((status, index) => (
-//                   <StatusItem key={index}>
-//                     <StatusIndicator>
-//                       <StatusCircle $color={status.color} />
-//                       {index !== attempt.statuses.length - 1 && (
-//                         <StatusLine color={status.color} />
-//                       )}
-//                     </StatusIndicator>
-//                     <StatusText>
-//                       <StatusTitle>{status.title}</StatusTitle>
-//                       <StatusDate>{status.date}</StatusDate>
-//                     </StatusText>
-//                   </StatusItem>
+//               <TimelineContainer>
+//                 {getStatusElements(attempt).map((element, index) => (
+//                   <TimelineElement key={index}>
+//                     <TimelineIcon $color={element.color}>
+//                       {element.icon}
+//                     </TimelineIcon>
+//                     <TimelineContent>
+//                       <TimelineTitle>{element.title}</TimelineTitle>
+//                       <TimelineDate>{element.date}</TimelineDate>
+//                     </TimelineContent>
+//                     {index !== getStatusElements(attempt).length - 1 && (
+//                       <TimelineConnector $color={element.color} />
+//                     )}
+//                   </TimelineElement>
 //                 ))}
-//               </StatusTimeline>
+//               </TimelineContainer>
 //             </AttemptContent>
 //           )}
 //         </AttemptDropdown>
@@ -199,6 +206,65 @@ import { Images } from '../../assets/images';
 //     </AttemptDetailsContainer>
 //   );
 // };
+
+const TimelineContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  padding-left: 24px;
+`;
+
+const TimelineElement = styled.div`
+  display: flex;
+  position: relative;
+  gap: 12px;
+`;
+
+const TimelineIcon = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: ${props => props.$color};
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: -12px;
+  z-index: 2;
+`;
+
+const TimelineContent = styled.div`
+  margin-left: 24px;
+  padding-bottom: 16px;
+`;
+
+const TimelineTitle = styled.h4`
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  margin: 0 0 4px 0;
+  color: #121F24;
+`;
+
+const TimelineDate = styled.span`
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: #656565;
+`;
+
+const TimelineConnector = styled.div`
+  position: absolute;
+  left: 0;
+  top: 24px;
+  height: calc(100% + 16px);
+  width: 2px;
+  background: ${props => props.$color};
+  opacity: 0.3;
+  z-index: 1;
+`;
 
 const AttemptDetailsContainer = styled.div`
   width: 100%;
@@ -209,6 +275,39 @@ const AttemptDetailsContainer = styled.div`
   background: #FFFFFF;
   display: flex;
   flex-direction: column;
+
+  .custom-timeline {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+
+    &:before {
+      background: #E5E5E5;
+      left: 24px !important;
+    }
+
+    .vertical-timeline-element {
+      margin: 0 0 16px 0 !important;
+      padding: 0 !important;
+
+      &:last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+
+    .vertical-timeline-element-content {
+      padding: 12px 12px 12px 48px !important;
+      box-shadow: none !important;
+    }
+
+    .timeline-date {
+      color: #656565;
+      font-family: 'Manrope', sans-serif;
+      font-size: 12px !important;
+      font-weight: 400;
+      padding-left: 8px;
+    }
+  }
 `;
 
 const AttemptTitle = styled.h3`
@@ -259,71 +358,6 @@ const Divider = styled.div`
   height: 1px;
   background: #E5E5E5;
   margin: 0 16px 16px;
-`;
-
-const StatusTimeline = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  padding-left: 8px;
-`;
-
-const StatusItem = styled.div`
-  display: flex;
-  gap: 12px;
-  position: relative;
-`;
-
-const StatusIndicator = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 24px;
-  position: relative;
-`;
-
-const StatusCircle = styled.div`
-  width: 16px;
-  height: 16px;
-  border-radius: 100px;
-  background: ${props => props.$color};
-  position: relative;
-  z-index: 2;
-`;
-
-const StatusLine = styled.div`
-  width: 2px;
-  height: 40px;
-  background: ${props => props.color || '#E5E5E5'};
-  opacity: 0.3;
-  position: absolute;
-  top: 16px;
-  left: 7px;
-  z-index: 1;
-`;
-
-const StatusText = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const StatusTitle = styled.span`
-  font-family: 'Manrope', sans-serif;
-  font-weight: 700;
-  font-size: 14px;
-  line-height: 20px;
-  letter-spacing: 0%;
-  color: #121F24;
-`;
-
-const StatusDate = styled.span`
-  font-family: 'Manrope', sans-serif;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 20px;
-  letter-spacing: 0%;
-  color: #656565;
 `;
 
 export default AttemptDetails;

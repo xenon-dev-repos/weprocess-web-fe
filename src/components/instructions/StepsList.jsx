@@ -2,16 +2,19 @@ import React from 'react';
 import styled from 'styled-components';
 import { Images } from '../../assets/images/index.js';
 
-const steps = [
-  { id: 1, title: 'Uploaded documents' },
-  { id: 2, title: 'Serve type' },
-  { id: 3, title: 'Recipient details' },
-  { id: 4, title: 'Service type' },
-  { id: 5, title: 'Payment method' },
-  { id: 6, title: 'Confirmation' },
-];
 
-export const StepsList = ({ currentStep, isSubmitted }) => {
+
+export const StepsList = ({ currentStep, isSubmitted, stepsData }) => {
+
+  const steps = [
+    { id: 1, title: stepsData[0] },
+    { id: 2, title: stepsData[1] },
+    { id: 3, title: stepsData[2] },
+    { id: 4, title: stepsData[3] },
+    { id: 5, title: stepsData[4] },
+    { id: 6, title: stepsData[5] },
+  ];
+
   return (
     <StepsContainer>
       {steps.map((step) => (

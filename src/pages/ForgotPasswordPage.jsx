@@ -33,6 +33,8 @@ const ForgotPasswordPage = () => {
       setIsSubmitted(true);
     } catch (err) {
       console.error(err.message || 'Failed to send password reset email');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,7 +72,7 @@ const ForgotPasswordPage = () => {
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    
+
     const otpCode = otp.join('');
     if (otpCode.length !== 4) {
       showError('Please enter a 4-digit OTP');
@@ -78,12 +80,16 @@ const ForgotPasswordPage = () => {
     }
     
     try {
+      setLoading(true);
+      
       const response = await api.verifyOtp(email, otpCode);
       if (response.success) {
         setIsOtpVerified(true);
       }
     } catch (err) {
       console.error(err.message || 'OTP verification failed');
+    } finally {
+      setLoading(false);
     }
   };
   

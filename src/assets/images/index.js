@@ -29,6 +29,7 @@ import trendIcon from './instructions/trend-icon.svg';
 
 import arrowRight from './instructions/arrow-right.png';
 import arrowDown from './instructions/arrow-down.png';
+import backIcon from './instructions/back-icon.svg'
 
 export const Images = {
   auth: {
@@ -57,6 +58,7 @@ export const Images = {
     applePay,
     googlePay,
     creditCard,
+    backIcon,
 
     jobsTakenIcon,
     jobsCompletedIcon,

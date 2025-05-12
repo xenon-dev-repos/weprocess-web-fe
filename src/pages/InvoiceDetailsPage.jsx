@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 // import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { MainLayout } from '../layouts/MainLayout';
@@ -6,14 +6,29 @@ import { ContentSection, SideBarSection, SideBarSectionRight } from '../layouts/
 import { ContentSectionHeader, ContentSectionTitle } from '../layouts/AddInstructionLayout.jsx';
 import { useInstruction } from '../contexts/InstructionContext.jsx';
 import { SharedInstructionInvoiceDetails } from '../components/instructions/SharedInstructionInvoiceDetails.jsx';
+import LoadingOnPage from '../components/shared/LoadingOnPage.jsx';
 
 
 const InstructionDetailsPage = () => {
-  const { formData } = useInstruction();
+  const { formData, fetchInvoiceById, currentInvoiceData, isLoading } = useInstruction();
+
+  useEffect(() => {
+    const loadInvoice = async () => {
+      try {
+        await fetchInvoiceById('5');
+      } catch (error) {
+        console.error(error, 'Error accured while geting invoice data.')
+      }
+    };
+    
+    loadInvoice();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <MainLayout title="Invoice Details" isInvoiceDetailsPage={true}>
       <LayoutContainer>
+        {isLoading && <LoadingOnPage />}
         {/* LEFT SECTION */}
         <ContentSection>
           <ContentSectionHeader style={{height: '80px'}}>
@@ -21,7 +36,7 @@ const InstructionDetailsPage = () => {
           </ContentSectionHeader>
 
           <InstructionsDetailMainContainer>
-            <SharedInstructionInvoiceDetails formData={formData} isInvoiceDetails={true}/>
+            <SharedInstructionInvoiceDetails formData={formData} isInvoiceDetails={true} currentInvoiceData={currentInvoiceData}/>
           </InstructionsDetailMainContainer>
         </ContentSection>
 

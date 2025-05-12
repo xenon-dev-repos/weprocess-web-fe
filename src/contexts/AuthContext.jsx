@@ -402,6 +402,8 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
 
   const getServes = async (params = {}) => {
     try {
+      setLoading(false);
+
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No authentication token found');
@@ -434,6 +436,8 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch serves';
       toast.showError(errorMessage);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 

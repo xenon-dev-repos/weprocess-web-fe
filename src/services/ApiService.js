@@ -51,7 +51,9 @@ export const CreateApiService = (toast, setLoading) => {
       
       if (successMsg) {
         setLoading(false);
-        toastObj.showSuccess(data.message || successMsg);
+        if (options.method !== 'GET') {
+          toastObj.showSuccess(data.message || successMsg);
+        }
         {removeTempToken && localStorage.removeItem('tempToken')}
       }
       
@@ -60,7 +62,9 @@ export const CreateApiService = (toast, setLoading) => {
       setLoading(false);
       console.error('API request error:', error);
 
-      toastObj.showError(error.message || 'An error occurred');
+      if (options.method !== 'GET') {
+        toastObj.showError(error.message || 'An error occurred');
+      }
 
       throw error;
     }
@@ -118,7 +122,6 @@ export const CreateApiService = (toast, setLoading) => {
     return response;
   };
 
-
   const resetPassword = async (email, newPassword) => {
     const formData = new FormData();
     formData.append('email', email);
@@ -133,8 +136,6 @@ export const CreateApiService = (toast, setLoading) => {
   );
   };
 
-
-  // Get user profile
   const getUserProfile = async () => {
     return apiRequest(
       API_ENDPOINTS.GET_PROFILE, 
@@ -143,7 +144,6 @@ export const CreateApiService = (toast, setLoading) => {
     );
   };
 
-  // Update user profile
   const updateUserProfile = async (data) => {
     const formData = new FormData();
     
@@ -182,6 +182,101 @@ export const CreateApiService = (toast, setLoading) => {
     );
   };
 
+  const createInstructionServe = async (formData) => {
+    try {
+      // Prepare FormData for the request
+      const formDataToSend = new FormData();
+      
+      // Append all the form data fields
+      Object.entries(formData).forEach(([key, value]) => {
+        // Handle array fields
+        if (Array.isArray(value)) {
+          if (key === 'documents') {
+            // Append each document file
+            value.forEach(doc => {
+              formDataToSend.append('documents[]', doc.file);
+            });
+          } else if (key === 'document_urls') {
+            // Append each document URL
+            value.forEach(url => {
+              formDataToSend.append('document_urls[]', url);
+            });
+          } else {
+            // Join array with commas for simple string arrays
+            formDataToSend.append(key, value.join(','));
+          }
+        } 
+        // Handle file uploads
+        else if (value && typeof value === 'object' && value.file instanceof Blob) {
+          formDataToSend.append(key, value.file);
+        }
+        // Handle other fields
+        else if (value !== null && value !== undefined) {
+          formDataToSend.append(key, value);
+        }
+      });
+  
+      // Append document labels if they exist
+      if (formData.documentLabels) {
+        Object.entries(formData.documentLabels).forEach(([id, label]) => {
+          formDataToSend.append(`document_labels[${id}]`, label);
+        });
+      }
+  
+      // Make the API request
+      // const response = await apiRequest(API_ENDPOINTS.CREATE_SERVES,
+      //   {
+      //     method: 'POST',
+      //     body: formDataToSend,
+      //   },
+      //   'Serve created successfully',
+      //   false,
+      //   false
+      // )(toast, setLoading);
+
+      const response = await apiRequest(
+        API_ENDPOINTS.CREATE_SERVES,
+        {
+          method: 'POST',
+          body: formDataToSend,
+        },
+        'Serve created successfully',
+      );
+  
+      return response;
+      
+    } catch (error) {
+      console.error('Error creating instruction serve:', error);
+      throw error;
+    }
+  };
+
+  const getServeById = async (id) => {
+    try {
+      return await apiRequest(
+        `${API_ENDPOINTS.GET_SERVE_BY_ID.replace(':id', id)}`,
+        { method: 'GET' },
+        'Serve loaded successfully'
+      );
+    } catch (error) {
+      console.error('Error fetching serve:', error);
+      throw error;
+    }
+  };
+
+  const getInvoiceById = async (id) => {
+    try {
+      return await apiRequest(
+        `${API_ENDPOINTS.GET_INVOICE_BY_ID.replace(':id', id)}`,
+        { method: 'GET' },
+        'Invoice loaded successfully'
+      );
+    } catch (error) {
+      console.error('Error fetching Invoice:', error);
+      throw error;
+    }
+  };
+
   return {
     validateEmail,
     getUserProfile,
@@ -190,6 +285,10 @@ export const CreateApiService = (toast, setLoading) => {
     verifyOtp,
     requestPasswordReset,
     resetPassword,
+
+    createInstructionServe,
+    getServeById,
+    getInvoiceById,
   };
 };
 

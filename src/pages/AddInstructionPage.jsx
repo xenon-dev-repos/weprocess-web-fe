@@ -45,7 +45,7 @@ const stepsConfig = [
 ];
 
 const AddInstructionPage = () => {
-  const { currentStep, handleNextStep, handlePrevStep, isSubmitted } = useInstruction();
+  const { currentStep, handleNextStep, handlePrevStep, isSubmitted, handleInstructionServeSubmit } = useInstruction();
   const CurrentStepComponent = stepsConfig[currentStep - 1].component;
 
   return (
@@ -59,11 +59,13 @@ const AddInstructionPage = () => {
       stepsConfig={stepsConfig}
       stepsData={stepsData}
       isSubmitted={isSubmitted}
+      handleInstructionServeSubmit={handleInstructionServeSubmit}
     >
       <>
-        <StepsList 
+        <StepsList
           currentStep={currentStep}
           isSubmitted={isSubmitted}
+          stepsData={stepsData}
         />
       </>
       <>

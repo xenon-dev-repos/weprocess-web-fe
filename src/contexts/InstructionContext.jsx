@@ -1,9 +1,104 @@
 import React, { createContext, useState, useContext, useCallback, useEffect, useRef } from 'react';
 import { useAuth } from './AuthContext';
+import { useApi } from '../hooks/useApi';
 
 const InstructionContext = createContext();
 
+const initialFormData = {
+  documents: [],             //can be pdf,doc,docx,jpg,jpeg,png
+  receipt: null,
+  documentLabels: {},        // ["Document 1","Document 2"]
+  document_urls: [],
+  title: '',
+  owner: '',
+  document_types: [],        // Comma separated string input, saved as array, 
+  reason: null,
+  issuing_court: '',
+  court_case_number: '',
+  date_of_submission: '',
+  date_of_next_hearing: '',
+  recipient_name: '',
+  recipient_email: '',
+  recipient_address: '',
+  recipient_phone: '',
+  recipient_additional_details: '',
+  applicant_name: '',
+  applicant_email: '',
+  applicant_address: '',
+  applicant_phone: '',
+  service_type: 'standard',  // ['standard','urgent','same_day','sub_serve']
+  priority: 'low',           // ["low", "medium", "high", "urgent"]
+  deadline: '',
+  type: 'Personal',
+  price: 0,
+  instructions: null,
+  attempts_allowed: '3',
+  payment_method: 'private',
+
+
+  // documents: [
+  //   {
+  //     name: 'witness_statement.pdf',
+  //     type: 'application/pdf',
+  //     url: 'https://example.com/uploads/witness_statement.pdf',
+  //   },
+  //   {
+  //     name: 'photo_evidence.jpg',
+  //     type: 'image/jpeg',
+  //     url: 'https://example.com/uploads/photo_evidence.jpg',
+  //   },
+  // ],
+  // receipt: {
+  //   name: 'payment_receipt.pdf',
+  //   type: 'application/pdf',
+  //   url: 'https://example.com/uploads/payment_receipt.pdf',
+  // },
+  // documentLabels: {
+  //   'witness_statement.pdf': 'Witness Statement',
+  //   'photo_evidence.jpg': 'Photo Evidence',
+  // },
+
+  // // Step 2
+  // title: 'Injunction for Breach of Contract',
+  // owner: 'Hon. Judge Elizabeth Clarke',
+  // document_types: ['Statement', 'Photo Evidence'],
+  // reason: 'Breach of contract with urgent relief required.',
+
+  // // Step 3
+  // issuing_court: 'Central London County Court',
+  // court_case_number: 'CL1234562025',
+  // date_of_submission: '2025-05-10',
+  // date_of_next_hearing: '2025-06-01',
+  // recipient_name: 'Thomas Shelby',
+  // recipient_email: 'tshelby@example.co.uk',
+  // recipient_address: '10 Garrison Lane, Birmingham, B5 5LP, UK',
+  // recipient_phone: '+44 7911 123456',
+  // recipient_additional_details: 'Respondent is likely to be unavailable on weekends.',
+
+  // applicant_name: 'Arthur Morgan',
+  // applicant_email: 'amorgan@example.co.uk',
+  // applicant_address: '22 Baker Street, London, W1U 3BW, UK',
+  // applicant_phone: '+44 7555 987654',
+
+  // // Step 4
+  // service_type: 'standard',
+
+  // // Step 5 / 6
+  // priority: 'medium',
+  // deadline: '2025-06-10',
+  // type: 'Personal',
+  // price: 120.00,
+  // instructions: 'Ensure recipient signs acknowledgment form.',
+  // document_urls: [
+  //   'https://example.com/uploads/witness_statement.pdf',
+  //   'https://example.com/uploads/photo_evidence.jpg',
+  // ],
+  // attempts_allowed: '3',
+  // payment_method: 'private',
+};
+
 export const InstructionProvider = ({ children }) => {
+  const api = useApi();
   const { formatPhoneNumber } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -14,45 +109,10 @@ export const InstructionProvider = ({ children }) => {
   const applicantPhoneInputRef = useRef(null);
   const recipientPhoneInputRef = useRef(null);
 
-  const [formData, setFormData] = useState({
-    // fields for Step 1
-    documents: [],
-    receipt: null,
-    documentLabels: {},
-
-    // fields for Step 2
-    caseName: '',
-    owner: '',
-    document_types: [],
-    reason: null,
-    
-    // fields for Step 3
-    issuing_court: '',
-    court_case_number: '',
-    date_of_submission: '',
-    date_of_next_hearing: '',
-    recipient_name: '',
-    recipient_email: '',
-    recipient_address: '',
-    recipient_phone: '',
-    applicant_name: '',
-    applicant_email: '',
-    applicant_address: '',
-    applicant_phone: '',
-
-    // fields for Step 4
-    service_type: 'standard',
-
-    // fields for step 5 / 6
-    priority: 'low',
-    deadline: '',
-    type: 'Personal',
-    price: 0,
-    instructions: null,
-    document_urls: [],
-    attempts_allowed: '3',
-    payment_method: 'private',
-  });
+  const [currentServeData, setCurrentServeData] = useState(null);
+  const [currentInvoiceData, setCurrentInvoiceData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState(initialFormData);
 
 // >>>>>>>>>>>>>>>>>>> STEP 1 Functions
   const handleDocumentUpload = useCallback((files) => {
@@ -113,35 +173,6 @@ export const InstructionProvider = ({ children }) => {
 
 
 // >>>>>>>>>>>>>>>>>>> STEP 2 Functions
-//   useEffect(() => {
-//     if (cursorPosition !== null && phoneInputRef.current) {
-//       phoneInputRef.current.setSelectionRange(cursorPosition, cursorPosition);
-//       setCursorPosition(null);
-//     }
-//   }, [phoneNumber, cursorPosition]);
-
-//  const handleInputChange = useCallback((name, value, selectionStart) => {
-//     // const { name, value, selectionStart } = e.target;
-
-//     if (name === 'recipient_phone') {
-//         const formattedValue = formatPhoneNumber(value, phoneNumber);
-//         const cursorOffset = formattedValue.length - value.length;
-//         const newCursorPosition = selectionStart + cursorOffset;
-        
-//         setPhoneNumber(formattedValue);
-//         setCursorPosition(newCursorPosition);
-  
-//         setFormData(prev => ({
-//           ...prev,
-//           recipient_phone: formattedValue.replace(/\s/g, '')
-//         }));
-//       } else {
-//         setFormData(prev => ({
-//           ...prev,
-//           [name]: value
-//         }));
-//       }
-//   }, [formatPhoneNumber, phoneNumber]);
 
 useEffect(() => {
     if (applicantCursorPosition !== null && applicantPhoneInputRef.current) {
@@ -258,7 +289,7 @@ useEffect(() => {
 
 
 // >>>>>>>>>>>>>>>>>>> STEP 3 Functions
-const handleDateChange = useCallback((name, value) => {
+  const handleDateChange = useCallback((name, value) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -273,10 +304,148 @@ const handleDateChange = useCallback((name, value) => {
     }));
   }, []);
 
+
+// >>>>>>>>>>>>>>>>>>> Final Step: Submission
+  const resetFormData = useCallback(() => {
+    setFormData(initialFormData);
+    setCurrentStep(1);
+    setIsSubmitted(false);
+    setApplicantPhoneNumber('');
+    setRecipientPhoneNumber('');
+    setCurrentServeData(null);
+  }, []);
+
+  const mapServeToFormData = useCallback((serveData) => {
+    if (!serveData) return;
+    
+    const documents = serveData.document_urls?.map(url => ({
+      name: url.split('/').pop(),
+      type: url.endsWith('.pdf') ? 'application/pdf' : 
+            url.match(/\.(jpg|jpeg|png)$/i) ? 'image/' + url.split('.').pop().toLowerCase() : 
+            'application/octet-stream',
+      url: url
+    })) || [];
+
+    // Create document labels
+    const documentLabels = documents.reduce((acc, doc) => {
+      acc[doc.name] = doc.name.split('.')[0]; // Use filename without extension as label
+      return acc;
+    }, {});
+
+    return {
+      documents,
+      receipt: null, // Receipt might not be in serve data
+      documentLabels,
+      document_urls: serveData.document_urls || [],
+      title: serveData.title || '',
+      owner: serveData.owner || '',
+      document_types: serveData.document_types || [],
+      reason: serveData.reason || null,
+      issuing_court: serveData.issuing_court || '',
+      court_case_number: serveData.court_case_number || '',
+      date_of_submission: serveData.date_of_submission || '',
+      date_of_next_hearing: serveData.date_of_next_hearing || '',
+      recipient_name: serveData.recipient_name || '',
+      recipient_email: serveData.recipient_email || '',
+      recipient_address: serveData.recipient_address || '',
+      recipient_phone: serveData.recipient_phone || '',
+      recipient_additional_details: serveData.recipient_additional_details || '',
+      applicant_name: serveData.applicant_name || '',
+      applicant_email: serveData.applicant_email || '',
+      applicant_address: serveData.applicant_address || '',
+      applicant_phone: serveData.applicant_phone || '',
+      service_type: serveData.service_type || 'standard',
+      priority: serveData.priority || 'low',
+      deadline: serveData.deadline || '',
+      type: serveData.type || 'Personal',
+      price: serveData.price || 0,
+      instructions: serveData.instructions || null,
+      attempts_allowed: serveData.attempts_allowed?.toString() || '3',
+      payment_method: 'private', // Default as it might not be in serve data
+    };
+  }, []);
+
+  const handleInstructionServeSubmit = useCallback(async () => {
+    try {
+      setIsSubmitted(true);
+      
+      const response = await api.createInstructionServe(formData);
+
+      console.log('Serve created successfully:', response);
+      return response;
+    } catch (error) {
+      console.error('Error submitting serve:', error);
+      throw error;
+    }
+  }, [formData, api]);
+
+  const fetchServeById = useCallback(async (id) => {
+    try {
+      setIsLoading(true);
+      
+      const response = await api.getServeById(id);
+      const serve = response.serve;
+      
+      setCurrentServeData(serve);
+
+      const mappedFormData = mapServeToFormData(serve);
+      setFormData(mappedFormData);
+
+      if (serve.recipient_phone) {
+        const formattedRecipientPhone = formatPhoneNumber(serve.recipient_phone, '');
+        setRecipientPhoneNumber(formattedRecipientPhone);
+      }
+      
+      if (serve.applicant_phone) {
+        const formattedApplicantPhone = formatPhoneNumber(serve.applicant_phone, '');
+        setApplicantPhoneNumber(formattedApplicantPhone);
+      }
+        
+      return serve;
+    } catch (error) {
+      console.error('Error fetching serve:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [api, mapServeToFormData, formatPhoneNumber]);
+
+  const fetchInvoiceById = useCallback(async (id) => {
+    try {
+      setIsLoading(true);
+      
+      const response = await api.getInvoiceById(id);
+      const invoice = response.invoice;
+      
+      setCurrentInvoiceData(invoice);
+
+      const mappedFormData = mapServeToFormData(invoice.serve);
+      setFormData(mappedFormData);
+
+      if (invoice.serve.recipient_phone) {
+        const formattedRecipientPhone = formatPhoneNumber(invoice.serve.recipient_phone, '');
+        setRecipientPhoneNumber(formattedRecipientPhone);
+      }
+      
+      if (invoice.serve.applicant_phone) {
+        const formattedApplicantPhone = formatPhoneNumber(invoice.serve.applicant_phone, '');
+        setApplicantPhoneNumber(formattedApplicantPhone);
+      }
+        
+      return invoice;
+    } catch (error) {
+      console.error('Error fetching invoice:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [api, mapServeToFormData, formatPhoneNumber]);
+
   return (
     <InstructionContext.Provider
       value={{
         formData,
+        isLoading,
 
         currentStep,
         setCurrentStep,
@@ -300,6 +469,13 @@ const handleDateChange = useCallback((name, value) => {
         recipientPhoneNumber,
         applicantPhoneInputRef,
         recipientPhoneInputRef,
+
+        resetFormData,
+        handleInstructionServeSubmit,
+        fetchServeById,
+        currentServeData,
+        fetchInvoiceById,
+        currentInvoiceData
       }}
     >
       {children}
