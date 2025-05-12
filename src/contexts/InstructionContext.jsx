@@ -7,7 +7,7 @@ const InstructionContext = createContext();
 const initialFormData = {
   documents: [],             //can be pdf,doc,docx,jpg,jpeg,png
   receipt: null,
-  documentLabels: {},        // ["Document 1","Document 2"]
+  documentLabels: [],        // ["Document 1","Document 2"]
   document_urls: [],
   title: '',
   owner: '',
@@ -38,11 +38,13 @@ const initialFormData = {
 
   // documents: [
   //   {
+  //     id: 1,
   //     name: 'witness_statement.pdf',
   //     type: 'application/pdf',
   //     url: 'https://example.com/uploads/witness_statement.pdf',
   //   },
   //   {
+  //     id: 2,
   //     name: 'photo_evidence.jpg',
   //     type: 'image/jpeg',
   //     url: 'https://example.com/uploads/photo_evidence.jpg',
@@ -54,14 +56,14 @@ const initialFormData = {
   //   url: 'https://example.com/uploads/payment_receipt.pdf',
   // },
   // documentLabels: {
-  //   'witness_statement.pdf': 'Witness Statement',
-  //   'photo_evidence.jpg': 'Photo Evidence',
+  //   1: 'Document 1',
+  //   2: 'Document 2'
   // },
 
   // // Step 2
   // title: 'Injunction for Breach of Contract',
   // owner: 'Hon. Judge Elizabeth Clarke',
-  // document_types: ['Statement', 'Photo Evidence'],
+  // document_types: ['Statement', 'Divorce Petition'],
   // reason: 'Breach of contract with urgent relief required.',
 
   // // Step 3
@@ -114,6 +116,31 @@ export const InstructionProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
 
+  const handleNextStep = useCallback(() => {
+    if (currentStep < 6) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      // Currently false but it will be true when submitted.
+      setIsSubmitted(false);
+      // Here you would typically submit the formData to your API
+      console.log('Form submitted:', formData);
+    }
+  }, [currentStep, formData]);
+
+  const handlePrevStep = useCallback(() => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      setIsSubmitted(false);
+    }
+  }, [currentStep]);
+
+  const handleStepClick = (stepNumber) => {
+    // Only allow navigation to completed steps or the current step
+    if (stepNumber <= currentStep || isSubmitted) {
+      setCurrentStep(stepNumber);
+    }
+  };
+
 // >>>>>>>>>>>>>>>>>>> STEP 1 Functions
   const handleDocumentUpload = useCallback((files) => {
     const newDocuments = Array.from(files)
@@ -161,14 +188,31 @@ export const InstructionProvider = ({ children }) => {
     });
   }, []);
 
-  const handleLabelChange = useCallback((id, label) => {
-    setFormData(prev => ({
-      ...prev,
-      documentLabels: {
-        ...prev.documentLabels,
-        [id]: label
-      }
-    }));
+  const handleLabelChange = useCallback((docId, value) => {
+    setFormData(prev => {
+      // Create a copy of current documentLabels
+      const newLabels = { ...prev.documentLabels };
+      
+      // Update only the label for this specific document
+      newLabels[docId] = value;
+      
+      // Check for duplicates
+      const labels = Object.values(newLabels);
+      const duplicateIndex = labels.findIndex((label, idx) => 
+        label === value && Object.keys(newLabels)[idx] !== docId
+      );
+      
+      const isValid = duplicateIndex === -1;
+      
+      return {
+        ...prev,
+        documentLabels: newLabels,
+        labelErrors: {
+          ...prev.labelErrors,
+          [docId]: isValid ? null : 'Document labels must be unique'
+        }
+      };
+    });
   }, []);
 
 
@@ -269,24 +313,6 @@ useEffect(() => {
     }));
   }, []);
 
-  const handleNextStep = useCallback(() => {
-    if (currentStep < 6) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      // Currently false but it will be true when submitted.
-      setIsSubmitted(false);
-      // Here you would typically submit the formData to your API
-      console.log('Form submitted:', formData);
-    }
-  }, [currentStep, formData]);
-
-  const handlePrevStep = useCallback(() => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-      setIsSubmitted(false);
-    }
-  }, [currentStep]);
-
 
 // >>>>>>>>>>>>>>>>>>> STEP 3 Functions
   const handleDateChange = useCallback((name, value) => {
@@ -365,17 +391,127 @@ useEffect(() => {
     };
   }, []);
 
+  // const handleInstructionServeSubmit = useCallback(async () => {
+  //   try {
+  //     setIsSubmitted(true);
+      
+  //     // Transform formData for API consumption
+  //     const apiPayload = {
+  //       // Copy all non-file data
+  //       ...Object.entries(formData).reduce((acc, [key, value]) => {
+  //         if (key !== 'documents' && key !== 'receipt') {
+  //           acc[key] = value;
+  //         }
+  //         return acc;
+  //       }, {}),
+        
+  //       // Transform documentLabels from object to array
+  //       documentLabels: Object.values(formData.documentLabels || {}),
+        
+  //       // Transform document_types array to comma-separated string
+  //       document_types: formData.document_types?.join(','),
+        
+  //       // Transform documents to just URLs if available
+  //       document_urls: formData.documents?.map(doc => doc.url).filter(Boolean) || []
+  //     };
+  
+  //     // Prepare files for upload
+  //     const files = {
+  //       documents: formData.documents?.map(doc => doc.file).filter(Boolean) || [],
+  //       receipt: formData.receipt?.file || null
+  //     };
+  
+  //     // Make API call with transformed data
+  //     const response = await api.createInstructionServe({
+  //       data: apiPayload,
+  //       files
+  //     });
+  
+  //     console.log('Serve created successfully:', response);
+  //     return response;
+      
+  //   } catch (error) {
+  //     console.error('Error submitting serve:', error);
+  //     throw error;
+  //   } finally {
+  //     setIsSubmitted(false);
+  //   }
+  // }, [formData, api]);
+  
   const handleInstructionServeSubmit = useCallback(async () => {
     try {
       setIsSubmitted(true);
       
-      const response = await api.createInstructionServe(formData);
+      // Create a single FormData object for all data and files
+      const formDataToSend = new FormData();
+  
+      // Append all non-file fields
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('owner', formData.owner);
+      formDataToSend.append('document_types', formData.document_types?.join(','));
+      formDataToSend.append('reason', formData.reason);
+      formDataToSend.append('issuing_court', formData.issuing_court);
+      formDataToSend.append('court_case_number', formData.court_case_number);
+      formDataToSend.append('date_of_submission', formData.date_of_submission);
+      formDataToSend.append('date_of_next_hearing', formData.date_of_next_hearing);
+      formDataToSend.append('recipient_name', formData.recipient_name);
+      formDataToSend.append('recipient_email', formData.recipient_email);
+      formDataToSend.append('recipient_address', formData.recipient_address);
+      formDataToSend.append('recipient_phone', formData.recipient_phone);
+      formDataToSend.append('recipient_additional_details', formData.recipient_additional_details);
+      formDataToSend.append('applicant_name', formData.applicant_name);
+      formDataToSend.append('applicant_email', formData.applicant_email);
+      formDataToSend.append('applicant_address', formData.applicant_address);
+      formDataToSend.append('applicant_phone', formData.applicant_phone);
+      formDataToSend.append('service_type', formData.service_type);
+      formDataToSend.append('priority', formData.priority);
+      formDataToSend.append('deadline', formData.deadline);
+      formDataToSend.append('type', formData.type);
+      formDataToSend.append('price', formData.price);
+      formDataToSend.append('instructions', formData.instructions);
+      formDataToSend.append('attempts_allowed', formData.attempts_allowed);
+      formDataToSend.append('payment_method', formData.payment_method);
+      
+      // Convert documentLabels object to an array of strings
+      const labelsArray = Object.values(formData.documentLabels || {});
+      // Append document labels as a single JSON string
+      formDataToSend.append('documentLabels', JSON.stringify(labelsArray));
 
+      // Append document files
+      // formData.documents?.forEach((doc, index) => {
+      //   if (doc.file instanceof Blob) {
+      //     formDataToSend.append(`documents[${index}]`, doc.file, doc.name);
+      //   }
+      // });
+
+      formData.documents.forEach((doc, index) => {
+        if (doc.file) {
+          formDataToSend.append(`documents[${index}]`, doc.file);
+          // Append additional metadata if needed
+          formDataToSend.append(`documents[${index}].name`, doc.name);
+          formDataToSend.append(`documents[${index}].type`, doc.type);
+        } else if (doc.url) {
+          // If using existing URLs instead of files
+          formDataToSend.append(`document_urls[${index}]`, doc.url);
+        }
+      });
+  
+      // Append receipt if exists
+      if (formData.receipt?.file instanceof Blob) {
+        formDataToSend.append('receipt', formData.receipt.file, formData.receipt.name);
+      }
+  
+      // Make the API call with the single FormData object
+      const response = await api.createInstructionServe(formDataToSend);
+      
       console.log('Serve created successfully:', response);
       return response;
+      
     } catch (error) {
       console.error('Error submitting serve:', error);
       throw error;
+    } finally {
+      setIsSubmitted(false);
     }
   }, [formData, api]);
 
@@ -458,6 +594,7 @@ useEffect(() => {
         handleLabelChange,
         handleNextStep,
         handlePrevStep,
+        handleStepClick,
 
         handleDocTypeSelect,
         handleReasonChange,

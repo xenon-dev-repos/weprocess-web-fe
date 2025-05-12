@@ -4,7 +4,7 @@ import { Images } from '../../assets/images/index.js';
 
 
 
-export const StepsList = ({ currentStep, isSubmitted, stepsData }) => {
+export const StepsList = ({ currentStep, isSubmitted, stepsData, onStepClick }) => {
 
   const steps = [
     { id: 1, title: stepsData[0] },
@@ -22,6 +22,7 @@ export const StepsList = ({ currentStep, isSubmitted, stepsData }) => {
           key={step.id}
           $active={step.id === currentStep} 
           $completed={step.id < currentStep}
+          onClick={() => onStepClick(step.id)}
         >
           <StepTitle>
             {step.title}
@@ -48,6 +49,7 @@ const StepContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   background-color: ${props => props.$active ? '#F0F6E3' : 'transparent'};
+  cursor: pointer;
 `;
 
 const StepTitle = styled.span`
