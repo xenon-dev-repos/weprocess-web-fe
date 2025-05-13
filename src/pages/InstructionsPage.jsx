@@ -97,38 +97,50 @@ const InstructionsPage = () => {
       </select>
     );
 
-    const formatDate = (dateString) => {
-        if (!dateString) return '';
+    const formatDate = (dateStr) => {
+        if (!dateStr) return 'N/A';
         // Handles both "YYYY-MM-DD" and "DD/MM/YYYY"
-        if (dateString.includes('/')) return dateString;
-        const d = new Date(dateString);
-        return d.toLocaleDateString('en-GB');
+        if (dateStr.includes('/')) return dateStr;
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-GB');
     };
 
-    const getStatusBadgeColor = (status) => {
+    const getStatusBadge = (status) => {
         switch (status) {
-            case 'pending':
-                return { bg: '#dcfce7', color: '#166534' };
-            case 'in_progress':
-                return { bg: '#fef3c7', color: '#92400e' };
-            case 'completed':
-                return { bg: '#dbeafe', color: '#1e40af' };
-            case 'new':
-                return { bg: '#e0e7ff', color: '#3730a3' };
-            default:
-                return { bg: '#e5e7eb', color: '#374151' };
+            case 'pending': return { label: 'Pending', bg: '#dcfce7', color: '#166534' };
+            case 'completed': return { label: 'Completed', bg: '#dbeafe', color: '#1e40af' };
+            case 'new': return { label: 'New', bg: '#e0e7ff', color: '#3730a3' };
+            default: return { label: status, bg: '#e5e7eb', color: '#374151' };
         }
     };
 
+    const mapServeToTableRow = (serve) => ({
+        wpr: serve.id,
+        owner: serve.applicant_name || serve.client_id || 'N/A',
+        serve: serve.title,
+        type: serve.priority ? serve.priority.charAt(0).toUpperCase() + serve.priority.slice(1) : 'N/A',
+        court: serve.issuing_court,
+        recipientName: serve.recipient_name,
+        recipientAddress: serve.recipient_address,
+        dateIssues: formatDate(serve.date_of_submission) !== 'N/A' ? formatDate(serve.date_of_submission) : formatDate(serve.created_at),
+        deadline: serve.deadline,
+        status: serve.status,
+    });
+
     const columns = [
-        { key: 'id', header: 'Process ID' },
-        { key: 'issuing_court', header: 'Court name' },
-        { key: 'recipient_name', header: "Recipient's name" },
-        { key: 'recipient_address', header: "Recipient's address" },
-        { key: 'date_of_submission', header: 'Date issues' },
+        { key: 'wpr', header: 'WPR no.' },
+        { key: 'owner', header: 'Owner' },
+        { key: 'serve', header: 'Serve name' },
+        { key: 'type', header: 'Service type' },
+        { key: 'court', header: 'Court name' },
+        { key: 'recipientName', header: "Recipient's name" },
+        { key: 'recipientAddress', header: "Recipient's address" },
+        { key: 'dateIssues', header: 'Date issues' },
         { key: 'deadline', header: 'Deadline' },
         { key: 'status', header: 'Process status' },
     ];
+
+    const tableData = filteredData.map(mapServeToTableRow);
 
     return (
         <MainLayout 
@@ -141,28 +153,22 @@ const InstructionsPage = () => {
                 <MainContent>
                     <TableContainer>
                         <InstructionsTable 
-                            data={filteredData}
+                            data={tableData}
                             title="Instructions In Progress"
                             subtitle="Monthly instructions requested by firm"
                             columns={columns}
                             customFilters={customFilters}
                             renderCell={(key, value, row) => {
                                 if (key === 'status') {
-                                    const { bg, color } = getStatusBadgeColor(value);
+                                    const { label, bg, color } = getStatusBadge(value);
                                     return (
                                         <StatusBadge style={{ backgroundColor: bg, color }}>
-                                            {value.replace('_', ' ')}
+                                            {label}
                                         </StatusBadge>
                                     );
                                 }
-                                if (key === 'date_of_submission' || key === 'deadline') {
+                                if (key === 'dateIssues' || key === 'deadline') {
                                     return formatDate(value);
-                                }
-                                if (key === 'price') {
-                                    return `£${parseFloat(value).toFixed(2)}`;
-                                }
-                                if (key === 'priority') {
-                                    return value.charAt(0).toUpperCase() + value.slice(1);
                                 }
                                 return value;
                             }}

@@ -31,6 +31,11 @@ export const API_ENDPOINTS = {
 
   // Dashboard endpoint
   DASHBOARD: `${API_BASE_URL}/clients/dashboard`,
+
+  // Notifications endpoint
+  NOTIFICATIONS: `${API_BASE_URL}/notifications`,
+  MARK_NOTIFICATION_READ: `${API_BASE_URL}/notifications/:id/read`,
+  MARK_ALL_NOTIFICATIONS_READ: `${API_BASE_URL}/notifications/mark-all-read`,
 };
 
 export default API_ENDPOINTS;
