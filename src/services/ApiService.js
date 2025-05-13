@@ -227,6 +227,34 @@ export const CreateApiService = (toast, setLoading) => {
     }
   };
 
+  /**
+   * Fetch user notifications
+   * @param {number} page - Page number
+   * @param {number} perPage - Notifications per page
+   * @returns {Promise<Object>} Notifications data
+   */
+  const getNotifications = async (page = 1, perPage = 10) => {
+    const url = `${API_ENDPOINTS.NOTIFICATIONS}?page=${page}&per_page=${perPage}`;
+    return apiRequest(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
+  };
+
+  /**
+   * Mark a notification as read
+   * @param {string} id - Notification ID
+   * @returns {Promise<Object>} Success response
+   */
+  const markNotificationAsRead = async (id) => {
+    const url = API_ENDPOINTS.MARK_NOTIFICATION_READ.replace(':id', id);
+    return apiRequest(
+      url,
+      {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' }
+      },
+      'Notification marked as read'
+    );
+  };
+
   return {
     validateEmail,
     getUserProfile,
@@ -239,6 +267,8 @@ export const CreateApiService = (toast, setLoading) => {
     createInstructionServe,
     getServeById,
     getInvoiceById,
+    getNotifications,
+    markNotificationAsRead,
   };
 };
 
@@ -251,20 +281,50 @@ export const validateEmail = async (email, accountType) => {
   const formData = new FormData();
   formData.append('email', email);
   
-  try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      body: formData,
-    });
-    
-    return await handleResponse(response);
-  } catch (error) {
-    console.error('Email validation error:', error);
-    throw error;
-  }
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    body: formData
+  });
+  
+  return handleResponse(response);
+};
+
+/**
+ * Get user notifications
+ * @param {number} page - Page number
+ * @param {number} perPage - Notifications per page
+ * @returns {Promise<Object>} Notifications data
+ */
+export const getNotifications = async (page = 1, perPage = 10) => {
+  const url = `${API_ENDPOINTS.NOTIFICATIONS}?page=${page}&per_page=${perPage}`;
+  const headers = {
+    'Accept': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+  };
+
+  const response = await fetch(url, { method: 'GET', headers });
+  return handleResponse(response);
+};
+
+/**
+ * Mark a notification as read
+ * @param {string} id - Notification ID
+ * @returns {Promise<Object>} Success response
+ */
+export const markNotificationAsRead = async (id) => {
+  const url = API_ENDPOINTS.MARK_NOTIFICATION_READ.replace(':id', id);
+  const headers = {
+    'Accept': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+  };
+
+  const response = await fetch(url, { method: 'POST', headers });
+  return handleResponse(response);
 };
 
 // Default export without toast integration
 export default {
   validateEmail,
+  getNotifications,
+  markNotificationAsRead
 }; 

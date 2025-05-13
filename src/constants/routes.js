@@ -16,6 +16,7 @@ SETTINGS: '/settings',
 ADD_INSTRUCTION: '/add-new-instruction',
 INSTRUCTION_DETAILS: '/instruction-details',
 INVOICE_DETAILS: '/invoice-details',
+NOTIFICATIONS: '/notifications',
 
 // Fallback route
 NOT_FOUND: '*',

@@ -5,12 +5,37 @@ import { Chart } from 'chart.js/auto';
 import { MainLayout } from '../layouts/MainLayout';
 import { StatCard } from '../components/dashboard/StatCard';
 import InstructionsTable from '../components/InstructionsTable';
-import { instructionsTableData, statusMockData, InstructionsMockData } from '../constants/mockData';
+import { instructionsTableData } from '../constants/mockData';
+import { API_ENDPOINTS } from '../constants/api';
+import axios from 'axios';
+import { useToast } from '../services/ToastService';
 
 const DashboardPage = () => {
   const barChartRef = useRef(null);
   const pieChartRef = useRef(null);
   const [filteredData, setFilteredData] = useState(instructionsTableData);
+  const [dashboardData, setDashboardData] = useState({
+    total_serves_count: 0,
+    current_month_serves_count: 0,
+    urgent_serves_count: 0,
+    status_data: {
+      on_hold: 0,
+      in_progress: 0,
+      completed: 0
+    },
+    monthly_data: {
+      january: { totalRequests: 0 },
+      february: { totalRequests: 0 },
+      march: { totalRequests: 0 },
+      april: { totalRequests: 0 },
+      may: { totalRequests: 0 }
+    },
+    pending_invoices_count: 0
+  });
+  const { showError } = useToast();
+  
+  // Removed unused activeTab state since we're using the tabId directly from onTabChange
+  // If you need activeTab for other purposes, keep it but use it somewhere in your component
 
   const handleTabChange = (tabId) => {
     let filtered = [];
@@ -36,6 +61,34 @@ const DashboardPage = () => {
   };
   
   useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
+        const response = await axios.get(API_ENDPOINTS.DASHBOARD, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+
+        if (response.data.success) {
+          setDashboardData(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        showError('Failed to load dashboard data');
+      }
+    };
+
+    fetchDashboardData();
+  }, [showError]);
+
+  useEffect(() => {
     let pieChartInstance = null;
     let barChartInstance = null;
 
@@ -47,7 +100,11 @@ const DashboardPage = () => {
         data: {
           labels: ['On Hold', 'In Progress', 'Completed'],
           datasets: [{
-            data: [statusMockData.onHold, statusMockData.inProgress, statusMockData.completed],
+            data: [
+              dashboardData.status_data.on_hold,
+              dashboardData.status_data.in_progress,
+              dashboardData.status_data.completed
+            ],
             backgroundColor: ['#6B7280', '#FF5B5B', '#8B5CF6'],
           }],
         },
@@ -73,14 +130,16 @@ const DashboardPage = () => {
       barChartInstance = new Chart(barCtx, {
         type: 'bar',
         data: {
-          labels: ['January', 'February', 'March'],
+          labels: ['January', 'February', 'March', 'April', 'May'],
           datasets: [
             {
-              label: 'Total requests',
+              label: 'Total Requests',
               data: [
-                InstructionsMockData.january.totalRequests,
-                InstructionsMockData.february.totalRequests,
-                InstructionsMockData.march.totalRequests
+                dashboardData.monthly_data.january.totalRequests,
+                dashboardData.monthly_data.february.totalRequests,
+                dashboardData.monthly_data.march.totalRequests,
+                dashboardData.monthly_data.april.totalRequests,
+                dashboardData.monthly_data.may.totalRequests
               ],
               backgroundColor: '#000',
             }
@@ -103,7 +162,7 @@ const DashboardPage = () => {
         barChartInstance.destroy();
       }
     };
-  }, []);
+  }, [dashboardData]);
 
   return (
     <MainLayout isDashboardPage={true}>
@@ -114,8 +173,8 @@ const DashboardPage = () => {
               <StatCard 
                 title="Total Instructions"
                 subtitle="Count of the instructions created"
-                value="250"
-                subtext="27 this month"
+                value={dashboardData.total_serves_count.toString()}
+                subtext={`${dashboardData.current_month_serves_count} this month`}
                 subtextColor="#0F800A"
                 subtextBg="#DEFFE4"
               />
@@ -123,8 +182,8 @@ const DashboardPage = () => {
               <StatCard 
                 title="Instructions in Progress"
                 subtitle="Total count of in progress instructions"
-                value="7"
-                subtext="4 urgent"
+                value={dashboardData.status_data.in_progress.toString()}
+                subtext={`${dashboardData.urgent_serves_count} urgent`}
                 subtextColor="#B71C1C"
                 subtextBg="#FFEAEA"
               />
@@ -132,8 +191,8 @@ const DashboardPage = () => {
               <StatCard 
                 title="Instructions Completed"
                 subtitle="Instructions completed this month"
-                value="50"
-                subtext="5 pending invoices"
+                value={dashboardData.status_data.completed.toString()}
+                subtext={`${dashboardData.pending_invoices_count} pending invoices`}
                 subtextColor="#B71C1C"
                 subtextBg="#FFE5E5"
               />

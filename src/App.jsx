@@ -10,6 +10,7 @@ import { ThemeProvider } from 'styled-components';
 import { theme } from './styles/theme';
 import { ROUTE_CONFIG } from './config/routes.config';
 import { ROUTES } from './constants/routes';
+import { NotificationProvider } from './components/NotificationBadge';
 // import LoadingSpinner from './components/LoadingSpinner';
 
 function App() {
@@ -19,9 +20,11 @@ function App() {
         <AuthWithToast>
           <InstructionProviderWithToast>
             <ThemeProvider theme={theme}>
-              <GlobalStyles />
-              <Toaster />
-              <AppRoutes />
+            <NotificationProvider>
+                <GlobalStyles />
+                <Toaster />
+                <AppRoutes />
+            </NotificationProvider>
             </ThemeProvider>
           </InstructionProviderWithToast>
         </AuthWithToast>

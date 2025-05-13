@@ -11,6 +11,8 @@ import { PageHeader } from '../components/shared/PageHeader';
 import { ProfileDropdown } from '../components/shared/ProfileDropdown';
 import { useAuth } from '../contexts/AuthContext';
 import { Images } from '../assets/images/index.js';
+import NotificationModal from '../components/shared/NotificationModal';
+import NotificationBadge from '../components/NotificationBadge';
 
 export const MainLayout = ({ 
   children,
@@ -34,7 +36,9 @@ export const MainLayout = ({
   const navRef = useRef(null);
   const toggleRef = useRef(null);
   const avatarRef = useRef(null);
+  const notificationIconRef = useRef(null);
   const firstLetter = user?.name?.charAt(0).toUpperCase() || 'U';
+  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
 
   const {
     navigateToDashboard,
@@ -127,30 +131,26 @@ export const MainLayout = ({
             </NavLink>
           </Navigation>
           <UserActions>
-          <IconButton>
+            <IconButton>
               <IconImg src={SearchIcon} alt="Search" />
             </IconButton>
-            <IconButton>
+            <IconButton 
+              ref={notificationIconRef} 
+              onClick={() => setNotificationModalOpen(true)}
+            >
               <IconImg src={NotificationIcon} alt="Notifications" />
+              <NotificationBadge />
             </IconButton>
             <IconButton>
               <IconImg src={MessageIcon} alt="Messages" />
             </IconButton>
-              <AvatarCircle 
-                ref={avatarRef} 
-                onClick={(e) => toggleProfileDropdown(e)}
-              >
-                {firstLetter}
-              </AvatarCircle>
+            <AvatarCircle 
+              ref={avatarRef} 
+              onClick={(e) => toggleProfileDropdown(e)}
+            >
+              {firstLetter}
+            </AvatarCircle>
 
-              {/* Can be used in future */}
-
-              {/* <UserAvatar 
-                src="https://i.sstatic.net/l60Hf.png" 
-                alt="User"  
-                ref={avatarRef}  
-                onClick={(e) => toggleProfileDropdown(e)} 
-              /> */}
             {showProfileDropdown && (
               <ProfileDropdown avatarRef={avatarRef} onClose={() => setShowProfileDropdown(false)} />
             )}
@@ -223,6 +223,12 @@ export const MainLayout = ({
       <PageContent>
         {children}
       </PageContent>
+
+      <NotificationModal 
+        open={notificationModalOpen} 
+        onClose={() => setNotificationModalOpen(false)}
+        anchorEl={notificationIconRef}
+      />
     </AppContainer>
   );
 };
