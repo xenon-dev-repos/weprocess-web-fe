@@ -7,6 +7,7 @@ export const InstructionsMainContainer = styled.div`
   flex-direction: column;
   gap: 24px;
   width: 100%;
+  background: rgba(255, 255, 255, 0.97);
 
   @media (max-width: 1440px) {
     gap: 22px;
@@ -28,3 +29,10 @@ export const InstructionsMainContainer = styled.div`
     gap: 14px;
   }
 `;
+
+export const CustomDivider = styled.div`
+  width: 100%;
+  height: 1px;
+  background-color: #E4E8EE;
+`;
+

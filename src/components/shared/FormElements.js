@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const FormGroup = styled.div`
-  margin-bottom: 24px;
+  margin-bottom: ${({ $marginBottom }) => $marginBottom || '24px'};
 `;
 
 export const FormGroup2 = styled.div`
@@ -36,6 +36,29 @@ export const Input = styled.input`
   font-size: 1rem;
   height: ${({ $height }) => $height || '48px'};
   box-size: border-box;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--color-border-primary);
+  }
+
+  @media (max-width: 768px) {
+    height: 48px;
+    border: 1px solid var(--color-border-secondary);
+  }
+`;
+
+export const TextArea = styled.textarea`
+  width: 100%;
+  padding: 8px 16px;
+  border: 2px solid var(--color-border-secondary);
+  border-radius: 12px;
+  font-size: 1rem;
+  height: ${({ $height }) => $height || '48px'};
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 48px;
+  font-family: inherit;
   
   &:focus {
     outline: none;

@@ -10,6 +10,7 @@ import { useNavigation } from '../hooks/useNavigation';
 import { PageHeader } from '../components/shared/PageHeader';
 import { ProfileDropdown } from '../components/shared/ProfileDropdown';
 import { useAuth } from '../contexts/AuthContext';
+import { Images } from '../assets/images/index.js';
 
 export const MainLayout = ({ 
   children,
@@ -87,12 +88,23 @@ export const MainLayout = ({
             <MobileMenuToggle ref={toggleRef} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               ☰
             </MobileMenuToggle>
-            <Logo>
+
+            {(isInstructionDetailsPage || isInvoiceDetailsPage) ?
+              <Logo onClick={isInstructionDetailsPage ? navigateToInstructions : navigateToInvoices}>
+                <LogoCircle>
+                  <BackIcon src={Images.instructions.backIcon} alt="Logo" />
+                </LogoCircle>
+                <LogoName>Back</LogoName>
+              </Logo>
+              :
+              <Logo onClick={navigateToDashboard}>
               <LogoCircle>
                 <LogoIcon src={WeProcessLogoIcon} alt="Logo" />
               </LogoCircle>
               <LogoName>WeProcess</LogoName>
-            </Logo>
+              </Logo>
+            }
+
           </LogoContainer>
           <Navigation ref={navRef} $mobileMenuOpen={mobileMenuOpen}>
             <NavLink 
@@ -288,10 +300,23 @@ const Logo = styled.div`
   gap: 12px;
   font-size: 18px;
   font-weight: 600;
+  cursor: pointer;
   
   // @media (max-width: 768px) {
   // }
 `;
+
+const GoBack = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  
+  // @media (max-width: 768px) {
+  // }
+`;
+
 
 const LogoCircle = styled.div`
   width: 60px;
@@ -346,6 +371,53 @@ const LogoIcon = styled.img`
   @media (max-width: 480px) {
     width: 40px;
     height: 40px;
+  }
+`;
+
+const BackIcon = styled.img`
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  transition: transform 0.3s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  @media (max-width: 1280px) {
+    width: 22px;
+    height: 22px;
+    
+    &:hover {
+      transform: scale(1.15);
+    }
+  }
+
+  @media (max-width: 1024px) {
+    width: 20px;
+    height: 20px;
+    
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+
+  @media (max-width: 768px) {
+    width: 18px;
+    height: 18px;
+    
+    &:hover {
+      transform: scale(1.25);
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 16px;
+    height: 16px;
+    
+    &:hover {
+      transform: scale(1.3);
+    }
   }
 `;
 

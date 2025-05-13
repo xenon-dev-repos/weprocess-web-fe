@@ -40,8 +40,8 @@ export const Step2ServeType = () => {
             type="text"
             name="caseName"
             placeholder="Enter serve name"
-            value={formData.caseName || ''}
-            onChange={(e) => handleInputChange('caseName', e.target.value)}
+            value={formData.title || ''}
+            onChange={(e) => handleInputChange('title', e.target.value)}
             required
             $height="56px"
           />

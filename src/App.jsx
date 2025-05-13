@@ -17,13 +17,13 @@ function App() {
     <Router>
       <ToastProvider>
         <AuthWithToast>
-          <InstructionProvider>
+          <InstructionProviderWithToast>
             <ThemeProvider theme={theme}>
               <GlobalStyles />
               <Toaster />
               <AppRoutes />
             </ThemeProvider>
-          </InstructionProvider>
+          </InstructionProviderWithToast>
         </AuthWithToast>
       </ToastProvider>
     </Router>
@@ -63,9 +63,9 @@ const AuthWithToast = ({ children }) => {
   return <AuthProvider toast={toast}>{children}</AuthProvider>;
 };
 
-// const InstructionProviderWithToast = ({ children }) => {
-//   const toast = useToast();
-//   return <InstructionProvider toast={toast}>{children}</InstructionProvider>;
-// };
+const InstructionProviderWithToast = ({ children }) => {
+  const toast = useToast();
+  return <InstructionProvider toast={toast}>{children}</InstructionProvider>;
+};
 
 export default App;

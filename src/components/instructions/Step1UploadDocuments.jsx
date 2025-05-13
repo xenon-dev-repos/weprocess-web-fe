@@ -56,12 +56,12 @@ export const Step1UploadDocuments = () => {
       <Divider />
 
       <UploadedDocsContainer>
-        <UploadedDocsTitle>Uploaded documents</UploadedDocsTitle>
+        <UploadedDocsTitle>Upload documents</UploadedDocsTitle>
         {formData.documents.length === 0 ? (
           <ReceiptText>No docs added</ReceiptText>
         ) : (
           formData.documents.map((doc) => (
-            <DocRow key={doc.id}>
+            <DocRow key={doc.id} $hasError={!!formData.labelErrors?.[doc.id]}>
               <DocInfoContainer>
                 <DocLeft>
                   <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
@@ -76,11 +76,17 @@ export const Step1UploadDocuments = () => {
                   onClick={() => removeDocument(doc.id)}
                 />
               </DocInfoContainer>
-              <LabelInput 
-                placeholder="Provide a document label"
-                value={formData.documentLabels[doc.id] || ''}
-                onChange={(e) => handleLabelChange(doc.id, e.target.value)}
-              />
+              <LabelInputContainer>
+                <LabelInput 
+                  placeholder="Provide a document label"
+                  value={formData.documentLabels[doc.id] || ''}
+                  onChange={(e) => handleLabelChange(doc.id, e.target.value)}
+                  $hasError={!!formData.labelErrors?.[doc.id]}
+                />
+                {formData.labelErrors?.[doc.id] && (
+                  <ErrorText>{formData.labelErrors[doc.id]}</ErrorText>
+                )}
+              </LabelInputContainer>
             </DocRow>
           ))
         )}
@@ -368,32 +374,10 @@ const UploadedDocsTitle = styled.p`
   }
 `;
 
-const NoDocumentsText = styled.p`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 100%;
-  letter-spacing: 0%;
-  color: #242331;
-  margin: 0;
-
-  @media (max-width: 1440px) {
-    font-size: 13px;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 12px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 11px;
-  }
-`;
-
-
 const DocRow = styled.div`
   display: flex;
   gap: 24px;
-  align-items: center;
+ align-items: ${props => props.$hasError ? 'flex-start' : 'center'};
 
   @media (max-width: 1024px) {
     gap: 20px;
@@ -407,6 +391,16 @@ const DocRow = styled.div`
 
   @media (max-width: 480px) {
     gap: 12px;
+  }
+`;
+
+const LabelInputContainer = styled.div`
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 768px) {
+    width: 100%;
   }
 `;
 
@@ -554,14 +548,25 @@ const CancelIcon = styled.img`
 `;
 
 const LabelInput = styled.input`
-  width: 50%;
+  width: 100%;
   height: 56px;
-  border: 1px solid #ccc;
+  border: 1px solid ${props => props.$hasError ? '#FF3E3E' : '#ccc'};
   border-radius: 8px;
   padding: 8px 16px;
   font-family: 'Manrope', sans-serif;
   font-size: 16px;
   color: #242331;
+  // background-color: ${props => props.$hasError ? '#FFF0F0' : 'white'};
+  background-color: 'white';
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: ${props => props.$hasError ? '#FF3E3E' : '#043F35'};
+    box-shadow: ${props => props.$hasError 
+      ? '0 0 0 2px rgba(255, 62, 62, 0.2)' 
+      : '0 0 0 2px rgba(4, 63, 53, 0.2)'};
+  }
 
   @media (max-width: 1440px) {
     height: 52px;
@@ -598,5 +603,16 @@ const LabelInput = styled.input`
     @media (max-width: 480px) {
       font-size: 12px;
     }
+  }
+`;
+
+const ErrorText = styled.span`
+  color: #FF3E3E;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+  
+  @media (max-width: 768px) {
+    font-size: 11px;
   }
 `;

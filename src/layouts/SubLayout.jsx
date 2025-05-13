@@ -260,6 +260,91 @@ export const SideBarSection = styled.div`
   }
 `;
 
+export const SideBarSectionAddInstruction = styled.div`
+  width: 100%;
+  max-width: 384px;
+  height: ${props => props.$height ? props.$height : 'auto'};
+  border-radius: 12px;
+  border-left: 1px solid #E5E7EB;
+  padding: 24px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 1000;
+  box-size: border-box;
+
+  @media (max-width: 1440px) {
+    max-width: 360px;
+    padding: 18px;
+  }
+
+  @media (max-width: 1280px) {
+    max-width: 340px;
+    padding: 16px;
+  }
+
+  @media (max-width: 1024px) {
+    max-width: 320px;
+    padding: 16px 14px;
+  }
+
+  @media (max-width: 768px) {
+    width: 85%;
+    max-width: 384px;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    padding: 14px 12px;
+  }
+`;
+
+export const SideBarSectionRight = styled.div`
+  width: 100%;
+  max-width: 440px;
+  height: ${props => props.$height ? props.$height : 'auto'};
+  border-radius: 20px;
+  padding: 24px;
+  gap: 16px;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 1000;
+  box-size: border-box;
+  align-items: center;
+
+  @media (max-width: 1440px) {
+    padding: 18px;
+    height: 372px;
+  }
+
+  @media (max-width: 1280px) {
+    padding: 16px;
+    height: 358px;
+  }
+
+  @media (max-width: 1024px) {
+    padding: 16px;
+    height: 330px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    height: auto;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    padding: 14px;
+  }
+`;
+
 export const ContentSectionContent = styled.div`
   padding: 24px;
   overflow-y: auto;

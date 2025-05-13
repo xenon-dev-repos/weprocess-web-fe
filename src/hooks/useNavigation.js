@@ -1,13 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ROUTES } from '../constants/routes';
+import { useInstruction } from '../contexts/InstructionContext';
 
 export const useNavigation = () => {
   const navigate = useNavigate();
   const { clearError } = useAuth();
+  const { resetFormData } = useInstruction();
 
   const navigateTo = (url, options) => {
     clearError();
+    resetFormData();
     navigate(url, options);
   };
 

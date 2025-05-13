@@ -5,6 +5,7 @@ import { RecipientDetailsLayout } from '../../layouts/RecipientDetailsLayout';
 import { InputFieldsContainer } from '../shared/InputFieldsContainer';
 import { Images } from '../../assets/images';
 import { useInstruction } from '../../contexts/InstructionContext';
+import { FormGroup, Input, Label, TextArea } from '../shared/FormElements';
 
 export const Step3RecipientDetails = () => {
   const { 
@@ -143,6 +144,25 @@ export const Step3RecipientDetails = () => {
           formData={formData}
           handleChange={handleInputChange}
         />
+        {/* <InputFieldsContainer 
+          fields={recipientAdditionalDetails}
+          formData={formData}
+          handleChange={handleInputChange}
+        /> */}
+        <FormGroup $marginBottom='0'>
+          <Label>
+          Additional details
+          </Label>
+          <TextArea
+            type={'text'}
+            name={'recipient_additional_details'}
+            placeholder={'Please enter other specifies regarding this case, if any...'}
+            value={formData.recipient_additional_details || ''}
+            onChange={handleInputChange}
+            required
+            $height="76px"
+          />
+        </FormGroup>
       </RecipientDetailsLayout>
 
       <RecipientDetailsLayout title="Case info">
