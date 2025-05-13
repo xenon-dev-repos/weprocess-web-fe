@@ -28,6 +28,9 @@ export const API_ENDPOINTS = {
 
   // Invoices endpoint
   INVOICES: `${API_BASE_URL}/invoices`,
+
+  // Dashboard endpoint
+  DASHBOARD: `${API_BASE_URL}/clients/dashboard`,
 };
 
 export default API_ENDPOINTS;
