@@ -62,6 +62,7 @@ export const Step1UploadDocuments = () => {
         ) : (
           formData.documents.map((doc) => (
             <DocRow key={doc.id} $hasError={!!formData.labelErrors?.[doc.id]}>
+            <DocRow key={doc.id} $hasError={!!formData.labelErrors?.[doc.id]}>
               <DocInfoContainer>
                 <DocLeft>
                   <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
@@ -79,7 +80,7 @@ export const Step1UploadDocuments = () => {
               <LabelInputContainer>
                 <LabelInput 
                   placeholder="Provide a document label"
-                  value={formData.documentLabels[doc.id] || ''}
+                  value={formData.document_labels[doc.id] || ''}
                   onChange={(e) => handleLabelChange(doc.id, e.target.value)}
                   $hasError={!!formData.labelErrors?.[doc.id]}
                 />

@@ -16,7 +16,7 @@ export const SharedInstructionInvoiceDetails = ({
 }) => {
   return (
     <>
-        {(isInvoiceDetails || isAddNewInstructionStep5) && currentInvoiceData &&
+        {(isAddNewInstructionStep5 || (isInvoiceDetails && currentInvoiceData)) &&
             <RecipientDetailsLayout title="Invoice details">
                 <InvoiceDetailsContainer>
                     <InvoiceLeftColumn>
@@ -25,7 +25,7 @@ export const SharedInstructionInvoiceDetails = ({
                     </InvoiceLeftColumn>
                     <InvoiceRightColumn>
                         <DetailLabel>Invoice no.</DetailLabel>
-                        <DetailValue>{currentInvoiceData.invoice_number}</DetailValue>
+                        <DetailValue>{isAddNewInstructionStep5 ? "TEST-9876" : currentInvoiceData?.invoice_number}</DetailValue>
                     </InvoiceRightColumn>
                 </InvoiceDetailsContainer>
 
@@ -73,7 +73,7 @@ export const SharedInstructionInvoiceDetails = ({
                                         month: 'short', 
                                         day: 'numeric' 
                                     }) : 
-                                    'May 24, 2025'
+                                    '-'
                                 }
                             </DetailValue>
                         </DetailRow>

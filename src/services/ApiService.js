@@ -34,6 +34,7 @@ export const CreateApiService = (toast, setLoading) => {
 
       const headers = {
         ...(options.headers || {}),
+        "Accept": "application/json",
       };
 
       if (useTempToken) {
