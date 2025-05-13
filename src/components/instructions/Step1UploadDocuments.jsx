@@ -62,6 +62,7 @@ export const Step1UploadDocuments = () => {
         ) : (
           formData.documents.map((doc) => (
             <DocRow key={doc.id} $hasError={!!formData.labelErrors?.[doc.id]}>
+            <DocRow key={doc.id} $hasError={!!formData.labelErrors?.[doc.id]}>
               <DocInfoContainer>
                 <DocLeft>
                   <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
