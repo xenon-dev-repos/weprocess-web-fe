@@ -56,11 +56,11 @@ const InstructionsPage = () => {
 
             const response = await getServes({
                 status: statusFilter,
-                deadline: getDeadlineDate(timeFilter),
-                sort_by: 'deadline,price',
-                sort_order: 'desc,asc',
+                // deadline: getDeadlineDate(timeFilter),
+                // sort_by: 'deadline,price',
+                // sort_order: 'desc,asc',
                 per_page: 10,
-                user_id: user.id
+                // user_id: user.id
             });
             
             if (response.success) {
@@ -79,7 +79,7 @@ const InstructionsPage = () => {
   
     useEffect(() => {
         fetchServes();
-    }, []);
+    }, [statusFilter]);
   
     const customFilters = (
       <select 
