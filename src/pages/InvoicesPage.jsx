@@ -5,8 +5,12 @@ import InstructionsTable from '../components/InstructionsTable';
 import { API_ENDPOINTS } from '../constants/api';
 import axios from 'axios';
 import { useToast } from '../services/ToastService';
+import LoadingOnPage from '../components/shared/LoadingOnPage';
+import { useNavigation } from '../hooks/useNavigation';
+import { ROUTES } from '../constants/routes';
 
 const InvoicesPage = () => {
+    const navigation = useNavigation();
     const [filteredData, setFilteredData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -99,6 +103,12 @@ const InvoicesPage = () => {
         return value;
     };
 
+    const handleRowClick = (rowData) => {
+        if (typeof navigation.handleNavigationFromTableRow === 'function') {
+            navigation.handleNavigationFromTableRow(rowData)
+        };
+    }
+
     return (
         <MainLayout 
             isInvoicePage={true}
@@ -110,6 +120,7 @@ const InvoicesPage = () => {
             ]}
             onFilterChange={handleFilterChange}
         >
+            {loading && <LoadingOnPage />}
             <DashboardContainer>
                 <MainContent>
                     <TableContainer>
@@ -127,6 +138,7 @@ const InvoicesPage = () => {
                             onPageChange={handlePageChange}
                             loading={loading}
                             error={error}
+                            onRowClick={handleRowClick}
                         />
                     </TableContainer>
                 </MainContent>

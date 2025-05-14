@@ -27,7 +27,9 @@ const navigateToIndividualSetup = () => navigateTo(ROUTES.INDIVIDUAL_SETUP);
 // App routes
 const navigateToDashboard = () => navigateTo(ROUTES.DASHBOARD);
 const navigateToInstructions = () => navigateTo(ROUTES.INSTRUCTIONS);
+const navigateToInstructionsDetails = (options) => {navigateTo(ROUTES.INSTRUCTION_DETAILS, options);};
 const navigateToInvoices = () => navigateTo(ROUTES.INVOICES);
+const navigateToInvoicesDetails = (options) => {navigateTo(ROUTES.INVOICE_DETAILS, options);};
 const navigateToAddInstruction = () => navigateTo(ROUTES.ADD_INSTRUCTION);
 
 // Special routes
@@ -35,8 +37,28 @@ const navigateToRoot = () => navigateTo(ROUTES.ROOT);
 const navigateToNotFound = () => navigateTo(ROUTES.NOT_FOUND);
 
 // Route builders
-const navigateToVerifyOtp = (email) => 
-  navigateTo(`${ROUTES.VERIFY_OTP}?email=${encodeURIComponent(email)}`);
+const navigateToVerifyOtp = (email) => navigateTo(`${ROUTES.VERIFY_OTP}?email=${encodeURIComponent(email)}`);
+
+
+  const handleNavigationFromTableRow = (rowData, isInstruction = false) => {
+    if (isInstruction) {
+        navigateToInstructionsDetails({
+            state: {
+                'WPR no.': rowData.wpr,
+                "Recipient's name": rowData.recipientName,
+                "Service type": rowData.type
+            }
+        });
+    } else {
+      navigateToInvoicesDetails({
+          state: {
+              'WPR no.': rowData.wpr,
+              "Recipient's name": rowData.recipientName,
+              "Service type": rowData.type
+          }
+      });
+    }
+  };
 
 return {
   navigateTo,
@@ -48,10 +70,14 @@ return {
   navigateToIndividualSetup,
   navigateToDashboard,
   navigateToInstructions,
+  navigateToInstructionsDetails,
   navigateToInvoices,
+  navigateToInvoicesDetails,
   navigateToAddInstruction,
   navigateToRoot,
   navigateToNotFound,
   navigateToVerifyOtp,
+
+  handleNavigationFromTableRow,
 };
 };

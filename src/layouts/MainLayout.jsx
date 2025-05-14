@@ -27,6 +27,7 @@ export const MainLayout = ({
   handleStatusFilterChange,
   currentStep='1',
   stepsData=[],
+  instructionData,
 }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -159,7 +160,7 @@ export const MainLayout = ({
         
         {isDashboardPage && (
           <DashboardHeader>
-            <Title>Good Morning, {user?.name || 'User'}!</Title>
+            <Title>Good Morning, {user?.name.split(' ')[0] || 'User'}!</Title>
             <ButtonContainer>
               <NewButton onClick={navigateToAddInstruction}>
                 <span>+</span> New Instruction
@@ -208,7 +209,13 @@ export const MainLayout = ({
 
         {isInstructionDetailsPage && (
           <DashboardHeader>
-            <Title>#5102 | Serve to Alex</Title>
+          {instructionData && (
+            <Title>
+              #{instructionData.id} | {instructionData.recipient_name}
+            </Title>
+          )}
+              
+            {/* <Title>#5102 | Serve to Alex</Title> */}
           </DashboardHeader>
         )}
 

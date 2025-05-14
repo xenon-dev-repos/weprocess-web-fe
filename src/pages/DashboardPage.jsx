@@ -9,10 +9,12 @@ import { instructionsTableData } from '../constants/mockData';
 import { API_ENDPOINTS } from '../constants/api';
 import axios from 'axios';
 import { useToast } from '../services/ToastService';
+import LoadingOnPage from '../components/shared/LoadingOnPage';
 
 const DashboardPage = () => {
   const barChartRef = useRef(null);
   const pieChartRef = useRef(null);
+  const [loading, setLoading] = useState(false);
   const [filteredData, setFilteredData] = useState(instructionsTableData);
   const [dashboardData, setDashboardData] = useState({
     total_serves_count: 0,
@@ -63,6 +65,8 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        setLoading(true);
+
         const token = localStorage.getItem('token');
         if (!token) {
           throw new Error('No authentication token found');
@@ -82,6 +86,8 @@ const DashboardPage = () => {
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
         showError('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -166,6 +172,7 @@ const DashboardPage = () => {
 
   return (
     <MainLayout isDashboardPage={true}>
+      {loading && <LoadingOnPage />}
       <DashboardContainer>
         <MainContent>
           <LeftColumn>
