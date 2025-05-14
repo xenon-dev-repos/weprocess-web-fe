@@ -55,7 +55,7 @@ export const ProfileSidebar = ({ userData }) => {
     <>
         <ProfileContainer>
         <AvatarContainer>
-            {userData.profile_photo ? 
+            {userData?.profile_photo ? 
             <Avatar 
                 src={userData.profile_photo} 
                 alt="Profile" 
@@ -63,13 +63,13 @@ export const ProfileSidebar = ({ userData }) => {
                 height={72} 
             /> :
             <AvatarCircle>
-                {userData.full_name?.charAt(0).toUpperCase() || 'U'}
+                {userData?.full_name?.charAt(0).toUpperCase() || 'U'}
             </AvatarCircle>
             }
         </AvatarContainer>
-        <Name>{userData.full_name || 'Driver'}</Name>
-        <StarRating rating={userData.rating || 0} />
-        <Level>LEVEL {userData.level || 0}</Level>
+        <Name>{userData?.full_name || 'Driver'}</Name>
+        <StarRating rating={userData?.rating || 0} />
+        <Level>LEVEL {userData?.level || 0}</Level>
         </ProfileContainer>
 
         <StatsContainer>
@@ -77,14 +77,14 @@ export const ProfileSidebar = ({ userData }) => {
             <StatCard>
             <StatIcon src={Images.instructions.jobsTakenIcon} alt="Jobs taken" />
             <StatTextGroup>
-                <StatValue>{userData.total_jobs_count || '0'}</StatValue>
+                <StatValue>{userData?.total_jobs_count || '0'}</StatValue>
                 <StatLabel>Jobs taken</StatLabel>
             </StatTextGroup>
             </StatCard>
             <StatCard>
             <StatIcon src={Images.instructions.jobsCompletedIcon} alt="Jobs completed" />
             <StatTextGroup>
-                <StatValue>{userData.jobs_completed_count || '0'}</StatValue>
+                <StatValue>{userData?.jobs_completed_count || '0'}</StatValue>
                 <StatLabel>Jobs completed</StatLabel>
             </StatTextGroup>
             </StatCard>
@@ -94,7 +94,7 @@ export const ProfileSidebar = ({ userData }) => {
             <SuccessRateContent>
             <StatIcon src={Images.instructions.trendIcon} alt="Success rate" />
             <StatTextGroup>
-                <StatValue>{userData.success_rate || '0'}%</StatValue>
+                <StatValue>{userData?.success_rate || '0'}%</StatValue>
                 <StatLabel>Success rate</StatLabel>
             </StatTextGroup>
             </SuccessRateContent>

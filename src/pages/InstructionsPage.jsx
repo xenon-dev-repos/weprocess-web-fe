@@ -4,14 +4,17 @@ import styled from 'styled-components';
 import { MainLayout } from '../layouts/MainLayout';
 import InstructionsTable from '../components/InstructionsTable';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '../hooks/useNavigation';
+import LoadingOnPage from '../components/shared/LoadingOnPage';
+import { ROUTES } from '../constants/routes';
 
 const InstructionsPage = () => {
     const [timeFilter, setTimeFilter] = useState('monthly');
     const [statusFilter, setStatusFilter] = useState('');
     const [filteredData, setFilteredData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const { user, getServes } = useAuth();
+    const navigation = useNavigation();
 
     const getDeadlineDate = (filter) => {
         const today = new Date();
@@ -47,10 +50,9 @@ const InstructionsPage = () => {
     const fetchServes = async () => {
         try {
             setLoading(true);
-            setError(null);
             
             if (!user?.id) {
-                setError('User ID not found');
+                console.error('User ID not found');
                 return;
             }
 
@@ -66,11 +68,10 @@ const InstructionsPage = () => {
             if (response.success) {
                 setFilteredData(response.serves.data || []);
             } else {
-                setError(response.message || 'Failed to fetch serves');
+                console.error(response.message || 'Failed to fetch serves');
             }
         } catch (error) {
             console.error('Error fetching serves:', error);
-            setError(error.message || 'Failed to fetch serves');
             setFilteredData([]);
         } finally {
             setLoading(false);
@@ -141,6 +142,12 @@ const InstructionsPage = () => {
     ];
 
     const tableData = filteredData.map(mapServeToTableRow);
+    
+    const handleRowClick = (rowData) => {
+        if (typeof navigation.handleNavigationFromTableRow === 'function') {
+            navigation.handleNavigationFromTableRow(rowData, true)
+        };
+    }
 
     return (
         <MainLayout 
@@ -149,6 +156,7 @@ const InstructionsPage = () => {
             filterButtons={filterButtons} 
             onFilterChange={handleStatusFilterChange} 
         >
+            {loading && <LoadingOnPage />}
             <DashboardContainer>
                 <MainContent>
                     <TableContainer>
@@ -158,7 +166,7 @@ const InstructionsPage = () => {
                             subtitle="Monthly instructions requested by firm"
                             columns={columns}
                             customFilters={customFilters}
-                            renderCell={(key, value, row) => {
+                            renderCell={(key, value) => {
                                 if (key === 'status') {
                                     const { label, bg, color } = getStatusBadge(value);
                                     return (
@@ -175,6 +183,7 @@ const InstructionsPage = () => {
                             minHeight={495}
                             noDataCellHeight={420}
                             itemsPerPage={10}
+                            onRowClick={handleRowClick}
                         />
                     </TableContainer>
                 </MainContent>

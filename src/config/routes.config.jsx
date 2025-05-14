@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import InstructionDetailsPage from '../pages/InstructionDetailsPage';
 import InvoiceDetailsPage from '../pages/InvoiceDetailsPage';
+import ProtectedRoute from './ProtectedRoute';
 
 const SignupPage = lazy(() => import('../pages/SignupPage'));
 const SigninPage = lazy(() => import('../pages/SigninPage'));
@@ -22,76 +23,68 @@ export const ROUTE_CONFIG = [
   {
     path: ROUTES.SIGNUP,
     element: <SignupPage />,
-    isPublic: true
   },
   {
     path: ROUTES.SIGNIN,
     element: <SigninPage />,
-    isPublic: true
   },
   {
     path: ROUTES.FIRM_SETUP,
     element: <FirmSetupPage />,
-    isPublic: true
   },
   {
     path: ROUTES.INDIVIDUAL_SETUP,
     element: <IndividualSetupPage />,
-    isPublic: true
   },
   {
     path: ROUTES.FORGOT_PASSWORD,
     element: <ForgotPasswordPage />,
-    isPublic: true
   },
   {
     path: ROUTES.RESET_PASSWORD,
     element: <ResetPasswordPage />,
-    isPublic: true
+  },
+  {
+    path: ROUTES.ROOT,
+    element: (<ProtectedRoute> <DashboardPage /> </ProtectedRoute>),
   },
   {
     path: ROUTES.DASHBOARD,
-    element: <DashboardPage />,
-    isPublic: false
+    element: (<ProtectedRoute> <DashboardPage /> </ProtectedRoute>),
   },
   {
     path: ROUTES.INSTRUCTIONS,
-    element: <InstructionsPage />,
+    element: <ProtectedRoute> <InstructionsPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
     path: ROUTES.INVOICES,
-    element: <InvoicesPage />,
+    element: <ProtectedRoute> <InvoicesPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
     path: ROUTES.SETTINGS,
-    element: <SettingsPage />,
+    element: <ProtectedRoute> <SettingsPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
     path: ROUTES.NOTIFICATIONS,
-    element: <NotificationsPage />,
+    element: <ProtectedRoute> <NotificationsPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
     path: ROUTES.ADD_INSTRUCTION,
-    element: <AddInstructionPage />,
-    isPublic: false
-  },
-  {
-    path: ROUTES.ROOT,
-    element: <DashboardPage />,
+    element: <ProtectedRoute> <AddInstructionPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
     path: ROUTES.INSTRUCTION_DETAILS,
-    element: <InstructionDetailsPage />,
+    element: <ProtectedRoute> <InstructionDetailsPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
     path: ROUTES.INVOICE_DETAILS,
-    element: <InvoiceDetailsPage />,
+    element: <ProtectedRoute> <InvoiceDetailsPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
