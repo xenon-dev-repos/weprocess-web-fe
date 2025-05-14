@@ -3,11 +3,13 @@ import styled from 'styled-components';
 import { MainLayout } from '../layouts/MainLayout';
 import { useNotifications } from '../hooks/useNotifications';
 import NotificationIcon from '../assets/images/dashboard/notification-icon.svg';
+import SearchIcon from '../assets/images/dashboard/search-icon.svg';
 import { NotificationUpdateContext } from '../components/NotificationBadge';
 
 const NotificationsPage = () => {
   const { triggerRefresh = () => {} } = useContext(NotificationUpdateContext) || {};
   const [isMarkingAll, setIsMarkingAll] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { 
     notifications, 
     loading, 
@@ -18,8 +20,13 @@ const NotificationsPage = () => {
     markAllAsRead
   } = useNotifications();
 
-  // All notifications are shown
-  const filteredNotifications = notifications;
+  // Filter notifications based on search query
+  const filteredNotifications = searchQuery 
+    ? notifications.filter(
+        n => n.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+             n.message.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : notifications;
 
   // Change page handler
   const handlePageChange = useCallback((page) => {
@@ -58,11 +65,33 @@ const NotificationsPage = () => {
     // Not used anymore but kept for interface compatibility
   } 
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
   return (
-    <MainLayout title="Notifications" filterButtons={[
-    ]} onFilterChange={handleFilterChange} showInvoicePageHeader>
+    <MainLayout showShortHeader>
       <Container>
-        <Header>
+        <HeaderSection>
+          <TitleContainer>
+            <Title>Notifications</Title>
+            <NotificationCount>{notifications.length}</NotificationCount>
+          </TitleContainer>
+          
+          <SearchContainer>
+            <SearchIconWrapper>
+              <img src={SearchIcon} alt="Search" />
+            </SearchIconWrapper>
+            <SearchInput 
+              type="text"
+              placeholder="Search here..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+          </SearchContainer>
+        </HeaderSection>
+
+        <ActionHeader>
           {filteredNotifications.some(n => !n.read) && (
             <MarkAllButton 
               onClick={handleMarkAllAsRead}
@@ -71,7 +100,7 @@ const NotificationsPage = () => {
               {isMarkingAll ? 'Marking...' : 'Mark all as read'}
             </MarkAllButton>
           )}
-        </Header>
+        </ActionHeader>
 
         <NotificationsContainer>
           {loading && notifications.length === 0 ? (
@@ -159,18 +188,104 @@ const Container = styled.div`
   }
 `;
 
-const Header = styled.div`
+const HeaderSection = styled.div`
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  margin-bottom: 24px;
+`;
+
+const TitleContainer = styled.div`
+  display: flex;
   align-items: center;
-  margin-bottom: 32px;
+  gap: 12px;
+  margin-bottom: 16px;
+`;
+
+const Title = styled.h1`
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
   
   @media (max-width: 768px) {
-    margin-bottom: 24px;
+    font-size: 24px;
   }
   
   @media (max-width: 480px) {
-    margin-bottom: 20px;
+    font-size: 22px;
+  }
+`;
+
+const NotificationCount = styled.div`
+  background-color: #f0f0f0;
+  color: #666;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 500;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+`;
+
+const SearchContainer = styled.div`
+  width: 100%;
+  position: relative;
+`;
+
+const SearchIconWrapper = styled.div`
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    width: 20px;
+    height: 20px;
+    opacity: 0.5;
+  }
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  height: 44px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 100px;
+  padding: 0 20px 0 46px;
+  font-size: 16px;
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(30, 71, 60, 0.2);
+  }
+  
+  &::placeholder {
+    color: #999;
+  }
+  
+  @media (max-width: 768px) {
+    height: 40px;
+    font-size: 15px;
+  }
+  
+  @media (max-width: 480px) {
+    height: 36px;
+    font-size: 14px;
+  }
+`;
+
+const ActionHeader = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 16px;
+  
+  @media (max-width: 480px) {
+    margin-bottom: 12px;
   }
 `;
 

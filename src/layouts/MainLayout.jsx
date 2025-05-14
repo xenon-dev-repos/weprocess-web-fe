@@ -19,6 +19,7 @@ export const MainLayout = ({
   showDashboardPageHeader = false,
   showInstructionsPageHeader = false,
   showInvoicePageHeader = false,
+  showShortHeader = false,
   filterButtons,
   handleStatusFilterChange,
 }) => {
@@ -82,7 +83,7 @@ export const MainLayout = ({
 
   return (
     <AppContainer>
-      <AppHeader $applyMinHeight={showDashboardPageHeader || showInstructionsPageHeader || showInvoicePageHeader}>
+      <AppHeader $applyMinHeight={showDashboardPageHeader || showInstructionsPageHeader || showInvoicePageHeader} $shortHeader={showShortHeader}>
         <MainHeader>
           <LogoContainer>
             <MobileMenuToggle ref={toggleRef} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -215,7 +216,7 @@ const AppHeader = styled.header`
   background-color: var(--color-primary-500);
   color: white;
   max-width: 1728px;
-  min-height: ${props => props.$applyMinHeight ? '314px' : 'auto'};
+  min-height: ${props => props.$shortHeader ? 'auto' : props.$applyMinHeight ? '314px' : 'auto'};
   width: calc(100% - 48px);
   margin: 24px auto 0;
   border-radius: 20px;
@@ -223,11 +224,11 @@ const AppHeader = styled.header`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 40px;
+  padding: ${props => props.$shortHeader ? '20px 40px' : '40px'};
   
   @media (max-width: 1024px) {
     width: calc(100% - 32px);
-    padding: 30px;
+    padding: ${props => props.$shortHeader ? '15px 30px' : '30px'};
   }
 `;
 

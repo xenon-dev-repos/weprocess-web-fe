@@ -147,7 +147,7 @@ const NotificationModal = ({ open, onClose, anchorEl }) => {
       <ModalContent $isMobile={isMobile}>
         <Header $isMobile={isMobile}>
           <Title>Notifications</Title>
-          <ShowAllLink to={ROUTES.NOTIFICATIONS}>View all</ShowAllLink>
+          <ShowAllLink to={ROUTES.NOTIFICATIONS} onClick={onClose}>View all</ShowAllLink>
           {isMobile && (
             <CloseButton onClick={onClose}>×</CloseButton>
           )}
