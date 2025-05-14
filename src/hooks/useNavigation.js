@@ -25,6 +25,7 @@ const navigateToIndividualSetup = () => navigateTo(ROUTES.INDIVIDUAL_SETUP);
 const navigateToDashboard = () => navigateTo(ROUTES.DASHBOARD);
 const navigateToInstructions = () => navigateTo(ROUTES.INSTRUCTIONS);
 const navigateToInvoices = () => navigateTo(ROUTES.INVOICES);
+const navigateToChat = () => navigateTo(ROUTES.CHAT);
 
 // Special routes
 const navigateToRoot = () => navigateTo(ROUTES.ROOT);
@@ -45,6 +46,7 @@ return {
   navigateToDashboard,
   navigateToInstructions,
   navigateToInvoices,
+  navigateToChat,
   navigateToRoot,
   navigateToNotFound,
   navigateToVerifyOtp,

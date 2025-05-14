@@ -14,6 +14,7 @@ const InstructionsPage = lazy(() => import('../pages/InstructionsPage'))
 const InvoicesPage = lazy(() => import('../pages/InvoicesPage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const NotificationsPage = lazy(() => import('../pages/NotificationsPage'));
+const ChatPage = lazy(() => import('../pages/ChatPage'));
 
 export const ROUTE_CONFIG = [
   {
@@ -69,6 +70,11 @@ export const ROUTE_CONFIG = [
   {
     path: ROUTES.NOTIFICATIONS,
     element: <NotificationsPage />,
+    isPublic: false
+  },
+  {
+    path: ROUTES.CHAT,
+    element: <ChatPage />,
     isPublic: false
   },
   {

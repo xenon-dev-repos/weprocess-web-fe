@@ -33,6 +33,12 @@ export const API_ENDPOINTS = {
   NOTIFICATIONS: `${API_BASE_URL}/notifications`,
   MARK_NOTIFICATION_READ: `${API_BASE_URL}/notifications/:id/read`,
   MARK_ALL_NOTIFICATIONS_READ: `${API_BASE_URL}/notifications/mark-all-read`,
+  
+  // Chat endpoints
+  GET_CHAT_SESSIONS: `${API_BASE_URL}/chat/sessions`,
+  GET_CHAT_MESSAGES: `${API_BASE_URL}/chat/:sessionId/messages`,
+  SEND_MESSAGE: `${API_BASE_URL}/chat/message`,
+  MARK_CHAT_AS_READ: `${API_BASE_URL}/chat/read`,
 };
 
 export default API_ENDPOINTS;

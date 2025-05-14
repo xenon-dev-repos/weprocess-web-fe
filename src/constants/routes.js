@@ -16,6 +16,7 @@ INSTRUCTIONS: '/instructions',
 INVOICES: '/invoices',
 SETTINGS: '/settings',
 NOTIFICATIONS: '/notifications',
+CHAT: '/chat',
 
 // Fallback route
 NOT_FOUND: '*',

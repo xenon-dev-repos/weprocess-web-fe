@@ -37,7 +37,8 @@ export const MainLayout = ({
   const {
     navigateToDashboard,
     navigateToInstructions,
-    navigateToInvoices
+    navigateToInvoices,
+    navigateToChat
   } = useNavigation();
 
   const handleNavigation = (path, linkName) => {
@@ -59,6 +60,8 @@ export const MainLayout = ({
       setActiveLink('Instructions');
     } else if (path.includes('/invoices')) {
       setActiveLink('Invoices');
+    } else if (path.includes('/chat')) {
+      setActiveLink('Chat');
     }
   }, [location]);
 
@@ -123,7 +126,18 @@ export const MainLayout = ({
               <IconImg src={NotificationIcon} alt="Notifications" />
               <NotificationBadge />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={() => {
+              localStorage.setItem('navigatingToChat', 'true');
+              
+              const existingIntervals = window.notificationIntervals || [];
+              existingIntervals.forEach(intervalId => clearInterval(intervalId));
+              
+              if (window.notificationTimeouts) {
+                window.notificationTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+              }
+              
+              handleNavigation(navigateToChat, 'Chat');
+            }}>
               <IconImg src={MessageIcon} alt="Messages" />
             </IconButton>
             <AvatarCircle 
