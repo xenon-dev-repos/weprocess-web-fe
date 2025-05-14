@@ -24,7 +24,7 @@ export const MainLayout = ({
   isInstructionDetailsPage = false,
   isInvoiceDetailsPage = false,
   filterButtons,
-  handleStatusFilterChange,
+  onFilterChange,
   currentStep='1',
   stepsData=[],
   instructionData,
@@ -174,7 +174,7 @@ export const MainLayout = ({
             <PageHeader
               title={title}
               filterButtons={filterButtons} 
-              onFilterChange={handleStatusFilterChange} 
+              onFilterChange={onFilterChange} 
             />
           <ButtonContainer>
             <NewButton onClick={navigateToAddInstruction}>
@@ -189,7 +189,7 @@ export const MainLayout = ({
             <PageHeader
               title={title} 
               filterButtons={filterButtons} 
-              onFilterChange={handleStatusFilterChange} 
+              onFilterChange={onFilterChange} 
             />
           </DashboardHeader>
         }
@@ -199,7 +199,7 @@ export const MainLayout = ({
             <PageHeader
               title={title} 
               filterButtons={filterButtons} 
-              onFilterChange={handleStatusFilterChange}
+              onFilterChange={onFilterChange}
               stepsData={stepsData}
               currentStep={currentStep}
               isAddInstruction={true}
