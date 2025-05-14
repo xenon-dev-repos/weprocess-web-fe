@@ -58,11 +58,7 @@ const InstructionsPage = () => {
 
             const response = await getServes({
                 status: statusFilter,
-                // deadline: getDeadlineDate(timeFilter),
-                // sort_by: 'deadline,price',
-                // sort_order: 'desc,asc',
-                per_page: 10,
-                // user_id: user.id
+                client_id: user.id
             });
             
             if (response.success) {

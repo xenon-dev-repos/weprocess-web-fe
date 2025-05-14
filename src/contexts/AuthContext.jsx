@@ -409,16 +409,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
         throw new Error('No authentication token found');
       }
 
-      const queryParams = new URLSearchParams({
-        status: params.status || '',
-        deadline: params.deadline || '',
-        sort_by: params.sort_by || 'deadline,price',
-        sort_order: params.sort_order || 'desc,asc',
-        per_page: params.per_page || 10,
-        user_id: params.user_id || ''
-      }).toString();
-
-      const response = await axios.get(`${API_ENDPOINTS.SERVES}?${queryParams}`, {
+      const response = await axios.get(`${API_ENDPOINTS.SERVES}?status=${params.status || ''}&deadline=${params.deadline || ''}&sort_by=deadline,price&sort_order=desc,asc&per_page=10&user_id=&client_id=${params.client_id || ''}&search`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
