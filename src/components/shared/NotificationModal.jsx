@@ -316,12 +316,22 @@ const Title = styled.h2`
 const ShowAllLink = styled(Link)`
   color: var(--color-primary-500);
   font-size: 0.9rem;
-  text-decoration: underline;
+  font-weight: 500;
+  text-decoration: none;
   margin-left: auto;
   cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: var(--color-primary-50);
+    text-decoration: underline;
+  }
   
   @media (max-width: 480px) {
     font-size: 0.8rem;
+    padding: 5px 8px;
   }
 `;
 

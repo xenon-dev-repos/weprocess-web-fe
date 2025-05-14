@@ -661,12 +661,12 @@ const AvatarCircle = styled.div`
 const PageContent = styled.main`
   flex: 1;
   max-width: 1728px;
-  width: calc(100% - 48px);
+  width: calc(100% - 24px);
   margin: 0 auto;
   padding: 24px 0;
   
   @media (max-width: 768px) {
-    width: calc(100% - 32px);
+    width: calc(100% - 16px);
     padding: 16px 0;
   }
 `;

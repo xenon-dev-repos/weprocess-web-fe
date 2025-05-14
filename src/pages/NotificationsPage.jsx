@@ -6,7 +6,6 @@ import NotificationIcon from '../assets/images/dashboard/notification-icon.svg';
 import { NotificationUpdateContext } from '../components/NotificationBadge';
 
 const NotificationsPage = () => {
-  const [filter, setFilter] = useState('all'); // 'all', 'read', 'unread'
   const { triggerRefresh = () => {} } = useContext(NotificationUpdateContext) || {};
   const [isMarkingAll, setIsMarkingAll] = useState(false);
   const { 
@@ -19,13 +18,8 @@ const NotificationsPage = () => {
     markAllAsRead
   } = useNotifications();
 
-  // Filter notifications based on current filter
-  const filteredNotifications = notifications.filter(n => {
-    if (filter === 'all') return true;
-    if (filter === 'read') return n.read;
-    if (filter === 'unread') return !n.read;
-    return true;
-  });
+  // All notifications are shown
+  const filteredNotifications = notifications;
 
   // Change page handler
   const handlePageChange = useCallback((page) => {
@@ -60,8 +54,8 @@ const NotificationsPage = () => {
     }
   }, [markAllAsRead, triggerRefresh, loading, isMarkingAll]);
 
-  const handleFilterChange = function(filter) {
-    setFilter(filter);
+  const handleFilterChange = function() {
+    // Not used anymore but kept for interface compatibility
   } 
 
   return (
@@ -69,28 +63,6 @@ const NotificationsPage = () => {
     ]} onFilterChange={handleFilterChange} showInvoicePageHeader>
       <Container>
         <Header>
-          {/* <PageTitle>Your Notifications</PageTitle> */}
-          <FilterContainer>
-            <FilterButton 
-              $active={filter === 'all'} 
-              onClick={() => setFilter('all')}
-            >
-              All
-            </FilterButton>
-            <FilterButton 
-              $active={filter === 'unread'} 
-              onClick={() => setFilter('unread')}
-            >
-              Unread
-            </FilterButton>
-            <FilterButton 
-              $active={filter === 'read'} 
-              onClick={() => setFilter('read')}
-            >
-              Read
-            </FilterButton>
-          </FilterContainer>
-          
           {filteredNotifications.some(n => !n.read) && (
             <MarkAllButton 
               onClick={handleMarkAllAsRead}
@@ -169,9 +141,10 @@ function formatTimeAgo(dateString) {
 }
 
 const Container = styled.div`
-  max-width: 1000px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 24px;
+  width: 100%;
   
   @media (max-width: 1024px) {
     padding: 20px;
@@ -188,14 +161,11 @@ const Container = styled.div`
 
 const Header = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-bottom: 32px;
   
   @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
     margin-bottom: 24px;
   }
   
@@ -204,70 +174,21 @@ const Header = styled.div`
   }
 `;
 
-const PageTitle = styled.h1`
-  font-size: 2rem;
-  font-weight: 600;
-  margin: 0;
-  
-  @media (max-width: 768px) {
-    font-size: 1.8rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 1.5rem;
-  }
-`;
-
-const FilterContainer = styled.div`
-  display: flex;
-  gap: 12px;
-  
-  @media (max-width: 480px) {
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-`;
-
-const FilterButton = styled.button`
-  background: ${({ $active }) => ($active ? 'var(--color-primary-500)' : 'white')};
-  color: ${({ $active }) => ($active ? 'white' : 'var(--color-primary-500)')};
-  border: 1px solid var(--color-primary-500);
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: ${({ $active }) => ($active ? 'var(--color-primary-600)' : 'var(--color-primary-50)')};
-  }
-  
-  @media (max-width: 768px) {
-    padding: 7px 14px;
-    font-size: 0.95rem;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 6px 12px;
-    font-size: 0.9rem;
-    flex: 1;
-    text-align: center;
-    min-width: 80px;
-  }
-`;
-
 const NotificationsContainer = styled.div`
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  min-height: 70vh;
   
   @media (max-width: 768px) {
     border-radius: 12px;
+    min-height: 60vh;
   }
   
   @media (max-width: 480px) {
     border-radius: 10px;
+    min-height: 50vh;
   }
 `;
 
@@ -392,14 +313,21 @@ const LoadingMessage = styled.div`
   padding: 48px;
   text-align: center;
   color: #777;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
   
   @media (max-width: 768px) {
     padding: 36px;
+    height: 40vh;
   }
   
   @media (max-width: 480px) {
     padding: 24px;
     font-size: 0.95rem;
+    height: 30vh;
   }
 `;
 
@@ -407,14 +335,21 @@ const ErrorMessage = styled.div`
   padding: 48px;
   text-align: center;
   color: var(--color-error-500);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
   
   @media (max-width: 768px) {
     padding: 36px;
+    height: 40vh;
   }
   
   @media (max-width: 480px) {
     padding: 24px;
     font-size: 0.95rem;
+    height: 30vh;
   }
 `;
 
@@ -422,14 +357,21 @@ const EmptyMessage = styled.div`
   padding: 48px;
   text-align: center;
   color: #777;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
   
   @media (max-width: 768px) {
     padding: 36px;
+    height: 40vh;
   }
   
   @media (max-width: 480px) {
     padding: 24px;
     font-size: 0.95rem;
+    height: 30vh;
   }
 `;
 
