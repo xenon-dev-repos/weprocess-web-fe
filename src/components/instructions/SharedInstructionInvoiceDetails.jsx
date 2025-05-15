@@ -169,7 +169,7 @@ export const SharedInstructionInvoiceDetails = ({
 
             <RecipientDetailsLayout title="Serve info">
             <FieldRow>
-                <DisplayField label="Serve Type" value={formData.service_type} />
+                <DisplayField label="Serve Type" value={formData.document_types?.join(', ')} />
                 <DisplayField label="Service type" value={formData.service_type} />
             </FieldRow>
             {/* <FieldRow>

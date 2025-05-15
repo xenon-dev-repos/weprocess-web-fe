@@ -2,9 +2,11 @@ import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { ProgressBar } from '../instructions/ProgressBar';
+import { useInstruction } from '../../contexts/InstructionContext';
 
 export const PageHeader = ({ title, filterButtons, onFilterChange, isAddInstruction = false, stepsData, currentStep }) => {
   const [activeFilter, setActiveFilter] = useState(filterButtons && filterButtons[0]?.id);
+  const { isStepComplete, isSubmitted } = useInstruction();
 
   const handleFilterClick = (filterId) => {
     setActiveFilter(filterId);
@@ -13,15 +15,35 @@ export const PageHeader = ({ title, filterButtons, onFilterChange, isAddInstruct
     }
   };
 
+  const StepsCompletedOverTotal = ({ steps, isStepComplete, isSubmitted }) => {
+    const completedSteps = steps.reduce((count, _, index) => {
+      // For last step, only count as complete if submitted
+      if (index + 1 === steps.length) {
+        return isStepComplete(index + 1) && isSubmitted ? count + 1 : count;
+      }
+      return isStepComplete(index + 1) ? count + 1 : count;
+    }, 0);
+
+    return (
+      <>
+        {completedSteps}/{steps.length}
+      </>
+    );
+  };
+
   return (
     <>
       {isAddInstruction ? (
         <PageHeaderContainerInstructions>
             <ContentContainer>
                 <HeaderTitle>{title}</HeaderTitle>
-                <StepsCompletedOverTotal>
-                    {currentStep}/6
-                </StepsCompletedOverTotal>
+                <CompletedOverTotalDiv>
+                  <StepsCompletedOverTotal 
+                    steps={stepsData} 
+                    isStepComplete={isStepComplete}
+                    isSubmitted={isSubmitted}
+                  />
+                </CompletedOverTotalDiv>
             </ContentContainer>
             <ProgressBar steps={stepsData} currentStep={currentStep}/>
         </PageHeaderContainerInstructions>
@@ -235,7 +257,7 @@ const ContentContainer = styled.div`
 `;
 
 
-const StepsCompletedOverTotal = styled.div`
+const CompletedOverTotalDiv = styled.div`
   display: flex;
   align-self: flex-end;
   margin-bottom: 5px;

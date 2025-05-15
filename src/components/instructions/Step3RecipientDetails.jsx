@@ -6,6 +6,7 @@ import { InputFieldsContainer } from '../shared/InputFieldsContainer';
 import { Images } from '../../assets/images';
 import { useInstruction } from '../../contexts/InstructionContext';
 import { FormGroup, Input, Label, TextArea } from '../shared/FormElements';
+import { StepValidation } from './StepValidation';
 
 export const Step3RecipientDetails = () => {
   const { 
@@ -119,65 +120,67 @@ export const Step3RecipientDetails = () => {
   ];
 
   return (
-    <InstructionsMainContainer>
-      <RecipientDetailsLayout title="Applicant info">
-        <InputFieldsContainer
-          fields={applicantFields}
-          formData={formData}
-          handleChange={handleInputChange}
-        />
-        <InputFieldsContainer
-          fields={applicantContactFields}
-          formData={formData}
-          handleChange={handleInputChange}
-        />
-      </RecipientDetailsLayout>
-
-      <RecipientDetailsLayout title="Recipient info">
-        <InputFieldsContainer 
-          fields={recipientFields}
-          formData={formData}
-          handleChange={handleInputChange}
-        />
-        <InputFieldsContainer 
-          fields={recipientContactFields}
-          formData={formData}
-          handleChange={handleInputChange}
-        />
-        {/* <InputFieldsContainer 
-          fields={recipientAdditionalDetails}
-          formData={formData}
-          handleChange={handleInputChange}
-        /> */}
-        <FormGroup $marginBottom='0'>
-          <Label>
-          Additional details
-          </Label>
-          <TextArea
-            type={'text'}
-            name={'recipient_additional_details'}
-            placeholder={'Please enter other specifies regarding this case, if any...'}
-            value={formData.recipient_additional_details || ''}
-            onChange={handleInputChange}
-            required
-            $height="76px"
+    <StepValidation step={3}>
+      <InstructionsMainContainer>
+        <RecipientDetailsLayout title="Applicant info">
+          <InputFieldsContainer
+            fields={applicantFields}
+            formData={formData}
+            handleChange={handleInputChange}
           />
-        </FormGroup>
-      </RecipientDetailsLayout>
+          <InputFieldsContainer
+            fields={applicantContactFields}
+            formData={formData}
+            handleChange={handleInputChange}
+          />
+        </RecipientDetailsLayout>
 
-      <RecipientDetailsLayout title="Case info">
-        <InputFieldsContainer 
-          fields={caseFields}
-          formData={formData}
-          handleChange={handleInputChange}
-        />
-        <InputFieldsContainer 
-          fields={caseFieldsDate}
-          formData={formData}
-          handleDateChange={handleDateChange}
-          handleChange={handleInputChange}
-        />
-      </RecipientDetailsLayout>
-    </InstructionsMainContainer>
+        <RecipientDetailsLayout title="Recipient info">
+          <InputFieldsContainer 
+            fields={recipientFields}
+            formData={formData}
+            handleChange={handleInputChange}
+          />
+          <InputFieldsContainer 
+            fields={recipientContactFields}
+            formData={formData}
+            handleChange={handleInputChange}
+          />
+          {/* <InputFieldsContainer 
+            fields={recipientAdditionalDetails}
+            formData={formData}
+            handleChange={handleInputChange}
+          /> */}
+          <FormGroup $marginBottom='0'>
+            <Label>
+            Additional details
+            </Label>
+            <TextArea
+              type={'text'}
+              name={'recipient_additional_details'}
+              placeholder={'Please enter other specifies regarding this case, if any...'}
+              value={formData.recipient_additional_details || ''}
+              onChange={handleInputChange}
+              required
+              $height="76px"
+            />
+          </FormGroup>
+        </RecipientDetailsLayout>
+
+        <RecipientDetailsLayout title="Case info">
+          <InputFieldsContainer 
+            fields={caseFields}
+            formData={formData}
+            handleChange={handleInputChange}
+          />
+          <InputFieldsContainer 
+            fields={caseFieldsDate}
+            formData={formData}
+            handleDateChange={handleDateChange}
+            handleChange={handleInputChange}
+          />
+        </RecipientDetailsLayout>
+      </InstructionsMainContainer>
+    </StepValidation>
   );
 };

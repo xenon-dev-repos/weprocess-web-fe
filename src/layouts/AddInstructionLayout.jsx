@@ -14,8 +14,8 @@ export const AddInstructionLayout = ({
   currentStep,
   stepsConfig,
   stepsData,
-  handleInstructionServeSubmit,
-  // isSubmitted,
+  // handleInstructionServeSubmit,
+  isNextDisabled,
   }) => {
 
   return (
@@ -33,18 +33,24 @@ export const AddInstructionLayout = ({
           </ContentSectionContent>
 
           <ButtonGroup $noBackBtn={currentStep === 1}>
-            <FormButton
-              onClick={handlePrevStep} 
-              disabled={currentStep === 1}
-              style={{backgroundColor: '#E5E5E5', color: '#333333'}}
-            >
-              <ButtonContent>
-              <BackNextArrow src={Images.instructions.BtnArrowLeftIcon} alt="Back" />
-                Back
-              </ButtonContent>
-            </FormButton>
+            {currentStep !== 1 && (
+              <FormButton
+                onClick={handlePrevStep}
+                style={{backgroundColor: '#E5E5E5', color: '#333333'}}
+              >
+                <ButtonContent>
+                  <BackNextArrow src={Images.instructions.BtnArrowLeftIcon} alt="Back" />
+                  Back
+                </ButtonContent>
+              </FormButton>
+            )}
 
-            <FormButton onClick={currentStep === stepsConfig.length ? handleInstructionServeSubmit : handleNextStep }>
+            <FormButton 
+              // onClick={currentStep === stepsConfig.length ? handleInstructionServeSubmit : handleNextStep }
+                onClick={handleNextStep}
+              disabled={isNextDisabled}
+              $isNext={true}
+            >
               <ButtonContent>
                 {currentStep === stepsConfig.length ? 'Confirm Instruction' : (
                   <>
@@ -266,11 +272,11 @@ export const FormButton = styled.button`
   &:hover {
     background-color: var(--color-primary-400);
   }
-  
+
   &:disabled {
-    background-color: #999;
+    opacity: ${props => props.$isNext ? '0.3' : '1'};
+    color: var(--color-text-secondary);
     cursor: not-allowed;
-    display: none;
   }
 
   @media (max-width: 1440px) {

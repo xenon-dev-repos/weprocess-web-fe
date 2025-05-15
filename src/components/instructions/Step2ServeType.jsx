@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { InstructionsMainContainer } from '../../styles/Shared';
 import { FormGroup2, Input, Label } from '../shared/FormElements';
 import { useInstruction } from '../../contexts/InstructionContext';
+import { StepValidation } from './StepValidation';
 
 export const Step2ServeType = () => {
   const { 
@@ -32,58 +33,62 @@ export const Step2ServeType = () => {
   const showReasonInput = formData.document_types.includes('Other (Please Specify)');
 
   return (
-    <InstructionsMainContainer>
-      <CaseNameAndOwner>
-        <FormGroup2>
-          <Label>Case name</Label>
-          <Input
-            type="text"
-            name="caseName"
-            placeholder="Enter serve name"
-            value={formData.title || ''}
-            onChange={(e) => handleInputChange('title', e.target.value)}
-            required
-            $height="56px"
-          />
-        </FormGroup2>
+    <StepValidation step={2}>
+      <InstructionsMainContainer>
 
-        <FormGroup2>
-          <Label>Owner</Label>
-          <Input
-            type="text"
-            name="owner"
-            placeholder="Enter owner name"
-            value={formData.owner || ''}
-            onChange={(e) => handleInputChange('owner', e.target.value)}
-            required
-            $height="56px"
-          />
-        </FormGroup2>
-      </CaseNameAndOwner>
+          <CaseNameAndOwner>
+            <FormGroup2>
+              <Label>Case name</Label>
+              <Input
+                type="text"
+                name="caseName"
+                placeholder="Enter serve name"
+                value={formData.title || ''}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                required
+                $height="56px"
+              />
+            </FormGroup2>
 
-      <Label style={{marginBottom: -5, display: 'flex', justifySelf: 'flex-start', width: '100%'}}>Select all relevant document types that you are serving.</Label>
+            <FormGroup2>
+              <Label>Owner</Label>
+              <Input
+                type="text"
+                name="owner"
+                placeholder="Enter owner name"
+                value={formData.owner || ''}
+                onChange={(e) => handleInputChange('owner', e.target.value)}
+                required
+                $height="56px"
+              />
+            </FormGroup2>
+          </CaseNameAndOwner>
 
-      <DocumentTypeContainer>
-        {documentTypes.map((type) => (
-          <DocumentTypeOption
-            key={type}
-            $selected={isSelected(type)}
-            onClick={() => handleDocTypeSelect(type)}
-          >
-            {type}
-          </DocumentTypeOption>
-        ))}
-      </DocumentTypeContainer>
+          <Label style={{marginBottom: -5, display: 'flex', justifySelf: 'flex-start', width: '100%'}}>Select all relevant document types that you are serving.</Label>
 
-      {showReasonInput && (
-        <OtherSpecifyInput
-          type="text"
-          placeholder="Please specify a reason"
-          value={formData.reason || ''}
-          onChange={(e) => handleReasonChange(e.target.value)}
-        />
-      )}
-    </InstructionsMainContainer>
+          <DocumentTypeContainer>
+            {documentTypes.map((type) => (
+              <DocumentTypeOption
+                key={type}
+                $selected={isSelected(type)}
+                onClick={() => handleDocTypeSelect(type)}
+              >
+                {type}
+              </DocumentTypeOption>
+            ))}
+          </DocumentTypeContainer>
+
+          {showReasonInput && (
+            <OtherSpecifyInput
+              type="text"
+              placeholder="Please specify a reason"
+              value={formData.reason || ''}
+              onChange={(e) => handleReasonChange(e.target.value)}
+            />
+          )}
+
+      </InstructionsMainContainer>
+    </StepValidation>
   );
 };
 

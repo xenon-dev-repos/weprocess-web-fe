@@ -1,4 +1,7 @@
 // Step5PaymentMethod.js
+
+// TODO: Integration of payment method is yet pending on this page.
+
 import React from 'react';
 import { CustomDivider, InstructionsMainContainer } from '../../styles/Shared';
 import { RecipientDetailsLayout } from '../../layouts/RecipientDetailsLayout';
@@ -18,27 +21,27 @@ export const Step5PaymentMethod = () => {
       {user.type === "firm" &&
         <PaymentMethodContainer>
         <PaymentOption 
-          onClick={() => handleInputChange('payment_type', 'private')}
-          $isSelected={formData.payment_type === 'private'}
+          onClick={() => handleInputChange('payment_method', 'private')}
+          $isSelected={formData.payment_method === 'private'}
         >
           <RadioIcon 
-            src={formData.payment_type === 'private' ? 
+            src={formData.payment_method === 'private' ? 
                 Images.instructions.selectRadioIcon : 
                 Images.instructions.unSelectRadioIcon} 
-            alt={formData.payment_type === 'private' ? "Selected" : "Unselected"} 
+            alt={formData.payment_method === 'private' ? "Selected" : "Unselected"} 
           />
           <PaymentOptionLabel>Private</PaymentOptionLabel>
         </PaymentOption>
 
         <PaymentOption 
-          onClick={() => handleInputChange('payment_type', 'legal_aid')}
-          $isSelected={formData.payment_type === 'legal_aid'}
+          onClick={() => handleInputChange('payment_method', 'legal_aid')}
+          $isSelected={formData.payment_method === 'legal_aid'}
         >
           <RadioIcon 
-            src={formData.payment_type === 'legal_aid' ? 
+            src={formData.payment_method === 'legal_aid' ? 
                 Images.instructions.selectRadioIcon : 
                 Images.instructions.unSelectRadioIcon} 
-            alt={formData.payment_type === 'legal_aid' ? "Selected" : "Unselected"} 
+            alt={formData.payment_method === 'legal_aid' ? "Selected" : "Unselected"} 
           />
           <PaymentOptionLabel>Legal Aid</PaymentOptionLabel>
         </PaymentOption>
@@ -55,6 +58,9 @@ export const Step5PaymentMethod = () => {
         <PaymentContainerTitle>Pay with</PaymentContainerTitle>
 
         <PaymentCardsContainer>
+          
+          {/* TODO: I'll uncommint this code if we've to use these payment methods also in future.  */}
+
           {/* <PaymentCard 
             onClick={() => handleInputChange('payment_method', 'apple_pay')}
             $isSelected={formData.payment_method === 'apple_pay'}
@@ -88,15 +94,15 @@ export const Step5PaymentMethod = () => {
           </PaymentCard> */}
 
           <PaymentCard 
-            onClick={() => handleInputChange('payment_method', 'card')}
-            $isSelected={formData.payment_method === 'card'}
+            onClick={() => handleInputChange('payment_method', 'private')}
+            $isSelected={formData.payment_method === 'private'}
           >
             <PaymentCardLeft>
               <RadioIcon 
-                src={formData.payment_method === 'card' ? 
+                src={formData.payment_method === 'private' ? 
                       Images.instructions.selectRadioIcon : 
                       Images.instructions.unSelectRadioIcon} 
-                alt={formData.payment_method === 'card' ? "Selected" : "Unselected"} 
+                alt={formData.payment_method === 'private' ? "Selected" : "Unselected"} 
               />
               <PaymentCardLabel>Pay with Card</PaymentCardLabel>
             </PaymentCardLeft>

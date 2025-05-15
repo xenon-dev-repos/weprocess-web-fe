@@ -5,70 +5,70 @@ import { useApi } from '../hooks/useApi';
 const InstructionContext = createContext();
 
 const initialFormData = {
-  // documents: [],             //can be pdf,doc,docx,jpg,jpeg,png
-  // receipt: null,
-  // document_labels: [],        // ["Document 1","Document 2"]
-  // document_urls: [],
-  // title: '',
-  // owner: '',
-  // document_types: [],        // Comma separated string input, saved as array, 
-  // reason: null,
-  // issuing_court: '',
-  // court_case_number: '',
-  // date_of_submission: '',
-  // date_of_next_hearing: '',
-  // recipient_name: '',
-  // recipient_email: '',
-  // recipient_address: '',
-  // recipient_phone: '',
-  // recipient_additional_details: '',
-  // applicant_name: '',
-  // applicant_email: '',
-  // applicant_address: '',
-  // applicant_phone: '',
-  // service_type: 'standard',  // ['standard','urgent','same_day','sub_serve']
-  // priority: 'low',           // ["low", "medium", "high", "urgent"]
-  // deadline: '',
-  // type: 'Personal',
-  // price: 0,
-  // instructions: null,
-  // attempts_allowed: '3',
-  // payment_method: 'private',
+  documents: [],             //can be pdf,doc,docx,jpg,jpeg,png
+  receipt: null,
+  document_labels: [],        // ["Document 1","Document 2"]
+  document_urls: [],
+  title: '',
+  owner: '',
+  document_types: [],        // Comma separated string input, saved as array, 
+  reason: null,
+  issuing_court: '',
+  court_case_number: '',
+  date_of_submission: '',
+  date_of_next_hearing: '',
+  recipient_name: '',
+  recipient_email: '',
+  recipient_address: '',
+  recipient_phone: '',
+  recipient_additional_details: '',
+  applicant_name: '',
+  applicant_email: '',
+  applicant_address: '',
+  applicant_phone: '',
+  service_type: 'standard',  // ['standard','urgent','same_day','sub_serve']
+  priority: 'low',           // ["low", "medium", "high", "urgent"]
+  deadline: '',
+  type: 'Personal',
+  price: 0,
+  instructions: null,
+  attempts_allowed: '3',
+  payment_method: 'private',
 
-    documents: [], 
-    receipt: '',
-    document_labels: [],
-    document_urls: [],
-    title: 'Service of Summons to Defendant',
-    owner: 'John Doe',
-    document_types: ['Divorce Petition', 'Statutory Demand'],
-    reason: 'To initiate legal proceedings against the defendant.',
-    issuing_court: 'Superior Court of California, County of Los Angeles',
-    court_case_number: 'LA12345678',
-    date_of_submission: '2025-05-13',
-    date_of_next_hearing: '2025-06-10',
-    recipient_name: 'Jane Smith',
-    recipient_email: 'jane.smith@example.com',
-    recipient_address: '1234 Elm Street, Los Angeles, CA 90001',
-    recipient_phone: '+44-310-555-7890',
-    recipient_additional_details: 'Lives in unit #5B. Best time to serve is after 6 PM.',
-    applicant_name: 'John Doe',
-    applicant_email: 'john.doe@example.com',
-    applicant_address: '5678 Oak Avenue, Pasadena, CA 91101',
-    applicant_phone: '+44-626-555-1234',
-    service_type: 'standard',
-    priority: 'low',
-    deadline: '2025-06-13',
-    type: 'Personal',
-    price: 150.00,
-    instructions: 'Serve at doorstep and take a photo as proof of delivery.',
-    attempts_allowed: '3',
-    payment_method: 'private'
+    // documents: [], 
+    // receipt: '',
+    // document_labels: [],
+    // document_urls: [],
+    // title: 'Service of Summons to Defendant',
+    // owner: 'John Doe',
+    // document_types: ['Divorce Petition', 'Statutory Demand'],
+    // reason: 'To initiate legal proceedings against the defendant.',
+    // issuing_court: 'Superior Court of California, County of Los Angeles',
+    // court_case_number: 'LA12345678',
+    // date_of_submission: '2025-05-13',
+    // date_of_next_hearing: '2025-06-10',
+    // recipient_name: 'Jane Smith',
+    // recipient_email: 'jane.smith@example.com',
+    // recipient_address: '1234 Elm Street, Los Angeles, CA 90001',
+    // recipient_phone: '+44-310-555-7890',
+    // recipient_additional_details: 'Lives in unit #5B. Best time to serve is after 6 PM.',
+    // applicant_name: 'John Doe',
+    // applicant_email: 'john.doe@example.com',
+    // applicant_address: '5678 Oak Avenue, Pasadena, CA 91101',
+    // applicant_phone: '+44-626-555-1234',
+    // service_type: 'standard',
+    // priority: 'low',
+    // deadline: '2025-06-13',
+    // type: 'Personal',
+    // price: 150.00,
+    // instructions: 'Serve at doorstep and take a photo as proof of delivery.',
+    // attempts_allowed: '3',
+    // payment_method: 'private'
 };
 
 export const InstructionProvider = ({ children }) => {
   const api = useApi();
-  const { formatPhoneNumber } = useAuth();
+  const { formatPhoneNumber, user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [applicantPhoneNumber, setApplicantPhoneNumber] = useState('');
@@ -83,16 +83,83 @@ export const InstructionProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
 
-  const handleNextStep = useCallback(() => {
-    if (currentStep < 6) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      // Currently false but it will be true when submitted.
-      setIsSubmitted(false);
-      // Here you would typically submit the formData to your API
-      console.log('Form submitted:', formData);
+  const stepValidations = {
+  1: (formData) => {
+    // Step 1: Must have at least one document and all documents labeled
+    const hasDocuments = formData.documents.length > 0;
+    const allLabeled = formData.documents.every(doc => 
+      formData.document_labels[doc.id]?.trim()
+    );
+    const noLabelErrors = !Object.values(formData.labelErrors || {}).some(Boolean);
+    return hasDocuments && allLabeled && noLabelErrors;
+  },
+  2: (formData) => {
+    // Step 2: Must have title, owner, and at least one document type
+    const hasValidDocumentTypes = formData.document_types.some(
+      type => type !== 'Other (Please Specify)'
+    );
+
+    return (
+      formData.title.trim() !== '' && 
+      formData.owner.trim() !== '' && 
+      hasValidDocumentTypes
+    );
+
+    // return formData.title.trim() !== '' && 
+    //        formData.owner.trim() !== '' && 
+    //        formData.document_types.length > 0;
+  },
+  3: (formData) => {
+    // Step 3: All recipient and applicant fields required
+    return formData.applicant_name?.trim() !== '' &&
+           formData.applicant_phone?.trim() !== '' &&
+           formData.applicant_address?.trim() !== '' &&
+           formData.recipient_name?.trim() !== '' &&
+           formData.recipient_phone?.trim() !== '' &&
+           formData.recipient_address?.trim() !== '' &&
+           formData.issuing_court?.trim() !== '' &&
+           formData.court_case_number?.trim() !== '' &&
+           formData.date_of_submission?.trim() !== '' &&
+           formData.date_of_next_hearing?.trim() !== '';
+  },
+  4: (formData) => {
+    // Step 4: Service type must be selected
+    return formData.service_type.trim() !== '';
+  },
+  5: (formData, user) => {
+    // Step 5: Payment method must be selected
+    // For firms, check payment_type; for individuals, check payment_method
+    if (user?.type === "firm") {
+      return formData.payment_type?.trim() !== '';
     }
-  }, [currentStep, formData]);
+    return formData.payment_method?.trim() !== '';
+  },
+    6: (formData, user) => {
+    // For confirmation step, check if all previous steps are complete
+    return [1, 2, 3, 4, 5].every(step => 
+      stepValidations[step](formData, user)
+    );
+  }
+};
+
+const isStepComplete = useCallback((step) => {
+  const validator = stepValidations[step];
+  return validator ? validator(formData, user) : false;
+}, [formData, user]);
+
+const handleNextStep = useCallback(() => {
+  if (!isStepComplete(currentStep)) {
+    // You can add error state here if needed
+    return;
+  }
+  if (currentStep < 6) {
+    setCurrentStep(currentStep + 1);
+  } else {
+    setIsSubmitted(true);
+    console.log('Form submitted:', formData);
+    handleInstructionServeSubmit();
+  }
+}, [currentStep, formData, isStepComplete]);
 
   const handlePrevStep = useCallback(() => {
     if (currentStep > 1) {
@@ -101,18 +168,17 @@ export const InstructionProvider = ({ children }) => {
     }
   }, [currentStep]);
 
-  const handleStepClick = (stepNumber) => {
-    // Only allow navigation to completed steps or the current step
-    if (stepNumber <= currentStep || isSubmitted) {
-      setCurrentStep(stepNumber);
-    }
-  };
 
-  /**
- * Converts an ISO date string "yyyy-mm-dd" into "dd/mm/yyyy"
- * @param {string} isoDate  e.g. "2025-05-30"
- * @returns {string}        e.g. "30/05/2025"
- */
+const handleStepClick = useCallback((stepNumber) => {
+  const firstIncompleteStep = [1, 2, 3, 4, 5, 6].find(
+    step => !isStepComplete(step)
+  ) || 7;
+  
+  if (stepNumber <= firstIncompleteStep) {
+    setCurrentStep(stepNumber);
+  }
+}, [isStepComplete]);
+
   const toDDMMYYYY = (dateStr) => {
     if (!dateStr) return "";
     
@@ -130,7 +196,6 @@ export const InstructionProvider = ({ children }) => {
     
     return dateStr; // Fallback for other formats
   };
-
 
 // >>>>>>>>>>>>>>>>>>> STEP 1 Functions
   const handleDocumentUpload = useCallback((files) => {
@@ -382,83 +447,6 @@ useEffect(() => {
     };
   }, []);
 
-  // const handleInstructionServeSubmit = useCallback(async () => {
-  //   try {
-  //     setIsSubmitted(true);
-      
-  //     // Create a single FormData object for all data and files
-  //     const formDataToSend = new FormData();
-  
-  //     // Append all non-file fields
-  //     formDataToSend.append('title', formData.title);
-  //     formDataToSend.append('owner', formData.owner);
-  //     formDataToSend.append('document_types', formData.document_types?.join(','));
-  //     formDataToSend.append('reason', formData.reason);
-  //     formDataToSend.append('issuing_court', formData.issuing_court);
-  //     formDataToSend.append('court_case_number', formData.court_case_number);
-  //     formDataToSend.append('date_of_submission', formData.date_of_submission);
-  //     formDataToSend.append('date_of_next_hearing', formData.date_of_next_hearing);
-  //     formDataToSend.append('recipient_name', formData.recipient_name);
-  //     formDataToSend.append('recipient_email', formData.recipient_email);
-  //     formDataToSend.append('recipient_address', formData.recipient_address);
-  //     formDataToSend.append('recipient_phone', formData.recipient_phone);
-  //     formDataToSend.append('recipient_additional_details', formData.recipient_additional_details);
-  //     formDataToSend.append('applicant_name', formData.applicant_name);
-  //     formDataToSend.append('applicant_email', formData.applicant_email);
-  //     formDataToSend.append('applicant_address', formData.applicant_address);
-  //     formDataToSend.append('applicant_phone', formData.applicant_phone);
-  //     formDataToSend.append('service_type', formData.service_type);
-  //     formDataToSend.append('priority', formData.priority);
-  //     formDataToSend.append('deadline', formData.deadline);
-  //     formDataToSend.append('type', formData.type);
-  //     formDataToSend.append('price', formData.price);
-  //     formDataToSend.append('instructions', formData.instructions);
-  //     formDataToSend.append('attempts_allowed', formData.attempts_allowed);
-  //     formDataToSend.append('payment_method', formData.payment_method);
-      
-  //     // Convert document_labels object to an array of strings
-  //     const labelsArray = Object.values(formData.document_labels || {});
-  //     // Append document labels as a single JSON string
-  //     formDataToSend.append('document_labels', JSON.stringify(labelsArray));
-
-  //     // Append document files
-  //     // formData.documents?.forEach((doc, index) => {
-  //     //   if (doc.file instanceof Blob) {
-  //     //     formDataToSend.append(`documents[${index}]`, doc.file, doc.name);
-  //     //   }
-  //     // });
-
-  //     formData.documents.forEach((doc, index) => {
-  //       if (doc.file) {
-  //         formDataToSend.append(`documents[${index}]`, doc.file);
-  //         // Append additional metadata if needed
-  //         formDataToSend.append(`documents[${index}].name`, doc.name);
-  //         formDataToSend.append(`documents[${index}].type`, doc.type);
-  //       } else if (doc.url) {
-  //         // If using existing URLs instead of files
-  //         formDataToSend.append(`document_urls[${index}]`, doc.url);
-  //       }
-  //     });
-  
-  //     // Append receipt if exists
-  //     if (formData.receipt?.file instanceof Blob) {
-  //       formDataToSend.append('receipt', formData.receipt.file, formData.receipt.name);
-  //     }
-  
-  //     // Make the API call with the single FormData object
-  //     const response = await api.createInstructionServe(formDataToSend);
-      
-  //     console.log('Serve created successfully:', response);
-  //     return response;
-      
-  //   } catch (error) {
-  //     console.error('Error submitting serve:', error);
-  //     throw error;
-  //   } finally {
-  //     setIsSubmitted(false);
-  //   }
-  // }, [formData, api]);
-
   const handleInstructionServeSubmit = useCallback(async () => {
     try {
       setIsSubmitted(true);
@@ -636,7 +624,10 @@ useEffect(() => {
         fetchServeById,
         currentServeData,
         fetchInvoiceById,
-        currentInvoiceData
+        currentInvoiceData,
+
+        isStepComplete,
+        stepValidations,
       }}
     >
       {children}
