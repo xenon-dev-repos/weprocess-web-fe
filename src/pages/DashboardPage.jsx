@@ -169,8 +169,8 @@ const DashboardPage = () => {
         pieCtx.clearRect(0, 0, pieCtx.canvas.width, pieCtx.canvas.height);
         
         // Draw the text
-        pieCtx.font = '16px Manrope';
-        pieCtx.fillStyle = '#6B7280';
+        pieCtx.font = '14px Manrope';
+        pieCtx.fillStyle = '#1F2937';
         pieCtx.textAlign = 'center';
         pieCtx.textBaseline = 'middle';
         pieCtx.fillText('No data available', rect.width / 2, rect.height / 2);
@@ -234,8 +234,8 @@ const DashboardPage = () => {
         barCtx.clearRect(0, 0, barCtx.canvas.width, barCtx.canvas.height);
         
         // Draw the text
-        barCtx.font = '16px Manrope';
-        barCtx.fillStyle = '#6B7280';
+        barCtx.font = '14px Manrope';
+        barCtx.fillStyle = '#1F2937';
         barCtx.textAlign = 'center';
         barCtx.textBaseline = 'middle';
         barCtx.fillText('No data available', rect.width / 2, rect.height / 2);
