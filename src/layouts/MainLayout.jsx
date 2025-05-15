@@ -141,12 +141,16 @@ export const MainLayout = ({
             </IconButton>
             <IconButton 
               ref={notificationIconRef} 
-              onClick={() => setNotificationModalOpen(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setNotificationModalOpen(true);
+              }}
             >
               <IconImg src={NotificationIcon} alt="Notifications" />
               <NotificationBadge />
             </IconButton>
-            <IconButton onClick={() => {
+            <IconButton onClick={(e) => {
+              e.stopPropagation();
               localStorage.setItem('navigatingToChat', 'true');
               
               const existingIntervals = window.notificationIntervals || [];
@@ -162,7 +166,10 @@ export const MainLayout = ({
             </IconButton>
             <AvatarCircle 
               ref={avatarRef} 
-              onClick={(e) => toggleProfileDropdown(e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleProfileDropdown(e);
+              }}
             >
               {firstLetter}
             </AvatarCircle>
@@ -624,84 +631,58 @@ const NavLink = styled.a`
 const UserActions = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
-
+  gap: 12px;
   
-  @media (max-width: 1280px) {
-    gap: 14px;
-  }
-
-  @media (max-width: 1024px) {
-    gap: 12px;
-  }
-
   @media (max-width: 768px) {
-    gap: 10px;
-  }
-
-  @media (max-width: 480px) {
     gap: 8px;
   }
 `;
 
-
 const IconButton = styled.button`
-  width: 52px;
-  height: 52px;
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: transparent;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  position: relative;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  padding: 0;
-  
+  border-radius: 50%;
+  transition: background-color 0.2s;
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
 
-  
-  @media (max-width: 1280px) {
-    width: 48px;
-    height: 48px;
-  }
-
-  @media (max-width: 1024px) {
-    width: 44px;
-    height: 44px;
-  }
-
   @media (max-width: 768px) {
-    width: 40px;
-    height: 40px;
-  }
-
-  @media (max-width: 480px) {
     width: 36px;
     height: 36px;
+    padding: 6px;
+    
+    /* Increase touch target size while keeping visual size */
+    &::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      right: -8px;
+      bottom: -8px;
+      z-index: 1;
+    }
   }
 `;
 
 const IconImg = styled.img`
   width: 24px;
   height: 24px;
-  object-fit: contain;
-
-  @media (max-width: 1024px) {
-    width: 22px;
-    height: 22px;
-  }
+  position: relative;
+  z-index: 2;
 
   @media (max-width: 768px) {
     width: 20px;
     height: 20px;
-  }
-
-  @media (max-width: 480px) {
-    width: 18px;
-    height: 18px;
   }
 `;
 

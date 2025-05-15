@@ -236,6 +236,7 @@ const MobileOverlay = styled.div`
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
+  -webkit-tap-highlight-color: transparent; /* Prevent tap highlight on mobile */
 `;
 
 const ModalContainer = styled.div`
@@ -246,21 +247,24 @@ const ModalContainer = styled.div`
     right: 0;
     bottom: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     z-index: 1001;
+    padding-top: 60px; /* Add space from top for mobile */
   ` : `
     z-index: 1001;
     margin-top: 8px;
+    right: 20px;
+    top: 100%;
   `}
 `;
 
 const ModalContent = styled.div`
   background: #fff;
   border-radius: 16px;
-  width: ${props => props.$isMobile ? '90%' : '380px'};
+  width: ${props => props.$isMobile ? '95%' : '380px'};
   max-width: 95vw;
-  max-height: ${props => props.$isMobile ? '80vh' : '600px'};
+  max-height: ${props => props.$isMobile ? 'calc(100vh - 80px)' : '600px'};
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
   display: flex;
   flex-direction: column;
@@ -283,7 +287,8 @@ const ModalContent = styled.div`
 
   @media (max-width: 480px) {
     width: 95%;
-    max-height: 85vh;
+    border-radius: ${props => props.$isMobile ? '16px' : '0'};
+    max-height: ${props => props.$isMobile ? 'calc(100vh - 80px)' : '100vh'};
   }
 `;
 
