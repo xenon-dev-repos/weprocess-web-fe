@@ -8,48 +8,48 @@ import { ServiceCard } from './ServiceCard';
 export const Step4ServiceType = () => {
   const { 
     formData, 
-    setFormData,
+    // setFormData,
     handleInputChange 
   } = useInstruction();
 
-  const calculateDeadline = (serviceType) => {
-    const today = new Date();
-    const deadline = new Date(today);
+  // const calculateDeadline = (serviceType) => {
+  //   const today = new Date();
+  //   const deadline = new Date(today);
     
-    switch(serviceType) {
-      case 'standard':
-        deadline.setDate(deadline.getDate() + 10);
-        break;
-      case 'urgent':
-        deadline.setDate(deadline.getDate() + 5);
-        break;
-      case 'same-day':
-      case 'sub-serve':
-        // current date for same-day and instant delivery
-        break;
-      default:
-        deadline.setDate(deadline.getDate() + 10);
-    }
+  //   switch(serviceType) {
+  //     case 'standard':
+  //       deadline.setDate(deadline.getDate() + 10);
+  //       break;
+  //     case 'urgent':
+  //       deadline.setDate(deadline.getDate() + 5);
+  //       break;
+  //     case 'same-day':
+  //     case 'sub-serve':
+  //       // current date for same-day and instant delivery
+  //       break;
+  //     default:
+  //       deadline.setDate(deadline.getDate() + 10);
+  //   }
     
-    return deadline.toISOString().split('T')[0]; // YYYY-MM-DD
-  };
+  //   return deadline.toISOString().split('T')[0]; // YYYY-MM-DD
+  // };
 
-  useEffect(() => {
-    if (!formData.deadline) {
-      const initialDeadline = calculateDeadline('standard');
-      formData.deadline = initialDeadline;
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  //   if (!formData.deadline) {
+  //     const initialDeadline = calculateDeadline('standard');
+  //     formData.deadline = initialDeadline;
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   const handleServiceSelect = (serviceId) => {
     handleInputChange('service_type', serviceId);
 
-    const deadline = calculateDeadline(serviceId);
-    setFormData(prev => ({
-      ...prev,
-      deadline: deadline
-    }));
+    // const deadline = calculateDeadline(serviceId);
+    // setFormData(prev => ({
+    //   ...prev,
+    //   deadline: deadline
+    // }));
   };
 
   const serviceOptions = [
