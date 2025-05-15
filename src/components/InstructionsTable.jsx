@@ -314,22 +314,38 @@ const Tab = styled.button`
   color: #6b7280;
   min-width: max-content;
   white-space: nowrap;
+  transition: all 0.2s ease-in-out;
   
-  ${props => props.active && `
+  ${props => props.$active && `
     font-weight: 500;
     color: #126456;
     
     &:after {
       content: '';
       position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 16px);
+      bottom: -2px;
+      left: 0;
+      width: 100%;
       height: 2px;
       background-color: #126456;
+      transition: all 0.2s ease-in-out;
     }
   `}
+
+  &:hover {
+    color: #126456;
+    
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: ${props => props.$active ? '#126456' : '#12645680'};
+      transition: all 0.2s ease-in-out;
+    }
+  }
 
   @media (max-width: 768px) {
     font-size: 13px;
