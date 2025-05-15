@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 // import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { MainLayout } from '../layouts/MainLayout';
@@ -11,6 +11,7 @@ import LoadingOnPage from '../components/shared/LoadingOnPage.jsx';
 
 const InstructionDetailsPage = () => {
   const { formData, fetchInvoiceById, currentInvoiceData, isLoading } = useInstruction();
+  const [layoutData, setLayoutData] = useState(null);
 
   useEffect(() => {
     const loadInvoice = async () => {
@@ -25,8 +26,19 @@ const InstructionDetailsPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+    useEffect(() => {
+      if (currentInvoiceData) {
+        console.log("currentInvoiceData", currentInvoiceData)
+        setLayoutData({
+          id: currentInvoiceData?.id,
+          recipient_name: currentInvoiceData?.recipient_name,
+          priority: currentInvoiceData?.priority
+        });
+      }
+    }, [currentInvoiceData]);
+
   return (
-    <MainLayout title="Invoice Details" isInvoiceDetailsPage={true}>
+    <MainLayout title="Invoice Details" isInvoiceDetailsPage={true} invoiceData={layoutData}>
       <LayoutContainer>
         {isLoading && <LoadingOnPage />}
         {/* LEFT SECTION */}

@@ -30,7 +30,8 @@ export const InputFieldsContainer = ({
                   onChange={handleChange}
                   required={field.required}
                   ref={field.phoneInputRef}
-                  minLength={10}
+                  minLength="10"
+                  pattern="[\d\s]{10,}" 
                   $height="56px"
                 />
               </PhoneInputContainer>
@@ -44,6 +45,17 @@ export const InputFieldsContainer = ({
                 required={field.required}
                 $height="56px"
                 min={field.name === 'date_of_next_hearing' || field.name === 'date_of_submission' ? today : undefined}
+              />
+            ) : field.type === 'email' ? (
+              <Input
+                type="email"
+                name={field.name}
+                placeholder={field.placeholder}
+                value={formData[field.name] || ''}
+                onChange={handleChange}
+                required={field.required}
+                $height="56px"
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
               />
             ) : (
               <Input

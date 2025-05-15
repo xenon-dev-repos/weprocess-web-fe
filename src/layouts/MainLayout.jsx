@@ -28,6 +28,7 @@ export const MainLayout = ({
   currentStep='1',
   stepsData=[],
   instructionData,
+  invoiceData,
 }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -221,7 +222,15 @@ export const MainLayout = ({
 
         {isInvoiceDetailsPage && (
           <DashboardHeader>
-            <Title>#5103 | Serve to Aamir</Title>
+            {/* <Title>#5103 | Serve to Aamir</Title> */}
+            {invoiceData && (
+            // <Title>
+            //   #{invoiceData.id} | {invoiceData.recipient_name}
+            // </Title>
+              <Title>
+              #{invoiceData.id}
+            </Title>
+            )}
           </DashboardHeader>
         )}
 

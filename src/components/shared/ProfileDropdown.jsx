@@ -8,6 +8,7 @@ import { Images } from '../../assets/images/index.js'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { ROUTES } from '../../constants/routes.js';
+import { CustomDivider } from '../../styles/Shared.js';
 
 export const ProfileDropdown = ({ onClose, avatarRef }) => {
   const dropdownRef = useRef(null);
@@ -51,7 +52,7 @@ export const ProfileDropdown = ({ onClose, avatarRef }) => {
         </TextContainer>
       </DropdownItem>
       
-      <Divider />
+      <CustomDivider />
       
       <DropdownItem onClick={() => handleItemClick('password')}>
         <IconContainer>
@@ -63,7 +64,7 @@ export const ProfileDropdown = ({ onClose, avatarRef }) => {
         </TextContainer>
       </DropdownItem>
       
-      <Divider />
+      <CustomDivider />
       
       <DropdownItem onClick={() => handleItemClick('logout')}>
         <IconContainer>
@@ -248,14 +249,4 @@ const Description = styled.span`
     font-size: 11px;
     line-height: 14px;
   }
-`;
-
-const Divider = styled.div`
-  height: 1px;
-  background-color: var(--color-neutral-700);
-  // margin: 4px 0;
-
-  // @media (max-width: 480px) {
-  //   margin: 1px 0;
-  // }
 `;

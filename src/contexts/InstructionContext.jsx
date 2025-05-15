@@ -1,39 +1,58 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useContext, useCallback, useEffect, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import { useApi } from '../hooks/useApi';
+import { useNavigation } from '../hooks/useNavigation';
 
 const InstructionContext = createContext();
 
-const initialFormData = {
-  documents: [],             //can be pdf,doc,docx,jpg,jpeg,png
-  receipt: null,
-  document_labels: [],        // ["Document 1","Document 2"]
-  document_urls: [],
-  title: '',
-  owner: '',
-  document_types: [],        // Comma separated string input, saved as array, 
-  reason: null,
-  issuing_court: '',
-  court_case_number: '',
-  date_of_submission: '',
-  date_of_next_hearing: '',
-  recipient_name: '',
-  recipient_email: '',
-  recipient_address: '',
-  recipient_phone: '',
-  recipient_additional_details: '',
-  applicant_name: '',
-  applicant_email: '',
-  applicant_address: '',
-  applicant_phone: '',
-  service_type: 'standard',  // ['standard','urgent','same_day','sub_serve']
-  priority: 'low',           // ["low", "medium", "high", "urgent"]
-  deadline: '',
-  type: 'Personal',
-  price: 0,
-  instructions: null,
-  attempts_allowed: '3',
-  payment_method: 'private',
+export const InstructionProvider = ({ children }) => {
+  const api = useApi();
+  const navigation = useNavigation();
+  const { formatPhoneNumber, user } = useAuth();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [applicantPhoneNumber, setApplicantPhoneNumber] = useState('');
+  const [recipientPhoneNumber, setRecipientPhoneNumber] = useState('');
+  const [applicantCursorPosition, setApplicantCursorPosition] = useState(null);
+  const [recipientCursorPosition, setRecipientCursorPosition] = useState(null);
+  const applicantPhoneInputRef = useRef(null);
+  const recipientPhoneInputRef = useRef(null);
+
+  const [currentServeData, setCurrentServeData] = useState(null);
+  const [currentInvoiceData, setCurrentInvoiceData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const initialFormData = {
+    documents: [],             //can be pdf,doc,docx,jpg,jpeg,png
+    receipt: null,
+    document_labels: [],        // ["Document 1","Document 2"]
+    document_urls: [],
+    title: '',
+    owner: '',
+    document_types: [],        // Comma separated string input, saved as array, 
+    reason: null,
+    issuing_court: '',
+    court_case_number: '',
+    date_of_submission: '',
+    date_of_next_hearing: '',
+    recipient_name: '',
+    recipient_email: '',
+    recipient_address: '',
+    recipient_phone: '',
+    recipient_additional_details: '',
+    applicant_name: '',
+    applicant_email: '',
+    applicant_address: '',
+    applicant_phone: '',
+    service_type: 'standard',  // ['standard','urgent','same_day','sub_serve']
+    priority: 'low',           // ["low", "medium", "high", "urgent"]
+    deadline: '',
+    type: 'Personal',
+    price: 0,
+    instructions: null,
+    attempts_allowed: '3',
+    payment_method: 'private',
 
     // documents: [], 
     // receipt: '',
@@ -64,24 +83,19 @@ const initialFormData = {
     // instructions: 'Serve at doorstep and take a photo as proof of delivery.',
     // attempts_allowed: '3',
     // payment_method: 'private'
-};
+  };
 
-export const InstructionProvider = ({ children }) => {
-  const api = useApi();
-  const { formatPhoneNumber, user } = useAuth();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [applicantPhoneNumber, setApplicantPhoneNumber] = useState('');
-  const [recipientPhoneNumber, setRecipientPhoneNumber] = useState('');
-  const [applicantCursorPosition, setApplicantCursorPosition] = useState(null);
-  const [recipientCursorPosition, setRecipientCursorPosition] = useState(null);
-  const applicantPhoneInputRef = useRef(null);
-  const recipientPhoneInputRef = useRef(null);
-
-  const [currentServeData, setCurrentServeData] = useState(null);
-  const [currentInvoiceData, setCurrentInvoiceData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
+
+    const resetFormData = useCallback(() => {
+    setFormData(initialFormData);
+    setCurrentStep(1);
+    setIsSubmitted(false);
+    setApplicantPhoneNumber('');
+    setRecipientPhoneNumber('');
+    setCurrentServeData(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const stepValidations = {
   1: (formData) => {
@@ -142,23 +156,185 @@ export const InstructionProvider = ({ children }) => {
   }
 };
 
+const validateStep3Details = (formData) => {
+  const isPhoneValid = (phone) => phone?.replace(/\D/g, '').length >= 10;
+  const isEmailValid = (email) => !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  return (
+    isPhoneValid(formData.applicant_phone) &&
+    isPhoneValid(formData.recipient_phone) &&
+    isEmailValid(formData.applicant_email) &&
+    isEmailValid(formData.recipient_email)
+  );
+};
+
 const isStepComplete = useCallback((step) => {
   const validator = stepValidations[step];
   return validator ? validator(formData, user) : false;
+// eslint-disable-next-line react-hooks/exhaustive-deps
 }, [formData, user]);
 
+const mapServeToFormData = useCallback((serveData) => {
+    if (!serveData) return;
+    
+  const documents = serveData.document_urls?.map(url => ({
+    name: url.split('/').pop(),
+    type: url.endsWith('.pdf') ? 'application/pdf' : 
+          url.match(/\.(jpg|jpeg|png)$/i) ? 'image/' + url.split('.').pop().toLowerCase() : 
+          'application/octet-stream',
+    url: url
+  })) || [];
+
+  // Create document labels
+  const document_labels = documents.reduce((acc, doc) => {
+    acc[doc.name] = doc.name.split('.')[0]; // Use filename without extension as label
+    return acc;
+  }, {});
+
+  return {
+    documents,
+    receipt: null, // Receipt might not be in serve data
+    document_labels,
+    document_urls: serveData.document_urls || [],
+    title: serveData.title || '',
+    owner: serveData.owner || '',
+    document_types: serveData.document_types || [],
+    reason: serveData.reason || null,
+    issuing_court: serveData.issuing_court || '',
+    court_case_number: serveData.court_case_number || '',
+    date_of_submission: serveData.date_of_submission || '',
+    date_of_next_hearing: serveData.date_of_next_hearing || '',
+    recipient_name: serveData.recipient_name || '',
+    recipient_email: serveData.recipient_email || '',
+    recipient_address: serveData.recipient_address || '',
+    recipient_phone: serveData.recipient_phone || '',
+    recipient_additional_details: serveData.recipient_additional_details || '',
+    applicant_name: serveData.applicant_name || '',
+    applicant_email: serveData.applicant_email || '',
+    applicant_address: serveData.applicant_address || '',
+    applicant_phone: serveData.applicant_phone || '',
+    service_type: serveData.service_type || 'standard',
+    priority: serveData.priority || 'low',
+    deadline: serveData.deadline || '',
+    type: serveData.type || 'Personal',
+    price: serveData.price || 0,
+    instructions: serveData.instructions || null,
+    attempts_allowed: serveData.attempts_allowed?.toString() || '3',
+    payment_method: 'private', // Default as it might not be in serve data
+  };
+}, []);
+
+const handleInstructionServeSubmit = useCallback(async () => {
+  try {
+    setIsSubmitted(true);
+    setIsLoading(true);
+    
+    const formDataToSend = new FormData();
+
+    // Append all non-file fields
+    const fieldsToAppend = {
+      title: formData.title,
+      owner: formData.owner,
+      document_types: formData.document_types?.join(','),
+      reason: formData.reason,
+      issuing_court: formData.issuing_court,
+      court_case_number: formData.court_case_number,
+      date_of_submission: toDDMMYYYY(formData.date_of_submission),
+      date_of_next_hearing: toDDMMYYYY(formData.date_of_next_hearing),
+      recipient_name: formData.recipient_name,
+      recipient_email: formData.recipient_email,
+      recipient_address: formData.recipient_address,
+      recipient_phone: formData.recipient_phone,
+      recipient_additional_details: formData.recipient_additional_details,
+      applicant_name: formData.applicant_name,
+      applicant_email: formData.applicant_email,
+      applicant_address: formData.applicant_address,
+      applicant_phone: formData.applicant_phone,
+      service_type: formData.service_type,
+      priority: formData.priority,
+      // deadline: toDDMMYYYY(formData.deadline),
+      type: formData.type,
+      price: formData.price.toString(), // Ensure number is string
+      instructions: formData.instructions,
+      attempts_allowed: formData.attempts_allowed,
+      payment_method: formData.payment_method
+    };
+
+    // Append all simple fields
+    Object.entries(fieldsToAppend).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formDataToSend.append(key, value);
+      }
+    });
+
+    // Handle document labels - ensure it's always an array
+    const docLabels = Array.isArray(formData.document_labels) 
+      ? formData.document_labels 
+      : Object.values(formData.document_labels || {});
+    formDataToSend.append('document_labels', JSON.stringify(docLabels));
+
+    // Handle documents - both files and URLs
+    formData.documents?.forEach((doc, index) => {
+      if (doc.file instanceof File || doc.file instanceof Blob) {
+        formDataToSend.append(`documents[${index}]`, doc.file, doc.name || `document_${index}`);
+      } else if (doc.url) {
+        formDataToSend.append(`document_urls[${index}]`, doc.url);
+      }
+    });
+
+    // Handle receipt
+    if (formData.receipt?.file instanceof Blob) {
+      formDataToSend.append('receipt', formData.receipt.file, formData.receipt.name || 'receipt');
+    }
+
+    // Make API call (ensure your API sets proper content-type for FormData)
+    const response = await api.createInstructionServe(formDataToSend, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    
+    console.log('Serve created successfully:', response);
+    navigation.navigateToInstructions();
+    resetFormData()
+    console.log('Form reset successfully');
+    return response;
+    
+  } catch (error) {
+    setIsSubmitted(false);
+    console.error('Error submitting serve:', error);
+    throw error;
+  } finally {
+    setIsLoading(false)
+    // setIsSubmitted(false);
+  }
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [formData, api]);
+
 const handleNextStep = useCallback(() => {
+  // First check if basic requirements are met (this controls button enable/disable)
   if (!isStepComplete(currentStep)) {
-    // You can add error state here if needed
     return;
   }
+
+  // For step 3, perform additional validation
+  if (currentStep === 3 && !validateStep3Details(formData)) {
+    // Trigger form validation UI
+    const form = document.querySelector('#step3-form');
+    if (form) {
+      form.reportValidity();
+    }
+    return;
+  }
+
+  // Proceed to next step or submit
   if (currentStep < 6) {
     setCurrentStep(currentStep + 1);
   } else {
     setIsSubmitted(true);
-    console.log('Form submitted:', formData);
     handleInstructionServeSubmit();
   }
+// eslint-disable-next-line react-hooks/exhaustive-deps
 }, [currentStep, formData, isStepComplete]);
 
   const handlePrevStep = useCallback(() => {
@@ -168,8 +344,17 @@ const handleNextStep = useCallback(() => {
     }
   }, [currentStep]);
 
-
 const handleStepClick = useCallback((stepNumber) => {
+    if (currentStep === 3 && !validateStep3Details(formData)) {
+    // Trigger form validation UI
+    const form = document.querySelector('#step3-form');
+    if (form) {
+      form.reportValidity();
+    }
+    return;
+  }
+
+
   const firstIncompleteStep = [1, 2, 3, 4, 5, 6].find(
     step => !isStepComplete(step)
   ) || 7;
@@ -177,6 +362,7 @@ const handleStepClick = useCallback((stepNumber) => {
   if (stepNumber <= firstIncompleteStep) {
     setCurrentStep(stepNumber);
   }
+// eslint-disable-next-line react-hooks/exhaustive-deps
 }, [isStepComplete]);
 
   const toDDMMYYYY = (dateStr) => {
@@ -388,145 +574,6 @@ useEffect(() => {
 
 
 // >>>>>>>>>>>>>>>>>>> Final Step: Submission
-  const resetFormData = useCallback(() => {
-    setFormData(initialFormData);
-    setCurrentStep(1);
-    setIsSubmitted(false);
-    setApplicantPhoneNumber('');
-    setRecipientPhoneNumber('');
-    setCurrentServeData(null);
-  }, []);
-
-  const mapServeToFormData = useCallback((serveData) => {
-    if (!serveData) return;
-    
-    const documents = serveData.document_urls?.map(url => ({
-      name: url.split('/').pop(),
-      type: url.endsWith('.pdf') ? 'application/pdf' : 
-            url.match(/\.(jpg|jpeg|png)$/i) ? 'image/' + url.split('.').pop().toLowerCase() : 
-            'application/octet-stream',
-      url: url
-    })) || [];
-
-    // Create document labels
-    const document_labels = documents.reduce((acc, doc) => {
-      acc[doc.name] = doc.name.split('.')[0]; // Use filename without extension as label
-      return acc;
-    }, {});
-
-    return {
-      documents,
-      receipt: null, // Receipt might not be in serve data
-      document_labels,
-      document_urls: serveData.document_urls || [],
-      title: serveData.title || '',
-      owner: serveData.owner || '',
-      document_types: serveData.document_types || [],
-      reason: serveData.reason || null,
-      issuing_court: serveData.issuing_court || '',
-      court_case_number: serveData.court_case_number || '',
-      date_of_submission: serveData.date_of_submission || '',
-      date_of_next_hearing: serveData.date_of_next_hearing || '',
-      recipient_name: serveData.recipient_name || '',
-      recipient_email: serveData.recipient_email || '',
-      recipient_address: serveData.recipient_address || '',
-      recipient_phone: serveData.recipient_phone || '',
-      recipient_additional_details: serveData.recipient_additional_details || '',
-      applicant_name: serveData.applicant_name || '',
-      applicant_email: serveData.applicant_email || '',
-      applicant_address: serveData.applicant_address || '',
-      applicant_phone: serveData.applicant_phone || '',
-      service_type: serveData.service_type || 'standard',
-      priority: serveData.priority || 'low',
-      deadline: serveData.deadline || '',
-      type: serveData.type || 'Personal',
-      price: serveData.price || 0,
-      instructions: serveData.instructions || null,
-      attempts_allowed: serveData.attempts_allowed?.toString() || '3',
-      payment_method: 'private', // Default as it might not be in serve data
-    };
-  }, []);
-
-  const handleInstructionServeSubmit = useCallback(async () => {
-    try {
-      setIsSubmitted(true);
-      
-      const formDataToSend = new FormData();
-  
-      // Append all non-file fields
-      const fieldsToAppend = {
-        title: formData.title,
-        owner: formData.owner,
-        document_types: formData.document_types?.join(','),
-        reason: formData.reason,
-        issuing_court: formData.issuing_court,
-        court_case_number: formData.court_case_number,
-        date_of_submission: toDDMMYYYY(formData.date_of_submission),
-        date_of_next_hearing: toDDMMYYYY(formData.date_of_next_hearing),
-        recipient_name: formData.recipient_name,
-        recipient_email: formData.recipient_email,
-        recipient_address: formData.recipient_address,
-        recipient_phone: formData.recipient_phone,
-        recipient_additional_details: formData.recipient_additional_details,
-        applicant_name: formData.applicant_name,
-        applicant_email: formData.applicant_email,
-        applicant_address: formData.applicant_address,
-        applicant_phone: formData.applicant_phone,
-        service_type: formData.service_type,
-        priority: formData.priority,
-        deadline: toDDMMYYYY(formData.deadline),
-        type: formData.type,
-        price: formData.price.toString(), // Ensure number is string
-        instructions: formData.instructions,
-        attempts_allowed: formData.attempts_allowed,
-        payment_method: formData.payment_method
-      };
-  
-      // Append all simple fields
-      Object.entries(fieldsToAppend).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formDataToSend.append(key, value);
-        }
-      });
-  
-      // Handle document labels - ensure it's always an array
-      const docLabels = Array.isArray(formData.document_labels) 
-        ? formData.document_labels 
-        : Object.values(formData.document_labels || {});
-      formDataToSend.append('document_labels', JSON.stringify(docLabels));
-  
-      // Handle documents - both files and URLs
-      formData.documents?.forEach((doc, index) => {
-        if (doc.file instanceof File || doc.file instanceof Blob) {
-          formDataToSend.append(`documents[${index}]`, doc.file, doc.name || `document_${index}`);
-        } else if (doc.url) {
-          formDataToSend.append(`document_urls[${index}]`, doc.url);
-        }
-      });
-  
-      // Handle receipt
-      if (formData.receipt?.file instanceof Blob) {
-        formDataToSend.append('receipt', formData.receipt.file, formData.receipt.name || 'receipt');
-      }
-  
-      // Make API call (ensure your API sets proper content-type for FormData)
-      const response = await api.createInstructionServe(formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      
-      console.log('Serve created successfully:', response);
-      return response;
-      
-    } catch (error) {
-      console.error('Error submitting serve:', error);
-      throw error;
-    } finally {
-      setIsSubmitted(false);
-    }
-  }, [formData, api]);
-
   const fetchServeById = useCallback(async (id) => {
     try {
       setIsLoading(true);
@@ -534,9 +581,9 @@ useEffect(() => {
       const response = await api.getServeById(id);
       const serve = response.serve;
       
-      setCurrentServeData(serve);
-
-      const mappedFormData = mapServeToFormData(serve);
+      if (serve) {
+          setCurrentServeData(serve);
+                const mappedFormData = mapServeToFormData(serve);
       setFormData(mappedFormData);
 
       if (serve.recipient_phone) {
@@ -550,6 +597,11 @@ useEffect(() => {
       }
         
       return serve;
+
+      } else {
+          setCurrentServeData(null);
+      }
+
     } catch (error) {
       console.error('Error fetching serve:', error);
       throw error;
@@ -593,6 +645,7 @@ useEffect(() => {
     <InstructionContext.Provider
       value={{
         formData,
+        initialFormData,
         isLoading,
 
         currentStep,
@@ -635,11 +688,4 @@ useEffect(() => {
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useInstruction = () => {
-  const context = useContext(InstructionContext);
-  if (!context) {
-    throw new Error('useInstruction must be used within an InstructionProvider');
-  }
-  return context;
-};
+export const useInstruction = () => useContext(InstructionContext);

@@ -22,6 +22,7 @@ const InstructionDetailsPage = () => {
     const loadServe = async () => {
       try {
         if (wprNo) {
+           console.log(wprNo, ' This is wprNo.');
           await fetchServeById(wprNo);
         }
       } catch (error) {
@@ -54,44 +55,74 @@ const InstructionDetailsPage = () => {
           </ContentSectionHeader>
 
           <InstructionsDetailMainContainer>
+            {currentServeData ? (
+              <>
+                <UploadedDocsContainer>
+                {formData.documents.length !== 0 && (
+                  formData.documents.map((doc) => (
+                    <DocRow key={doc.id}>
+                      <DocInfoContainer>
+                        <DocLeft>
+                          <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
+                          <DocTextGroup>
+                            <DocName>{doc.name || 'Document'}</DocName>
+                            <DocSize>{doc.size || '1mb'}</DocSize>
+                          </DocTextGroup>
+                        </DocLeft>
+                      </DocInfoContainer>
+                    </DocRow>
+                  ))
+                )}
+              </UploadedDocsContainer>
+              <SharedInstructionInvoiceDetails formData={ formData } isInstructionDetails={true} />
+              </>
 
-            <UploadedDocsContainer>
-              {formData.documents.length !== 0 && (
-                formData.documents.map((doc) => (
-                  <DocRow key={doc.id}>
-                    <DocInfoContainer>
-                      <DocLeft>
-                        <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
-                        <DocTextGroup>
-                          <DocName>{doc.name || 'Document'}</DocName>
-                          <DocSize>{doc.size || '1mb'}</DocSize>
-                        </DocTextGroup>
-                      </DocLeft>
-                    </DocInfoContainer>
-                  </DocRow>
-                ))
-              )}
-            </UploadedDocsContainer>
+            ) : (
+              <>
+                {!isLoading && !currentServeData && (
+                <NoDataContainer>
+                  <NoDataMessage>No data available</NoDataMessage>
+                </NoDataContainer>
+                )}
+              </>
+            )}
 
-            <SharedInstructionInvoiceDetails formData={formData} isInstructionDetails={true} />
+
+
           </InstructionsDetailMainContainer>
         </ContentSection>
 
         {/* Right SECTION */}
-        <SideBarSectionRightMain>
-          <SideBarSectionRight $height={'395px'} $drawerOpen={false}>
-            <ProfileSidebar userData={currentServeData?.serve?.user}/>
-          </SideBarSectionRight>
+        {currentServeData?.serve?.user &&
+          <SideBarSectionRightMain>
+            <SideBarSectionRight $height={'395px'} $drawerOpen={false}>
+              <ProfileSidebar userData={currentServeData?.serve?.user}/>
+            </SideBarSectionRight>
 
-          <SideBarSectionSecond $height={'530px'} $drawerOpen={false}>
-          <AttemptDetails attempts={currentServeData?.serve?.attempts || []}/>
-          </SideBarSectionSecond>
-        </SideBarSectionRightMain>
+            <SideBarSectionSecond $height={'530px'} $drawerOpen={false}>
+            <AttemptDetails attempts={currentServeData?.serve?.attempts || []}/>
+            </SideBarSectionSecond>
+          </SideBarSectionRightMain>
+        }
 
       </LayoutContainer>
     </MainLayout>
   );
 };
+
+const NoDataContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+`;
+
+const NoDataMessage = styled.p`
+  font-size: 18px;
+  color: #656565;
+  text-align: center;
+`;
 
 export const InstructionsDetailMainContainer = styled.div`
   display: flex;
