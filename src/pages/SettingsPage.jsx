@@ -140,7 +140,7 @@ const SettingsPage = () => {
         setUser(newUserData);
         
         // Show success message
-        showSuccess('Profile updated successfully');
+        // showSuccess('Profile updated successfully');
       }
     } catch (err) {
       console.error('Profile update error:', err);
@@ -285,7 +285,7 @@ const SettingsPage = () => {
                   <Input
                     type="tel"
                     name="phone_number"
-                    placeholder="020 7946 0958"
+                    placeholder="71 7946 0958"
                     value={phoneNumber}
                     onChange={handleChange}
                     required

@@ -102,7 +102,7 @@ export const SharedInstructionInvoiceDetails = ({
                     <DetailLabel>Client contact info</DetailLabel>
                     <DetailValue>Andrew Garfield</DetailValue>
                     <DetailValue>andrew@example.com</DetailValue>
-                    <DetailValue>+44 20 7946 0958</DetailValue>
+                    <DetailValue>+44 71 7946 0958</DetailValue>
                     <DetailValue>ABC street 4, NY</DetailValue>
                 </InfoSection>
 

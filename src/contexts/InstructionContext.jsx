@@ -5,65 +5,65 @@ import { useApi } from '../hooks/useApi';
 const InstructionContext = createContext();
 
 const initialFormData = {
-  documents: [],             //can be pdf,doc,docx,jpg,jpeg,png
-  receipt: null,
-  document_labels: [],        // ["Document 1","Document 2"]
-  document_urls: [],
-  title: '',
-  owner: '',
-  document_types: [],        // Comma separated string input, saved as array, 
-  reason: null,
-  issuing_court: '',
-  court_case_number: '',
-  date_of_submission: '',
-  date_of_next_hearing: '',
-  recipient_name: '',
-  recipient_email: '',
-  recipient_address: '',
-  recipient_phone: '',
-  recipient_additional_details: '',
-  applicant_name: '',
-  applicant_email: '',
-  applicant_address: '',
-  applicant_phone: '',
-  service_type: 'standard',  // ['standard','urgent','same_day','sub_serve']
-  priority: 'low',           // ["low", "medium", "high", "urgent"]
-  deadline: '',
-  type: 'Personal',
-  price: 0,
-  instructions: null,
-  attempts_allowed: '3',
-  payment_method: 'private',
+  // documents: [],             //can be pdf,doc,docx,jpg,jpeg,png
+  // receipt: null,
+  // document_labels: [],        // ["Document 1","Document 2"]
+  // document_urls: [],
+  // title: '',
+  // owner: '',
+  // document_types: [],        // Comma separated string input, saved as array, 
+  // reason: null,
+  // issuing_court: '',
+  // court_case_number: '',
+  // date_of_submission: '',
+  // date_of_next_hearing: '',
+  // recipient_name: '',
+  // recipient_email: '',
+  // recipient_address: '',
+  // recipient_phone: '',
+  // recipient_additional_details: '',
+  // applicant_name: '',
+  // applicant_email: '',
+  // applicant_address: '',
+  // applicant_phone: '',
+  // service_type: 'standard',  // ['standard','urgent','same_day','sub_serve']
+  // priority: 'low',           // ["low", "medium", "high", "urgent"]
+  // deadline: '',
+  // type: 'Personal',
+  // price: 0,
+  // instructions: null,
+  // attempts_allowed: '3',
+  // payment_method: 'private',
 
-    // documents: [], 
-    // receipt: '',
-    // document_labels: [],
-    // document_urls: [],
-    // title: 'Service of Summons to Defendant',
-    // owner: 'John Doe',
-    // document_types: ['Divorce Petition', 'Statutory Demand'],
-    // reason: 'To initiate legal proceedings against the defendant.',
-    // issuing_court: 'Superior Court of California, County of Los Angeles',
-    // court_case_number: 'LA12345678',
-    // date_of_submission: '2025-05-13',
-    // date_of_next_hearing: '2025-06-10',
-    // recipient_name: 'Jane Smith',
-    // recipient_email: 'jane.smith@example.com',
-    // recipient_address: '1234 Elm Street, Los Angeles, CA 90001',
-    // recipient_phone: '+44-310-555-7890',
-    // recipient_additional_details: 'Lives in unit #5B. Best time to serve is after 6 PM.',
-    // applicant_name: 'John Doe',
-    // applicant_email: 'john.doe@example.com',
-    // applicant_address: '5678 Oak Avenue, Pasadena, CA 91101',
-    // applicant_phone: '+44-626-555-1234',
-    // service_type: 'standard',
-    // priority: 'low',
-    // deadline: '2025-06-13',
-    // type: 'Personal',
-    // price: 150.00,
-    // instructions: 'Serve at doorstep and take a photo as proof of delivery.',
-    // attempts_allowed: '3',
-    // payment_method: 'private'
+    documents: [], 
+    receipt: '',
+    document_labels: [],
+    document_urls: [],
+    title: 'Service of Summons to Defendant',
+    owner: 'John Doe',
+    document_types: ['Divorce Petition', 'Statutory Demand'],
+    reason: 'To initiate legal proceedings against the defendant.',
+    issuing_court: 'Superior Court of California, County of Los Angeles',
+    court_case_number: 'LA12345678',
+    date_of_submission: '2025-05-13',
+    date_of_next_hearing: '2025-06-10',
+    recipient_name: 'Jane Smith',
+    recipient_email: 'jane.smith@example.com',
+    recipient_address: '1234 Elm Street, Los Angeles, CA 90001',
+    recipient_phone: '+44-310-555-7890',
+    recipient_additional_details: 'Lives in unit #5B. Best time to serve is after 6 PM.',
+    applicant_name: 'John Doe',
+    applicant_email: 'john.doe@example.com',
+    applicant_address: '5678 Oak Avenue, Pasadena, CA 91101',
+    applicant_phone: '+44-626-555-1234',
+    service_type: 'standard',
+    priority: 'low',
+    deadline: '2025-06-13',
+    type: 'Personal',
+    price: 150.00,
+    instructions: 'Serve at doorstep and take a photo as proof of delivery.',
+    attempts_allowed: '3',
+    payment_method: 'private'
 };
 
 export const InstructionProvider = ({ children }) => {
@@ -142,22 +142,59 @@ export const InstructionProvider = ({ children }) => {
   }
 };
 
+const validateStep3Details = (formData) => {
+  const isPhoneValid = (phone) => phone?.replace(/\D/g, '').length >= 10;
+  const isEmailValid = (email) => !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  return (
+    isPhoneValid(formData.applicant_phone) &&
+    isPhoneValid(formData.recipient_phone) &&
+    isEmailValid(formData.applicant_email) &&
+    isEmailValid(formData.recipient_email)
+  );
+};
+
 const isStepComplete = useCallback((step) => {
   const validator = stepValidations[step];
   return validator ? validator(formData, user) : false;
 }, [formData, user]);
 
+// const handleNextStep = useCallback(() => {
+//   if (!isStepComplete(currentStep)) {
+//     // You can add error state here if needed
+//     return;
+//   }
+//   if (currentStep < 6) {
+//     setCurrentStep(currentStep + 1);
+//   } else {
+//     setIsSubmitted(true);
+//     console.log('Form submitted:', formData);
+//     handleInstructionServeSubmit();
+//   }
+// }, [currentStep, formData, isStepComplete]);
+
 const handleNextStep = useCallback(() => {
+  // First check if basic requirements are met (this controls button enable/disable)
   if (!isStepComplete(currentStep)) {
-    // You can add error state here if needed
     return;
   }
+
+  // For step 3, perform additional validation
+  if (currentStep === 3 && !validateStep3Details(formData)) {
+    // Trigger form validation UI
+    const form = document.querySelector('#step3-form');
+    if (form) {
+      form.reportValidity();
+    }
+    return;
+  }
+
+  // Proceed to next step or submit
   if (currentStep < 6) {
     setCurrentStep(currentStep + 1);
   } else {
     setIsSubmitted(true);
-    console.log('Form submitted:', formData);
-    handleInstructionServeSubmit();
+    // handleInstructionServeSubmit();
   }
 }, [currentStep, formData, isStepComplete]);
 
@@ -170,6 +207,16 @@ const handleNextStep = useCallback(() => {
 
 
 const handleStepClick = useCallback((stepNumber) => {
+    if (currentStep === 3 && !validateStep3Details(formData)) {
+    // Trigger form validation UI
+    const form = document.querySelector('#step3-form');
+    if (form) {
+      form.reportValidity();
+    }
+    return;
+  }
+
+
   const firstIncompleteStep = [1, 2, 3, 4, 5, 6].find(
     step => !isStepComplete(step)
   ) || 7;

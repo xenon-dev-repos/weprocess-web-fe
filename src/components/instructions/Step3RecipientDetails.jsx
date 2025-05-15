@@ -1,6 +1,6 @@
 // Step3RecipientDetails.js
 import React from 'react';
-import { InstructionsMainContainer } from '../../styles/Shared';
+import { InstructionsMainContainerStyledForm } from '../../styles/Shared';
 import { RecipientDetailsLayout } from '../../layouts/RecipientDetailsLayout';
 import { InputFieldsContainer } from '../shared/InputFieldsContainer';
 import { Images } from '../../assets/images';
@@ -38,7 +38,7 @@ export const Step3RecipientDetails = () => {
     {
       label: 'Contact number',
       name: 'applicant_phone',
-      placeholder: '020 7946 0958',
+      placeholder: '71 7946 0958',
       type: 'phone',
       countryCode: '+44',
       flagIcon: Images.auth.ukFlag,
@@ -73,7 +73,7 @@ export const Step3RecipientDetails = () => {
     {
       label: 'Contact number',
       name: 'recipient_phone',
-      placeholder: '020 7946 0958',
+      placeholder: '71 7946 0958',
       type: 'phone',
       countryCode: '+44',
       flagIcon: Images.auth.ukFlag,
@@ -121,7 +121,11 @@ export const Step3RecipientDetails = () => {
 
   return (
     <StepValidation step={3}>
-      <InstructionsMainContainer>
+      <InstructionsMainContainerStyledForm 
+      id="step3-form" 
+      noValidate
+      onSubmit={(e) => e.preventDefault()} 
+      >
         <RecipientDetailsLayout title="Applicant info">
           <InputFieldsContainer
             fields={applicantFields}
@@ -180,7 +184,7 @@ export const Step3RecipientDetails = () => {
             handleChange={handleInputChange}
           />
         </RecipientDetailsLayout>
-      </InstructionsMainContainer>
+      </InstructionsMainContainerStyledForm>
     </StepValidation>
   );
 };

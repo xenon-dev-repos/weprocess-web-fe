@@ -73,7 +73,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
         formattedValue = `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4, 7)} ${digitsOnly.slice(7, 10)}`;
       }
     }
-    // UK landline format without leading 0: 20 7946 0958 (10 digits)
+    // UK landline format without leading 0: 71 7946 0958 (10 digits)
     else {
       if (digitsOnly.length <= 2) {
         formattedValue = digitsOnly;

@@ -57,3 +57,9 @@ npm run dev
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Standard Phone Formats
+
+- +44 7123 456 789  // Mobile
+- +44 71 7946 0958  // London landline
+

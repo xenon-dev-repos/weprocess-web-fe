@@ -78,15 +78,17 @@ const InstructionDetailsPage = () => {
         </ContentSection>
 
         {/* Right SECTION */}
-        <SideBarSectionRightMain>
-          <SideBarSectionRight $height={'395px'} $drawerOpen={false}>
-            <ProfileSidebar userData={currentServeData?.serve?.user}/>
-          </SideBarSectionRight>
+        {currentServeData?.serve?.user &&
+          <SideBarSectionRightMain>
+            <SideBarSectionRight $height={'395px'} $drawerOpen={false}>
+              <ProfileSidebar userData={currentServeData?.serve?.user}/>
+            </SideBarSectionRight>
 
-          <SideBarSectionSecond $height={'530px'} $drawerOpen={false}>
-          <AttemptDetails attempts={currentServeData?.serve?.attempts || []}/>
-          </SideBarSectionSecond>
-        </SideBarSectionRightMain>
+            <SideBarSectionSecond $height={'530px'} $drawerOpen={false}>
+            <AttemptDetails attempts={currentServeData?.serve?.attempts || []}/>
+            </SideBarSectionSecond>
+          </SideBarSectionRightMain>
+        }
 
       </LayoutContainer>
     </MainLayout>
