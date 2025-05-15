@@ -5,17 +5,18 @@ import { Chart } from 'chart.js/auto';
 import { MainLayout } from '../layouts/MainLayout';
 import { StatCard } from '../components/dashboard/StatCard';
 import InstructionsTable from '../components/InstructionsTable';
-import { instructionsTableData } from '../constants/mockData';
 import { API_ENDPOINTS } from '../constants/api';
 import axios from 'axios';
 import { useToast } from '../services/ToastService';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '../hooks/useNavigation';
 
 const DashboardPage = () => {
   const barChartRef = useRef(null);
   const pieChartRef = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [filteredData, setFilteredData] = useState(instructionsTableData);
+  const [filteredData, setFilteredData] = useState([]);
   const [dashboardData, setDashboardData] = useState({
     total_serves_count: 0,
     current_month_serves_count: 0,
@@ -35,33 +36,71 @@ const DashboardPage = () => {
     pending_invoices_count: 0
   });
   const { showError } = useToast();
-  
-  // Removed unused activeTab state since we're using the tabId directly from onTabChange
-  // If you need activeTab for other purposes, keep it but use it somewhere in your component
+  const { user, getServes } = useAuth();
+  const navigation = useNavigation();
 
-  const handleTabChange = (tabId) => {
-    let filtered = [];
-    switch(tabId) {
-      case 'new-requests':
-        filtered = instructionsTableData.filter(item => item.status === '1st attempt');
-        break;
-      case 'in-progress':
-        filtered = instructionsTableData.filter(item => 
-          ['1st attempt', '2nd attempt', '3rd attempt', 'In Transit'].includes(item.status)
-        );
-        break;
-      case 'completed':
-        filtered = instructionsTableData.filter(item => item.status === 'Completed');
-        break;
-      case 'invoices':
-        filtered = instructionsTableData.filter(item => item.type === 'Urgent');
-        break;
-      default:
-        filtered = instructionsTableData;
+  const handleTabChange = async (tabId) => {
+    try {
+      let status = '';
+      switch(tabId) {
+        case 'new-requests':
+          status = 'pending';
+          break;
+        case 'in-progress':
+          status = 'active';
+          break;
+        case 'completed':
+          status = 'completed';
+          break;
+        default:
+          status = '';
+      }
+      await fetchServes(status);
+    } catch (error) {
+      console.error('Error handling tab change:', error);
+      showError('Failed to filter instructions');
     }
-    setFilteredData(filtered);
   };
-  
+
+  const fetchServes = async (status = '') => {
+    try {
+      setLoading(true);
+      
+      if (!user?.id) {
+        console.error('User ID not found');
+        return;
+      }
+
+      const params = {
+        client_id: user.id,
+        ...(status && { status: status })
+      };
+
+      const response = await getServes(params);
+      
+      if (response.success) {
+        const mappedData = response.serves.data.map(serve => ({
+          wpr: serve.id,
+          owner: serve.applicant_name || serve.client_id || 'N/A',
+          serve: serve.title,
+          type: serve.priority ? serve.priority.charAt(0).toUpperCase() + serve.priority.slice(1) : 'N/A',
+          court: serve.issuing_court,
+          deadline: serve.deadline,
+          status: serve.status,
+        }));
+        setFilteredData(mappedData);
+      } else {
+        console.error(response.message || 'Failed to fetch serves');
+        setFilteredData([]);
+      }
+    } catch (error) {
+      console.error('Error fetching serves:', error);
+      setFilteredData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -92,7 +131,8 @@ const DashboardPage = () => {
     };
 
     fetchDashboardData();
-  }, [showError]);
+    fetchServes(); // Fetch initial serves data
+  }, [user?.id]);
 
   useEffect(() => {
     let pieChartInstance = null;
@@ -170,6 +210,12 @@ const DashboardPage = () => {
     };
   }, [dashboardData]);
 
+  const handleRowClick = (rowData) => {
+    if (typeof navigation.handleNavigationFromTableRow === 'function') {
+      navigation.handleNavigationFromTableRow(rowData, true);
+    }
+  };
+
   return (
     <MainLayout isDashboardPage={true}>
       {loading && <LoadingOnPage />}
@@ -234,6 +280,7 @@ const DashboardPage = () => {
                 }}
                 minHeight={348}
                 noDataCellHeight={309}
+                onRowClick={handleRowClick}
               />
             </TableContainer>
           </LeftColumn>

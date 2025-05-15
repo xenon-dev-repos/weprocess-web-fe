@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { API_ENDPOINTS } from '../constants/api';
+import { ROUTES } from '../constants/routes';
 
 /**
  * Custom hook for managing notifications
@@ -26,6 +27,15 @@ export const useNotifications = () => {
    * @returns {Promise} - Promise that resolves when fetch completes
    */
   const fetchNotifications = useCallback(async (page = 1, perPage = 10) => {
+    // Check if we're on the chat page by looking at the current pathname
+    const isChatPage = window.location.pathname === ROUTES.CHAT;
+    
+    // Skip if on chat page or navigating to chat page
+    if (isChatPage || localStorage.getItem('navigatingToChat') === 'true') {
+      console.log('Skipping notification fetch - on chat page or navigating to chat');
+      return null;
+    }
+
     // Check if enough time has passed since the last request
     const now = Date.now();
     if (now - lastFetchTime < MIN_FETCH_INTERVAL) {
@@ -69,7 +79,11 @@ export const useNotifications = () => {
 
   // Initial fetch on mount - only once
   useEffect(() => {
-    fetchNotifications();
+    // Skip initial fetch if on chat page or navigating to chat
+    const isChatPage = window.location.pathname === ROUTES.CHAT;
+    if (!isChatPage && localStorage.getItem('navigatingToChat') !== 'true') {
+      fetchNotifications();
+    }
     // Intentionally not including fetchNotifications in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -78,6 +92,13 @@ export const useNotifications = () => {
    * Load more notifications (next page)
    */
   const loadMore = useCallback(() => {
+    // Skip if on chat page or navigating to chat
+    const isChatPage = window.location.pathname === ROUTES.CHAT;
+    if (isChatPage || localStorage.getItem('navigatingToChat') === 'true') {
+      console.log('Skipping load more - on chat page or navigating to chat');
+      return;
+    }
+    
     if (pagination.current_page < pagination.last_page && !loading) {
       fetchNotifications(pagination.current_page + 1, pagination.per_page);
     }
@@ -87,6 +108,15 @@ export const useNotifications = () => {
    * Refresh notifications (first page)
    */
   const refresh = useCallback(() => {
+    // Check if we're on the chat page by looking at the current pathname
+    const isChatPage = window.location.pathname === ROUTES.CHAT;
+    
+    // Skip if on chat page or navigating to chat
+    if (isChatPage || localStorage.getItem('navigatingToChat') === 'true') {
+      console.log('Skipping notification refresh - on chat page or navigating to chat');
+      return;
+    }
+    
     // Check if enough time has passed since the last request
     const now = Date.now();
     if (now - lastFetchTime < MIN_FETCH_INTERVAL) {

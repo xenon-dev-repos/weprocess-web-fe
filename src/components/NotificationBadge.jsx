@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useContext, createContext } from 'react';
 import styled from 'styled-components';
+import { useLocation } from 'react-router-dom';
+import { ROUTES } from '../constants/routes';
 import { useNotifications } from '../hooks/useNotifications';
 
 // Create a context for notification badge updates
@@ -33,23 +35,70 @@ export const NotificationProvider = ({ children }) => {
 const NotificationBadge = () => {
   const { notifications, refresh } = useNotifications();
   const [unreadCount, setUnreadCount] = useState(0);
+  const location = useLocation();
   // eslint-disable-next-line no-unused-vars
   const { triggerRefresh } = useContext(NotificationUpdateContext);
 
+  // Check if current page is chat page
+  const isChatPage = location.pathname === ROUTES.CHAT;
+
   // Fetch once on mount and set up refresh interval
   useEffect(() => {
-    // Initial fetch
-    refresh();
+    // Initialize global interval and timeout tracking if they don't exist
+    if (!window.notificationIntervals) {
+      window.notificationIntervals = [];
+    }
     
-    // Set up interval for periodic refreshes
-    const interval = setInterval(() => {
-      refresh();
-    }, 60000); // 1 minute
+    if (!window.notificationTimeouts) {
+      window.notificationTimeouts = [];
+    }
     
-    return () => clearInterval(interval);
-    // Only depend on refresh to avoid excessive calls
+    // Skip initial fetch if on chat page or navigating to chat
+    if (!isChatPage && localStorage.getItem('navigatingToChat') !== 'true') {
+      // Delay initial fetch slightly to prevent race conditions
+      const initialTimeout = setTimeout(() => {
+        if (!isChatPage && localStorage.getItem('navigatingToChat') !== 'true') {
+          refresh();
+        }
+      }, 500);
+      
+      // Track the timeout
+      window.notificationTimeouts.push(initialTimeout);
+    }
+    
+    // Set up interval for periodic refreshes, but skip if on chat page
+    let interval;
+    if (!isChatPage) {
+      interval = setInterval(() => {
+        // Skip refresh if navigating to chat or already on chat page
+        if (localStorage.getItem('navigatingToChat') !== 'true' && 
+            window.location.pathname !== ROUTES.CHAT) {
+          refresh();
+        }
+      }, 60000); // 1 minute
+      
+      // Add interval to global tracking for potential cleanup
+      window.notificationIntervals.push(interval);
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+        // Remove this interval from global tracking
+        if (window.notificationIntervals) {
+          window.notificationIntervals = window.notificationIntervals.filter(id => id !== interval);
+        }
+      }
+      
+      // Clean up any timeouts created in this component
+      if (window.notificationTimeouts) {
+        window.notificationTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+        window.notificationTimeouts = [];
+      }
+    };
+    // Only depend on refresh and isChatPage to avoid excessive calls
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isChatPage]);
 
   // Update unread count when notifications change
   useEffect(() => {

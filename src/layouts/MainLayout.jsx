@@ -23,6 +23,7 @@ export const MainLayout = ({
   isAddInstructionPage = false,
   isInstructionDetailsPage = false,
   isInvoiceDetailsPage = false,
+  showShortHeader = false,
   filterButtons,
   onFilterChange,
   currentStep='1',
@@ -45,7 +46,8 @@ export const MainLayout = ({
     navigateToDashboard,
     navigateToInstructions,
     navigateToInvoices,
-    navigateToAddInstruction,
+    navigateToChat,
+    navigateToAddInstruction
   } = useNavigation();
 
   const handleNavigation = (path, linkName) => {
@@ -67,6 +69,8 @@ export const MainLayout = ({
       setActiveLink('Instructions');
     } else if (path.includes('/invoices')) {
       setActiveLink('Invoices');
+    } else if (path.includes('/chat')) {
+      setActiveLink('Chat');
     }
   }, [location]);
 
@@ -87,7 +91,7 @@ export const MainLayout = ({
 
   return (
     <AppContainer>
-      <AppHeader $applyMinHeight={isDashboardPage || isInstructionsPage || isInvoicePage || isAddInstructionPage || isInstructionDetailsPage || isInvoiceDetailsPage}>
+      <AppHeader $applyMinHeight={isDashboardPage || isInstructionsPage || isInvoicePage} $shortHeader={showShortHeader}>
         <MainHeader>
           <LogoContainer>
             <MobileMenuToggle ref={toggleRef} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -142,7 +146,18 @@ export const MainLayout = ({
               <IconImg src={NotificationIcon} alt="Notifications" />
               <NotificationBadge />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={() => {
+              localStorage.setItem('navigatingToChat', 'true');
+              
+              const existingIntervals = window.notificationIntervals || [];
+              existingIntervals.forEach(intervalId => clearInterval(intervalId));
+              
+              if (window.notificationTimeouts) {
+                window.notificationTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+              }
+              
+              handleNavigation(navigateToChat, 'Chat');
+            }}>
               <IconImg src={MessageIcon} alt="Messages" />
             </IconButton>
             <AvatarCircle 
@@ -251,7 +266,7 @@ const AppHeader = styled.header`
   background-color: var(--color-primary-500);
   color: white;
   max-width: 1728px;
-  min-height: ${props => props.$applyMinHeight ? '314px' : 'auto'};
+  min-height: ${props => props.$shortHeader ? 'auto' : props.$applyMinHeight ? '314px' : 'auto'};
   width: calc(100% - 48px);
   margin: 24px auto 0;
   border-radius: 20px;
@@ -259,11 +274,11 @@ const AppHeader = styled.header`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 40px;
+  padding: ${props => props.$shortHeader ? '20px 40px' : '40px'};
   
   @media (max-width: 1024px) {
     width: calc(100% - 32px);
-    padding: 30px;
+    padding: ${props => props.$shortHeader ? '15px 30px' : '30px'};
   }
 `;
 
@@ -772,12 +787,12 @@ const AvatarCircle = styled.div`
 const PageContent = styled.main`
   flex: 1;
   max-width: 1728px;
-  width: calc(100% - 48px);
+  width: calc(100% - 24px);
   margin: 0 auto;
   padding: 24px 0;
   
   @media (max-width: 768px) {
-    width: calc(100% - 32px);
+    width: calc(100% - 16px);
     padding: 16px 0;
   }
 `;

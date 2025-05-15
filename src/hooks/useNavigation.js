@@ -31,6 +31,7 @@ const navigateToInstructionsDetails = (options) => {navigateTo(ROUTES.INSTRUCTIO
 const navigateToInvoices = () => navigateTo(ROUTES.INVOICES);
 const navigateToInvoicesDetails = (options) => {navigateTo(ROUTES.INVOICE_DETAILS, options);};
 const navigateToAddInstruction = () => navigateTo(ROUTES.ADD_INSTRUCTION);
+const navigateToChat = () => navigateTo(ROUTES.CHAT);
 
 // Special routes
 const navigateToRoot = () => navigateTo(ROUTES.ROOT);
@@ -74,6 +75,7 @@ return {
   navigateToInvoices,
   navigateToInvoicesDetails,
   navigateToAddInstruction,
+  navigateToChat,
   navigateToRoot,
   navigateToNotFound,
   navigateToVerifyOtp,
