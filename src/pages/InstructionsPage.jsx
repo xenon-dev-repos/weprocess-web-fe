@@ -162,7 +162,7 @@ const InstructionsPage = () => {
                         <InstructionsTable 
                             data={tableData}
                             title="Instructions In Progress"
-                            subtitle="Monthly instructions requested by firm"
+                            subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
                             columns={columns}
                             customFilters={customFilters}
                             renderCell={(key, value) => {

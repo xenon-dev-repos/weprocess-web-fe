@@ -317,7 +317,7 @@ const DashboardPage = () => {
               <InstructionsTable 
                 data={filteredData}
                 title="Instructions In Progress"
-                subtitle="Monthly instructions requested by firm"
+                subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
                 tabs={[
                   { id: 'new-requests', label: 'New requests' },
                   { id: 'in-progress', label: 'In progress' },
@@ -358,7 +358,7 @@ const DashboardPage = () => {
                   <option>Annually</option>
                 </Select>
               </ChartHeader>
-              <SubTitle>Monthly instructions requested by firm</SubTitle>
+              <SubTitle>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</SubTitle>
               <ChartCanvasWrapper>
                 <canvas ref={barChartRef} height="180"></canvas>
               </ChartCanvasWrapper>
@@ -374,7 +374,7 @@ const DashboardPage = () => {
                   <option>Annually</option>
                 </Select>
               </ChartHeader>
-              <SubTitle>Monthly instructions requested by firm</SubTitle>
+              <SubTitle>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</SubTitle>
               <ChartCanvasWrapper>
                 <canvas ref={pieChartRef} height="180"></canvas>
               </ChartCanvasWrapper>
