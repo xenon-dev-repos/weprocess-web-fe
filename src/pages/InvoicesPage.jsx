@@ -27,11 +27,11 @@ const InvoicesPage = () => {
     const { showError } = useToast();
 
     const columns = [
-        { key: 'invoice_number', header: 'Invoice no.' },
-        { key: 'title', header: 'Title' },
-        { key: 'price', header: 'Amount' },
-        { key: 'is_paid', header: 'Status' },
-        { key: 'paid_at', header: 'Paid at' },
+        { key: 'invoice_number', header: 'Invoice no.', width: 'invoice_number' },
+        { key: 'title', header: 'Title', width: 'title' },
+        { key: 'price', header: 'Amount', width: 'price' },
+        { key: 'is_paid', header: 'Status', width: 'is_paid' },
+        { key: 'paid_at', header: 'Paid at', width: 'paid_at' }
     ];
 
     const fetchInvoices = async () => {

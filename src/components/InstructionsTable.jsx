@@ -382,92 +382,109 @@ const EmptyStateContainerRow = styled.tr`
 
 const Table = styled.table`
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
 `;
 
 const TableHead = styled.thead`
-  // background-color: #f5f6fa;
+  background-color: #F9FAFB;
+  border-bottom: 1px solid #E5E7EB;
 `;
 
 const TableHeaderCell = styled.th`
-  padding: 16px 12px;
-  font-family: 'Manrope', sans-serif;
-  color: #656565;
-  font-weight: 400;
-  font-size: 16px;
-  background: #f5f6fa;
+  padding: 12px 16px;
   text-align: ${props => props.$align || 'left'};
-  vertical-align: middle;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4B5563;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   width: ${props => props.$width || 'auto'};
-  border-bottom: 1px solid #e5e7eb;
 
-  &:first-child {
-    border-top-left-radius: 24px;
-    border-bottom-left-radius: 24px;
+  @media (min-width: 1700px) {
+    width: ${props => {
+      switch (props.$width) {
+        case 'wpr': return '150px';
+        case 'owner': return '200px';
+        case 'serve': return '250px';
+        case 'court': return '250px';
+        case 'type': return '180px';
+        case 'deadline': return '150px';
+        case 'status': return '150px';
+        case 'invoice_number': return '150px';
+        case 'title': return '300px';
+        case 'price': return '150px';
+        case 'is_paid': return '120px';
+        case 'paid_at': return '150px';
+        default: return 'auto';
+      }
+    }};
+  }
 
-  }
-  &:last-child {
-    border-top-right-radius: 24px;
-    border-bottom-right-radius: 24px;
+  @media (min-width: 1440px) and (max-width: 1699px) {
+    width: ${props => {
+      switch (props.$width) {
+        case 'wpr': return '130px';
+        case 'owner': return '180px';
+        case 'serve': return '220px';
+        case 'court': return '220px';
+        case 'type': return '160px';
+        case 'deadline': return '130px';
+        case 'status': return '130px';
+        case 'invoice_number': return '130px';
+        case 'title': return '250px';
+        case 'price': return '130px';
+        case 'is_paid': return '100px';
+        case 'paid_at': return '130px';
+        default: return 'auto';
+      }
+    }};
   }
 
-  @media (max-width: 1024px) {
-    padding: 10px 14px;
-  }
-  @media (max-width: 768px) {
-    padding: 10px 12px;
-    font-size: 13px;
-  }
-  @media (max-width: 480px) {
-    padding: 8px 10px;
-    font-size: 12px;
+  @media (max-width: 1439px) {
+    width: ${props => {
+      switch (props.$width) {
+        case 'wpr': return '110px';
+        case 'owner': return '160px';
+        case 'serve': return '200px';
+        case 'court': return '200px';
+        case 'type': return '140px';
+        case 'deadline': return '110px';
+        case 'status': return '110px';
+        case 'invoice_number': return '110px';
+        case 'title': return '200px';
+        case 'price': return '110px';
+        case 'is_paid': return '90px';
+        case 'paid_at': return '110px';
+        default: return 'auto';
+      }
+    }};
   }
 `;
 
 const TableRow = styled.tr`
-  &:hover {
-    background-color: ${props => props.$clickable ? 'rgba(18, 100, 86, 0.08)' : 'transparent'};
-    cursor: ${props => props.$clickable ? 'pointer' : 'default'};
-  }
+  cursor: ${props => props.$clickable ? 'pointer' : 'default'};
+  background-color: ${props => props.$selected ? '#F3F4F6' : 'white'};
+  transition: background-color 0.2s ease;
 
-  ${props => props.$selected && `
-    background-color: rgba(18, 100, 86, 0.08) !important;
-  `}
+  &:hover {
+    background-color: ${props => props.$clickable ? '#F9FAFB' : 'white'};
+  }
 `;
 
 const TableCell = styled.td`
   padding: 16px;
+  text-align: ${props => props.$align || 'left'};
   font-family: 'Manrope', sans-serif;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 100%;
-  letter-spacing: 0px;
-  color: #1f2937;
-  vertical-align: middle;
-  text-align: ${props => props.align || 'left'};
-  
-  text-wrap: nowrap;
-  
-  // &:first-child {
-  //   padding-left: 20px;
-  // }
-
-    @media (max-width: 1024px) {
-    padding: 14px;
-    font-size: 13px;
-  }
-
-
-  @media (max-width: 768px) {
-    padding: 12px;
-    font-size: 13px;
-  }
-
-  @media (max-width: 480px) {
-    padding: 10px;
-    font-size: 12px;
-  }
+  font-size: 14px;
+  color: #1F2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 0;
+  border-bottom: 1px solid #E5E7EB;
 `;
 
 const Pagination = styled.div`
