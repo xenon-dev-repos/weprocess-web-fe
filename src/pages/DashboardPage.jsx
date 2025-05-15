@@ -140,64 +140,126 @@ const DashboardPage = () => {
 
     if (pieChartRef.current) {
       const pieCtx = pieChartRef.current.getContext('2d');
+      const pieData = [
+        dashboardData.status_data.on_hold,
+        dashboardData.status_data.in_progress,
+        dashboardData.status_data.completed
+      ];
       
-      pieChartInstance = new Chart(pieCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['On Hold', 'In Progress', 'Completed'],
-          datasets: [{
-            data: [
-              dashboardData.status_data.on_hold,
-              dashboardData.status_data.in_progress,
-              dashboardData.status_data.completed
-            ],
-            backgroundColor: ['#6B7280', '#FF5B5B', '#8B5CF6'],
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { 
-            legend: { 
-              position: 'right',
-              labels: {
-                boxWidth: 12,
-                padding: 10
-              }
-            } 
+      // Check if there's any data
+      const hasPieData = pieData.some(value => value > 0);
+      
+      if (!hasPieData) {
+        // Handle high DPI displays
+        const dpr = window.devicePixelRatio || 1;
+        const rect = pieCtx.canvas.getBoundingClientRect();
+        
+        // Set the canvas size accounting for device pixel ratio
+        pieCtx.canvas.width = rect.width * dpr;
+        pieCtx.canvas.height = rect.height * dpr;
+        
+        // Scale the context to ensure correct drawing
+        pieCtx.scale(dpr, dpr);
+        
+        // Set canvas CSS size
+        pieCtx.canvas.style.width = `${rect.width}px`;
+        pieCtx.canvas.style.height = `${rect.height}px`;
+        
+        // Clear the canvas
+        pieCtx.clearRect(0, 0, pieCtx.canvas.width, pieCtx.canvas.height);
+        
+        // Draw the text
+        pieCtx.font = '16px Manrope';
+        pieCtx.fillStyle = '#6B7280';
+        pieCtx.textAlign = 'center';
+        pieCtx.textBaseline = 'middle';
+        pieCtx.fillText('No data available', rect.width / 2, rect.height / 2);
+      } else {
+        pieChartInstance = new Chart(pieCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['On Hold', 'In Progress', 'Completed'],
+            datasets: [{
+              data: pieData,
+              backgroundColor: ['#6B7280', '#FF5B5B', '#8B5CF6'],
+            }],
           },
-        },
-      });
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+              legend: { 
+                position: 'right',
+                labels: {
+                  boxWidth: 12,
+                  padding: 10
+                }
+              } 
+            },
+          },
+        });
+      }
     }
 
     if (barChartRef.current) {
       const barCtx = barChartRef.current.getContext('2d');
+      const barData = [
+        dashboardData.monthly_data.january.totalRequests,
+        dashboardData.monthly_data.february.totalRequests,
+        dashboardData.monthly_data.march.totalRequests,
+        dashboardData.monthly_data.april.totalRequests,
+        dashboardData.monthly_data.may.totalRequests
+      ];
       
-      barChartInstance = new Chart(barCtx, {
-        type: 'bar',
-        data: {
-          labels: ['January', 'February', 'March', 'April', 'May'],
-          datasets: [
-            {
-              label: 'Total Requests',
-              data: [
-                dashboardData.monthly_data.january.totalRequests,
-                dashboardData.monthly_data.february.totalRequests,
-                dashboardData.monthly_data.march.totalRequests,
-                dashboardData.monthly_data.april.totalRequests,
-                dashboardData.monthly_data.may.totalRequests
-              ],
-              backgroundColor: '#000',
-            }
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: { y: { beginAtZero: true } },
-          plugins: { legend: { position: 'top' } },
-        },
-      });
+      // Check if there's any data
+      const hasBarData = barData.some(value => value > 0);
+      
+      if (!hasBarData) {
+        // Handle high DPI displays
+        const dpr = window.devicePixelRatio || 1;
+        const rect = barCtx.canvas.getBoundingClientRect();
+        
+        // Set the canvas size accounting for device pixel ratio
+        barCtx.canvas.width = rect.width * dpr;
+        barCtx.canvas.height = rect.height * dpr;
+        
+        // Scale the context to ensure correct drawing
+        barCtx.scale(dpr, dpr);
+        
+        // Set canvas CSS size
+        barCtx.canvas.style.width = `${rect.width}px`;
+        barCtx.canvas.style.height = `${rect.height}px`;
+        
+        // Clear the canvas
+        barCtx.clearRect(0, 0, barCtx.canvas.width, barCtx.canvas.height);
+        
+        // Draw the text
+        barCtx.font = '16px Manrope';
+        barCtx.fillStyle = '#6B7280';
+        barCtx.textAlign = 'center';
+        barCtx.textBaseline = 'middle';
+        barCtx.fillText('No data available', rect.width / 2, rect.height / 2);
+      } else {
+        barChartInstance = new Chart(barCtx, {
+          type: 'bar',
+          data: {
+            labels: ['January', 'February', 'March', 'April', 'May'],
+            datasets: [
+              {
+                label: 'Total Requests',
+                data: barData,
+                backgroundColor: '#000',
+              }
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { position: 'top' } },
+          },
+        });
+      }
     }
     
     return () => {
@@ -423,10 +485,28 @@ const ChartTitle = styled.h3`
 
 const Select = styled.select`
   border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 8px 12px;
+  border-radius: 20px;
+  padding: 8px 16px;
   color: #4b5563;
   background-color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236B7280' stroke-width='1.67' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+
+  &:hover {
+    border-color: #9ca3af;
+  }
+
+  &:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+  }
 `;
 
 const SubTitle = styled.p`
