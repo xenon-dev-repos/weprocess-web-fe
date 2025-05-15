@@ -30,6 +30,7 @@ export const InputFieldsContainer = ({
                   onChange={handleChange}
                   required={field.required}
                   ref={field.phoneInputRef}
+                  minLength={10}
                   $height="56px"
                 />
               </PhoneInputContainer>
@@ -42,7 +43,7 @@ export const InputFieldsContainer = ({
                 onChange={(e) => handleDateChange(field.name, e.target.value)}
                 required={field.required}
                 $height="56px"
-                min={field.name === 'date_of_next_hearing' ? today : undefined}
+                min={field.name === 'date_of_next_hearing' || field.name === 'date_of_submission' ? today : undefined}
               />
             ) : (
               <Input
@@ -53,6 +54,8 @@ export const InputFieldsContainer = ({
                 onChange={handleChange}
                 required={field.required}
                 $height="56px"
+                minLength={field.type === 'email' ? 5 : undefined}
+                pattern={field.type === 'email' ? "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$" : undefined}
               />
             )}
           </FormGroup2>
@@ -60,6 +63,7 @@ export const InputFieldsContainer = ({
       </Container>
     );
   };
+
 
 const Container = styled.div`
   width: 100%;

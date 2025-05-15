@@ -1,35 +1,51 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Images } from '../../assets/images/index.js';
+import { useInstruction } from '../../contexts/InstructionContext.jsx';
 
-export const ProgressBar = ({ steps, currentStep, isSubmitted }) => {
+export const ProgressBar = ({ steps}) => {
+  const { isStepComplete, isSubmitted } = useInstruction();
+  
+  const completedSteps = steps.reduce((count, _, index) => {
+    return isStepComplete(index + 1) ? count + 1 : count;
+  }, 0);
+
+  // Calculate progress percentage
   let progressPercentage;
-  if (currentStep === steps.length && !isSubmitted) {
-    progressPercentage = 95; // 5% remaining for confimation step
+  if (completedSteps === steps.length && !isSubmitted) {
+    progressPercentage = 95; // 5% remaining until submission
+  } else if (completedSteps === steps.length && isSubmitted) {
+    progressPercentage = 100; // Fully complete after submission
   } else {
-    progressPercentage = ((currentStep - 1) / (steps.length - 1)) * 100;
+    progressPercentage = (completedSteps / steps.length) * 100;
   }
+
 
   return (
     <ProgressBarContainer>
       <ProgressBarBackground>
         <ProgressBarFill $progress={progressPercentage} />
       </ProgressBarBackground>
-      {/* <StepLabelsContainer>
-        {steps.map((step, index) => (
-          <StepLabelsAndIconContainer key={index}>
-            {index + 1 < currentStep || (index + 1 === steps.length && isSubmitted) ? (
-              <CheckIcon src={Images.instructions.checkIcon} alt="Completed" />
-            ) : null}
-            <StepLabel $active={index + 1 <= currentStep}>
-              {step}
-            </StepLabel>
-          </StepLabelsAndIconContainer>
-        ))}
-      </StepLabelsContainer> */}
     </ProgressBarContainer>
   );
 };
+
+// export const ProgressBar = ({ steps, currentStep, isSubmitted }) => {
+//   let progressPercentage;
+//   if (currentStep === steps.length && !isSubmitted) {
+//     progressPercentage = 95; // 5% remaining for confimation step
+//   } else {
+//     progressPercentage = ((currentStep - 1) / (steps.length - 1)) * 100;
+//   }
+
+//   return (
+//     <ProgressBarContainer>
+//       <ProgressBarBackground>
+//         <ProgressBarFill $progress={progressPercentage} />
+//       </ProgressBarBackground>
+//     </ProgressBarContainer>
+//   );
+// };
 
 const ProgressBarContainer = styled.div`
   width: 100%;

@@ -31,7 +31,8 @@ export const Label = styled.label`
 export const Input = styled.input`
   width: 100%;
   padding: 8px 16px;
-  border: 2px solid var(--color-border-secondary);
+  // border: 2px solid var(--color-border-secondary);
+  border: ${props => props.$hasError ? '2px solid #ff4d4f' : '2px solid var(--color-border-secondary)'};
   border-radius: 12px;
   font-size: 1rem;
   height: ${({ $height }) => $height || '48px'};
@@ -39,7 +40,8 @@ export const Input = styled.input`
   
   &:focus {
     outline: none;
-    border-color: var(--color-border-primary);
+    // border-color: var(--color-border-primary);
+    border-color: ${props => props.$hasError ? '#ff4d4f' : 'var(--color-border-primary)'};
   }
 
   @media (max-width: 768px) {
@@ -89,6 +91,13 @@ export const PasswordToggle = styled.button`
 export const ErrorMessage = styled.div`
   color: var(--color-error-500);
   margin-bottom: 16px;
+`;
+
+export const ErrorText = styled.span`
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
 `;
 
 export const SubmitButton = styled.button`

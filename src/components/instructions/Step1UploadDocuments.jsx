@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { InstructionsMainContainer } from '../../styles/Shared';
 import { Images } from '../../assets/images/index.js';
 import { useInstruction } from '../../contexts/InstructionContext.jsx';
+import { StepValidation } from './StepValidation.jsx';
 
 export const Step1UploadDocuments = () => {
   const {
@@ -36,62 +37,66 @@ export const Step1UploadDocuments = () => {
   };
 
   return (
-    <InstructionsMainContainer>
-      <UploadContainer>
-        <UploadContent>
-          <UploadIcon src={Images.instructions.uploadIcon} alt="Upload" />
-          <UploadText>Upload the PDF file here (max 23MB)</UploadText>
-          <BrowseLink onClick={() => triggerFileInput('document')}>Browse</BrowseLink>
-        </UploadContent>
-      </UploadContainer>
+    <StepValidation step={1}>
+      <InstructionsMainContainer>
 
-      <ReceiptContainer>
-        <ReceiptText>Upload receipt photo (optional)</ReceiptText>
-        <UploadButton onClick={() => triggerFileInput('receipt')}>
-          <UploadSmallIcon src={Images.instructions.uploadIcon} alt="Upload" />
-          <span>Upload</span>
-        </UploadButton>
-      </ReceiptContainer>
+          <UploadContainer>
+            <UploadContent>
+              <UploadIcon src={Images.instructions.uploadIcon} alt="Upload" />
+              <UploadText>Upload the PDF file here (max 23MB)</UploadText>
+              <BrowseLink onClick={() => triggerFileInput('document')}>Browse</BrowseLink>
+            </UploadContent>
+          </UploadContainer>
 
-      <Divider />
+          <ReceiptContainer>
+            <ReceiptText>Upload receipt photo (optional)</ReceiptText>
+            <UploadButton onClick={() => triggerFileInput('receipt')}>
+              <UploadSmallIcon src={Images.instructions.uploadIcon} alt="Upload" />
+              <span>Upload</span>
+            </UploadButton>
+          </ReceiptContainer>
 
-      <UploadedDocsContainer>
-        <UploadedDocsTitle>Upload documents</UploadedDocsTitle>
-        {formData.documents.length === 0 ? (
-          <ReceiptText>No docs added</ReceiptText>
-        ) : (
-          formData.documents.map((doc) => (
-            <DocRow key={doc.id} $hasError={!!formData.labelErrors?.[doc.id]}>
-              <DocInfoContainer>
-                <DocLeft>
-                  <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
-                  <DocTextGroup>
-                    <DocName>{doc.name}</DocName>
-                    <DocSize>{doc.size}</DocSize>
-                  </DocTextGroup>
-                </DocLeft>
-                <CancelIcon 
-                  src={Images.instructions.cancelIcon} 
-                  alt="Cancel" 
-                  onClick={() => removeDocument(doc.id)}
-                />
-              </DocInfoContainer>
-              <LabelInputContainer>
-                <LabelInput 
-                  placeholder="Provide a document label"
-                  value={formData.document_labels[doc.id] || ''}
-                  onChange={(e) => handleLabelChange(doc.id, e.target.value)}
-                  $hasError={!!formData.labelErrors?.[doc.id]}
-                />
-                {formData.labelErrors?.[doc.id] && (
-                  <ErrorText>{formData.labelErrors[doc.id]}</ErrorText>
-                )}
-              </LabelInputContainer>
-            </DocRow>
-          ))
-        )}
-      </UploadedDocsContainer>
-    </InstructionsMainContainer>
+          <Divider />
+
+          <UploadedDocsContainer>
+            <UploadedDocsTitle>Upload documents</UploadedDocsTitle>
+            {formData.documents.length === 0 ? (
+              <ReceiptText>No docs added</ReceiptText>
+            ) : (
+              formData.documents.map((doc) => (
+                <DocRow key={doc.id} $hasError={!!formData.labelErrors?.[doc.id]}>
+                  <DocInfoContainer>
+                    <DocLeft>
+                      <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
+                      <DocTextGroup>
+                        <DocName>{doc.name}</DocName>
+                        <DocSize>{doc.size}</DocSize>
+                      </DocTextGroup>
+                    </DocLeft>
+                    <CancelIcon 
+                      src={Images.instructions.cancelIcon} 
+                      alt="Cancel" 
+                      onClick={() => removeDocument(doc.id)}
+                    />
+                  </DocInfoContainer>
+                  <LabelInputContainer>
+                    <LabelInput 
+                      placeholder="Provide a document label"
+                      value={formData.document_labels[doc.id] || ''}
+                      onChange={(e) => handleLabelChange(doc.id, e.target.value)}
+                      $hasError={!!formData.labelErrors?.[doc.id]}
+                    />
+                    {formData.labelErrors?.[doc.id] && (
+                      <ErrorText>{formData.labelErrors[doc.id]}</ErrorText>
+                    )}
+                  </LabelInputContainer>
+                </DocRow>
+              ))
+            )}
+          </UploadedDocsContainer>
+
+      </InstructionsMainContainer>
+    </StepValidation>
   );
 };
 
