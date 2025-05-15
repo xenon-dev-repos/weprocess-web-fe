@@ -63,7 +63,7 @@ export const MainLayout = ({
 
   useEffect(() => {
     const path = location.pathname;
-    if (path.includes('/dashboard')) {
+    if (path === '/' || path.includes('/dashboard')) {
       setActiveLink('Dashboard');
     } else if (path.includes('/instructions')) {
       setActiveLink('Instructions');
