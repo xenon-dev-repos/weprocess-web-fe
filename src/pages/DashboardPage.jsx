@@ -248,16 +248,81 @@ const DashboardPage = () => {
               {
                 label: 'Total Requests',
                 data: barData,
-                backgroundColor: '#000',
+                backgroundColor: ['#000', '#000', '#000', '#000', '#FF5B5B'],
+                borderRadius: {
+                  topLeft: 20,
+                  topRight: 20,
+                  bottomLeft: 0,
+                  bottomRight: 0
+                },
+                borderSkipped: false,
+                barThickness: 40,
+                maxBarThickness: 40
               }
             ],
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true } },
-            plugins: { legend: { position: 'top' } },
+            layout: {
+              padding: {
+                top: 30  // Add padding to make room for labels
+              }
+            },
+            scales: { 
+              y: { 
+                beginAtZero: true,
+                grid: {
+                  display: false
+                },
+                ticks: {
+                  display: false
+                },
+                border: {
+                  display: false
+                }
+              },
+              x: {
+                grid: {
+                  display: false
+                },
+                border: {
+                  display: false
+                }
+              }
+            },
+            plugins: { 
+              legend: { 
+                display: false 
+              },
+              tooltip: {
+                enabled: false
+              }
+            }
           },
+          plugins: [{
+            id: 'customLabels',
+            afterDraw(chart) {
+              const {ctx, data, chartArea, scales: {x, y}} = chart;
+              
+              ctx.save();
+              ctx.font = '600 14px Manrope';
+              ctx.fillStyle = '#1F2937';
+              ctx.textAlign = 'center';
+              
+              data.datasets[0].data.forEach((value, index) => {
+                if (value > 0) {
+                  const xPos = x.getPixelForValue(index);
+                  const yPos = y.getPixelForValue(value);
+                  const text = value.toString();
+                  
+                  // Draw the value above the bar
+                  ctx.fillText(text, xPos, yPos - 10);
+                }
+              });
+              ctx.restore();
+            }
+          }]
         });
       }
     }
