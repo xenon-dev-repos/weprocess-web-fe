@@ -2,33 +2,15 @@ import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { ProgressBar } from '../instructions/ProgressBar';
-import { useInstruction } from '../../contexts/InstructionContext';
 
 export const PageHeader = ({ title, filterButtons, onFilterChange, isAddInstruction = false, stepsData, currentStep }) => {
   const [activeFilter, setActiveFilter] = useState(filterButtons && filterButtons[0]?.id);
-  const { isStepComplete, isSubmitted } = useInstruction();
 
   const handleFilterClick = (filterId) => {
     setActiveFilter(filterId);
     if (onFilterChange) {
       onFilterChange(filterId);
     }
-  };
-
-  const StepsCompletedOverTotal = ({ steps, isStepComplete, isSubmitted }) => {
-    const completedSteps = steps.reduce((count, _, index) => {
-      // For last step, only count as complete if submitted
-      if (index + 1 === steps.length) {
-        return isStepComplete(index + 1) && isSubmitted ? count + 1 : count;
-      }
-      return isStepComplete(index + 1) ? count + 1 : count;
-    }, 0);
-
-    return (
-      <>
-        {completedSteps}/{steps.length}
-      </>
-    );
   };
 
   return (
@@ -38,11 +20,7 @@ export const PageHeader = ({ title, filterButtons, onFilterChange, isAddInstruct
             <ContentContainer>
                 <HeaderTitle>{title}</HeaderTitle>
                 <CompletedOverTotalDiv>
-                  <StepsCompletedOverTotal 
-                    steps={stepsData} 
-                    isStepComplete={isStepComplete}
-                    isSubmitted={isSubmitted}
-                  />
+                  {currentStep}/{stepsData.length}
                 </CompletedOverTotalDiv>
             </ContentContainer>
             <ProgressBar steps={stepsData} currentStep={currentStep}/>

@@ -1,25 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Images } from '../../assets/images/index.js';
 import { useInstruction } from '../../contexts/InstructionContext.jsx';
 
-export const ProgressBar = ({ steps}) => {
-  const { isStepComplete, isSubmitted } = useInstruction();
-  
-  const completedSteps = steps.reduce((count, _, index) => {
-    return isStepComplete(index + 1) ? count + 1 : count;
-  }, 0);
+export const ProgressBar = ({ steps }) => {
+  const { currentStep, isSubmitted } = useInstruction();
 
-  // Calculate progress percentage
-  let progressPercentage;
-  if (completedSteps === steps.length && !isSubmitted) {
+   let progressPercentage;
+  if (currentStep === steps.length && !isSubmitted) {
     progressPercentage = 95; // 5% remaining until submission
-  } else if (completedSteps === steps.length && isSubmitted) {
+  } else if (currentStep === steps.length && isSubmitted) {
     progressPercentage = 100; // Fully complete after submission
   } else {
-    progressPercentage = (completedSteps / steps.length) * 100;
+    progressPercentage = (currentStep / steps.length) * 100;
   }
-
 
   return (
     <ProgressBarContainer>
@@ -29,23 +22,6 @@ export const ProgressBar = ({ steps}) => {
     </ProgressBarContainer>
   );
 };
-
-// export const ProgressBar = ({ steps, currentStep, isSubmitted }) => {
-//   let progressPercentage;
-//   if (currentStep === steps.length && !isSubmitted) {
-//     progressPercentage = 95; // 5% remaining for confimation step
-//   } else {
-//     progressPercentage = ((currentStep - 1) / (steps.length - 1)) * 100;
-//   }
-
-//   return (
-//     <ProgressBarContainer>
-//       <ProgressBarBackground>
-//         <ProgressBarFill $progress={progressPercentage} />
-//       </ProgressBarBackground>
-//     </ProgressBarContainer>
-//   );
-// };
 
 const ProgressBarContainer = styled.div`
   width: 100%;
@@ -72,90 +48,4 @@ const ProgressBarFill = styled.div`
   background-color: #AE8119;
   border-radius: 100px;
   transition: width 0.3s ease;
-`;
-
-const StepLabelsContainer = styled.div`
-  display: none;
-  justify-content: space-between;
-  width: 100%;
-  
-  @media (max-width: 768px) {
-    display: flex;
-  }
-`;
-
-const StepLabelsAndIconContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-direction: row;
-
-  @media (max-width: 768px) {
-    gap: 2px;
-  }
-
-  @media (max-width: 480px) {
-    gap: 1px;
-  }
-`;
-
-const StepLabel = styled.span`
-  font-size: 12px;
-  color: ${props => props.$active ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)'};
-  font-weight: ${props => props.$active ? 'bold' : 'normal'};
-
-  @media (min-width: 1440px) {
-    font-size: 14px;
-  }
-
-  @media (max-width: 1024px) {
-    font-size: 11px;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 10px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 8px;
-  }
-
-  @media (max-width: 375px) {
-    font-size: 7px;
-  }
-`;
-
-const CheckIcon = styled.img`
-  width: 24px;
-  height: 24px;
-
-  @media (max-width: 1440px) {
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1280px) {
-    width: 20px;
-    height: 20px;
-  }
-
-  @media (max-width: 1024px) {
-    width: 18px;
-    height: 18px;
-  }
-
-  @media (max-width: 768px) {
-    width: 16px;
-    height: 16px;
-  }
-
-  @media (max-width: 480px) {
-    width: 14px;
-    height: 14px;
-  }
-
-  @media (max-width: 375px) {
-    width: 12px;
-    height: 12px;
-  }
 `;

@@ -11,6 +11,28 @@ export const InputFieldsContainer = ({
 
     const today = new Date().toISOString().split('T')[0];
 
+    // Enhanced date change handler with validation
+    const handleDateChangeWithValidation = (fieldName, value) => {
+      // First update the field value
+      handleDateChange(fieldName, value);
+      
+      // Additional validation for date relationships
+      if (fieldName === 'date_of_submission' && 
+          formData.date_of_next_hearing && 
+          value > formData.date_of_next_hearing) {
+        // Clear next hearing date if it's now invalid
+        handleDateChange('date_of_next_hearing', '');
+      }
+    };
+
+    // Get the min date for date_of_next_hearing
+    const getMinDateForNextHearing = () => {
+      return formData.date_of_submission || today;
+    };
+
+    // Check if date_of_next_hearing should be enabled
+    const isNextHearingEnabled = Boolean(formData.date_of_submission);
+
     return (
       <Container>
         {fields.map((field, index) => (
@@ -41,10 +63,23 @@ export const InputFieldsContainer = ({
                 name={field.name}
                 placeholder={field.placeholder}
                 value={formData[field.name] || ''}
-                onChange={(e) => handleDateChange(field.name, e.target.value)}
+                onChange={(e) => {
+                  if (['date_of_submission', 'date_of_next_hearing'].includes(field.name)) {
+                    handleDateChangeWithValidation(field.name, e.target.value);
+                  } else {
+                    handleDateChange(field.name, e.target.value);
+                  }
+                }}
                 required={field.required}
                 $height="56px"
-                min={field.name === 'date_of_next_hearing' || field.name === 'date_of_submission' ? today : undefined}
+                min={
+                  field.name === 'date_of_next_hearing' 
+                    ? getMinDateForNextHearing() 
+                    : field.name === 'date_of_submission' 
+                      ? today 
+                      : undefined
+                }
+                disabled={field.name === 'date_of_next_hearing' && !isNextHearingEnabled}
               />
             ) : field.type === 'email' ? (
               <Input
@@ -55,7 +90,7 @@ export const InputFieldsContainer = ({
                 onChange={handleChange}
                 required={field.required}
                 $height="56px"
-                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                pattern="[a-z0-9._%+\-]+@[a-z0-9.-]+\.[a-z]{2,}$"
               />
             ) : (
               <Input

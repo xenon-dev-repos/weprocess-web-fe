@@ -569,7 +569,7 @@ const Select = styled.select`
   }
 
   &:focus {
-    border-color: #6366f1;
+    border-color: #043F35;
     box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
   }
 `;

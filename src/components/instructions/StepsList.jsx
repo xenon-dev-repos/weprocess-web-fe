@@ -3,38 +3,37 @@ import styled from 'styled-components';
 import { Images } from '../../assets/images/index.js';
 
 
-export const StepsList = ({ currentStep, stepsData, onStepClick, isStepComplete, isSubmitted }) => {
+export const StepsList = ({ currentStep, stepsData, onStepClick, isStepComplete }) => {
   const steps = stepsData.map((title, index) => ({
     id: index + 1,
     title
   }));
 
-  // Find the first incomplete step
-  const firstIncompleteStep = steps.find(
-    step => !isStepComplete(step.id)
-  )?.id || steps.length + 1;
-
   return (
     <StepsContainer>
       {steps.map((step) => {
-        const isClickable = step.id <= firstIncompleteStep;
-        // Hide checkmark for last step until submitted
-        const showCheckmark = isStepComplete(step.id) && 
-                            (step.id !== steps.length || isSubmitted);
+        const isCompleted = isStepComplete(step.id);
+        const isCurrent = step.id === currentStep;
+        const isPrevious = step.id < currentStep;
         
+        // Allow clicking if:
+        // - It's a previous step (can always go back)
+        // - It's the current step
+        // - It's a completed step where all previous steps are complete
+        const isClickable = isPrevious || isCurrent || isCompleted;
+
         return (
           <StepContainer
             key={step.id}
-            $active={step.id === currentStep} 
-            $completed={isStepComplete(step.id)}
+            $active={isCurrent} 
+            $completed={isPrevious}
             onClick={() => isClickable && onStepClick(step.id)}
             $clickable={isClickable}
           >
             <StepTitle>
               {step.title}
             </StepTitle>
-            {/* {isStepComplete(step.id) && <CheckIcon src={Images.instructions.checkIcon} alt="Completed" />} */}
-             {showCheckmark && <CheckIcon src={Images.instructions.checkIcon} alt="Completed" />}
+            {isPrevious && <CheckIcon src={Images.instructions.checkIcon} alt="Completed" />}
           </StepContainer>
         );
       })}
@@ -42,32 +41,6 @@ export const StepsList = ({ currentStep, stepsData, onStepClick, isStepComplete,
   );
 };
 
-// export const StepsList = ({ currentStep, stepsData, onStepClick, isStepComplete }) => {
-
-//   const steps = stepsData.map((title, index) => ({
-//     id: index + 1,
-//     title
-//   }));
-
-//   return (
-//     <StepsContainer>
-//       {steps.map((step) => (
-//         <StepContainer
-//           key={step.id}
-//           $active={step.id === currentStep} 
-//           $completed={isStepComplete(step.id)}
-//           onClick={() => onStepClick(step.id)}
-//           $clickable={step.id <= currentStep || isStepComplete(step.id)}
-//         >
-//           <StepTitle>
-//             {step.title}
-//           </StepTitle>
-//           {isStepComplete(step.id) && <CheckIcon src={Images.instructions.checkIcon} alt="Completed" />}
-//         </StepContainer>
-//       ))}
-//     </StepsContainer>
-//   );
-// };
 
 const StepsContainer = styled.div`
   display: flex;
@@ -83,11 +56,9 @@ const StepContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  // background-color: ${props => props.$active ? '#F0F6E3' : 'transparent'};
-  // cursor: pointer;
-    background-color: ${props => props.$active ? '#F0F6E3' : 'transparent'};
-    cursor: ${props => props.$clickable ? 'pointer' : 'not-allowed'};
-    opacity: ${props => props.$clickable ? 1 : 0.6};
+  background-color: ${props => props.$active ? '#F0F6E3' : 'transparent'};
+  cursor: ${props => props.$clickable ? 'pointer' : 'not-allowed'};
+  opacity: ${props => props.$clickable ? 1 : 0.6};
 `;
 
 const StepTitle = styled.span`
