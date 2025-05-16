@@ -1,3 +1,4 @@
+import React from 'react';
 import { createContext, useContext, useState } from 'react';
 import styled from 'styled-components';
 
@@ -53,6 +54,7 @@ export const ToastProvider = ({ children }) => {
 };
 
 // Hook for using toast
+// eslint-disable-next-line react-refresh/only-export-components
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {

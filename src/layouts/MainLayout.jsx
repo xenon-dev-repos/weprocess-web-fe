@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -9,15 +10,26 @@ import { useNavigation } from '../hooks/useNavigation';
 import { PageHeader } from '../components/shared/PageHeader';
 import { ProfileDropdown } from '../components/shared/ProfileDropdown';
 import { useAuth } from '../contexts/AuthContext';
+import { Images } from '../assets/images/index.js';
+import NotificationModal from '../components/shared/NotificationModal';
+import NotificationBadge from '../components/NotificationBadge';
 
 export const MainLayout = ({ 
   children,
   title,
-  showDashboardPageHeader = false,
-  showInstructionsPageHeader = false,
-  showInvoicePageHeader = false,
+  isDashboardPage = false,
+  isInstructionsPage = false,
+  isInvoicePage = false,
+  isAddInstructionPage = false,
+  isInstructionDetailsPage = false,
+  isInvoiceDetailsPage = false,
+  showShortHeader = false,
   filterButtons,
-  handleStatusFilterChange,
+  onFilterChange,
+  currentStep='1',
+  stepsData=[],
+  instructionData,
+  invoiceData,
 }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -27,12 +39,16 @@ export const MainLayout = ({
   const navRef = useRef(null);
   const toggleRef = useRef(null);
   const avatarRef = useRef(null);
-  const firstLetter = user.name.charAt(0).toUpperCase();
+  const notificationIconRef = useRef(null);
+  const firstLetter = user?.name?.charAt(0).toUpperCase() || 'U';
+  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
 
   const {
     navigateToDashboard,
     navigateToInstructions,
-    navigateToInvoices
+    navigateToInvoices,
+    navigateToChat,
+    navigateToAddInstruction
   } = useNavigation();
 
   const handleNavigation = (path, linkName) => {
@@ -48,12 +64,14 @@ export const MainLayout = ({
 
   useEffect(() => {
     const path = location.pathname;
-    if (path.includes('/dashboard')) {
+    if (path === '/' || path.includes('/dashboard')) {
       setActiveLink('Dashboard');
     } else if (path.includes('/instructions')) {
       setActiveLink('Instructions');
     } else if (path.includes('/invoices')) {
       setActiveLink('Invoices');
+    } else if (path.includes('/chat')) {
+      setActiveLink('Chat');
     }
   }, [location]);
 
@@ -74,18 +92,29 @@ export const MainLayout = ({
 
   return (
     <AppContainer>
-      <AppHeader $applyMinHeight={showDashboardPageHeader || showInstructionsPageHeader || showInvoicePageHeader}>
+      <AppHeader $applyMinHeight={isDashboardPage || isInstructionsPage || isInvoicePage || isAddInstructionPage} $shortHeader={showShortHeader}>
         <MainHeader>
           <LogoContainer>
             <MobileMenuToggle ref={toggleRef} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               ☰
             </MobileMenuToggle>
-            <Logo>
+
+            {(isInstructionDetailsPage || isInvoiceDetailsPage) ?
+              <Logo onClick={isInstructionDetailsPage ? navigateToInstructions : navigateToInvoices}>
+                <LogoCircle>
+                  <BackIcon src={Images.instructions.backIcon} alt="Logo" />
+                </LogoCircle>
+                <LogoName>Back</LogoName>
+              </Logo>
+              :
+              <Logo onClick={navigateToDashboard}>
               <LogoCircle>
                 <LogoIcon src={WeProcessLogoIcon} alt="Logo" />
               </LogoCircle>
               <LogoName>WeProcess</LogoName>
-            </Logo>
+              </Logo>
+            }
+
           </LogoContainer>
           <Navigation ref={navRef} $mobileMenuOpen={mobileMenuOpen}>
             <NavLink 
@@ -108,30 +137,43 @@ export const MainLayout = ({
             </NavLink>
           </Navigation>
           <UserActions>
-          <IconButton>
+            <IconButton>
               <IconImg src={SearchIcon} alt="Search" />
             </IconButton>
-            <IconButton>
+            <IconButton 
+              ref={notificationIconRef} 
+              onClick={(e) => {
+                e.stopPropagation();
+                setNotificationModalOpen(true);
+              }}
+            >
               <IconImg src={NotificationIcon} alt="Notifications" />
+              <NotificationBadge />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={(e) => {
+              e.stopPropagation();
+              localStorage.setItem('navigatingToChat', 'true');
+              
+              const existingIntervals = window.notificationIntervals || [];
+              existingIntervals.forEach(intervalId => clearInterval(intervalId));
+              
+              if (window.notificationTimeouts) {
+                window.notificationTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+              }
+              
+              handleNavigation(navigateToChat, 'Chat');
+            }}>
               <IconImg src={MessageIcon} alt="Messages" />
             </IconButton>
-            {user ? (
-              <AvatarCircle 
-                ref={avatarRef} 
-                onClick={(e) => toggleProfileDropdown(e)}
-              >
-                {firstLetter}
-              </AvatarCircle>
-            ) : (
-              <UserAvatar 
-                src="https://i.sstatic.net/l60Hf.png" 
-                alt="User"  
-                ref={avatarRef}  
-                onClick={(e) => toggleProfileDropdown(e)} 
-              />
-            )}
+            <AvatarCircle 
+              ref={avatarRef} 
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleProfileDropdown(e);
+              }}
+            >
+              {firstLetter}
+            </AvatarCircle>
 
             {showProfileDropdown && (
               <ProfileDropdown avatarRef={avatarRef} onClose={() => setShowProfileDropdown(false)} />
@@ -139,47 +181,92 @@ export const MainLayout = ({
           </UserActions>
         </MainHeader>
         
-        {showDashboardPageHeader && (
+        {isDashboardPage && (
           <DashboardHeader>
-            <Title>Good Morning, Andrew!</Title>
+            <Title>Good Morning, {user?.name.split(' ')[0] || 'User'}!</Title>
             <ButtonContainer>
-              <NewButton>
+              <NewButton onClick={navigateToAddInstruction}>
                 <span>+</span> New Instruction
               </NewButton>
             </ButtonContainer>
           </DashboardHeader>
         )}
 
-        {showInstructionsPageHeader &&
+        {isInstructionsPage &&
           <DashboardHeaderInstructions>
             <PageHeader
               title={title}
               filterButtons={filterButtons} 
-              onFilterChange={handleStatusFilterChange} 
+              onFilterChange={onFilterChange} 
             />
           <ButtonContainer>
-            <NewButton>
+            <NewButton onClick={navigateToAddInstruction}>
               <span>+</span> New Instruction
             </NewButton>
           </ButtonContainer>
           </DashboardHeaderInstructions>
         }
 
-        {showInvoicePageHeader &&
+        {isInvoicePage &&
           <DashboardHeader style={{flexDirection: 'column', alignItems: 'flex-start'}}>
             <PageHeader
               title={title} 
               filterButtons={filterButtons} 
-              onFilterChange={handleStatusFilterChange} 
+              onFilterChange={onFilterChange} 
             />
           </DashboardHeader>
         }
+
+        {isAddInstructionPage &&
+          <DashboardHeader style={{flexDirection: 'column'}}>
+            <PageHeader
+              title={title} 
+              filterButtons={filterButtons} 
+              onFilterChange={onFilterChange}
+              stepsData={stepsData}
+              currentStep={currentStep}
+              isAddInstruction={true}
+            />
+          </DashboardHeader>
+        }
+
+        {isInstructionDetailsPage && (
+          <DashboardHeader>
+          {instructionData && (
+            <Title>
+              #{instructionData.id} | {instructionData.recipient_name}
+            </Title>
+          )}
+              
+            {/* <Title>#5102 | Serve to Alex</Title> */}
+          </DashboardHeader>
+        )}
+
+        {isInvoiceDetailsPage && (
+          <DashboardHeader>
+            {/* <Title>#5103 | Serve to Aamir</Title> */}
+            {invoiceData && (
+            // <Title>
+            //   #{invoiceData.id} | {invoiceData.recipient_name}
+            // </Title>
+              <Title>
+              #{invoiceData.id}
+            </Title>
+            )}
+          </DashboardHeader>
+        )}
 
       </AppHeader>
       
       <PageContent>
         {children}
       </PageContent>
+
+      <NotificationModal 
+        open={notificationModalOpen} 
+        onClose={() => setNotificationModalOpen(false)}
+        anchorEl={notificationIconRef}
+      />
     </AppContainer>
   );
 };
@@ -195,7 +282,7 @@ const AppHeader = styled.header`
   background-color: var(--color-primary-500);
   color: white;
   max-width: 1728px;
-  min-height: ${props => props.$applyMinHeight ? '314px' : 'auto'};
+  min-height: ${props => props.$shortHeader ? 'auto' : props.$applyMinHeight ? '314px' : 'auto'};
   width: calc(100% - 48px);
   margin: 24px auto 0;
   border-radius: 20px;
@@ -203,11 +290,11 @@ const AppHeader = styled.header`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 40px;
+  padding: ${props => props.$shortHeader ? '20px 40px' : '40px'};
   
   @media (max-width: 1024px) {
     width: calc(100% - 32px);
-    padding: 30px;
+    padding: ${props => props.$shortHeader ? '15px 30px' : '30px'};
   }
 `;
 
@@ -257,10 +344,23 @@ const Logo = styled.div`
   gap: 12px;
   font-size: 18px;
   font-weight: 600;
+  cursor: pointer;
   
   // @media (max-width: 768px) {
   // }
 `;
+
+const GoBack = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  
+  // @media (max-width: 768px) {
+  // }
+`;
+
 
 const LogoCircle = styled.div`
   width: 60px;
@@ -315,6 +415,53 @@ const LogoIcon = styled.img`
   @media (max-width: 480px) {
     width: 40px;
     height: 40px;
+  }
+`;
+
+const BackIcon = styled.img`
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  transition: transform 0.3s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  @media (max-width: 1280px) {
+    width: 22px;
+    height: 22px;
+    
+    &:hover {
+      transform: scale(1.15);
+    }
+  }
+
+  @media (max-width: 1024px) {
+    width: 20px;
+    height: 20px;
+    
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+
+  @media (max-width: 768px) {
+    width: 18px;
+    height: 18px;
+    
+    &:hover {
+      transform: scale(1.25);
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 16px;
+    height: 16px;
+    
+    &:hover {
+      transform: scale(1.3);
+    }
   }
 `;
 
@@ -455,6 +602,25 @@ const NavLink = styled.a`
     font-size: 15px;
     border-radius: 12px;
     justify-content: flex-start;
+
+    ${props => props.$active ? `
+    font-weight: 700;
+    color: var(--color-primary-500);
+    background-color:rgba(9, 0, 0, 0.1);
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  ` : `
+    font-weight: 400;
+    color: var(--color-primary-500);
+    background-color: transparent;
+
+    &:hover {
+      background-color: rgba(9, 0, 0, 0.1);
+    }
+  `}
+    // color: #043F35 !important;
+    // font-weight: 700;
+    // background-color: transparent;
+    // box-shadow: none;
   }
   
   @media (max-width: 768px) {
@@ -474,84 +640,58 @@ const NavLink = styled.a`
 const UserActions = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
-
+  gap: 12px;
   
-  @media (max-width: 1280px) {
-    gap: 14px;
-  }
-
-  @media (max-width: 1024px) {
-    gap: 12px;
-  }
-
   @media (max-width: 768px) {
-    gap: 10px;
-  }
-
-  @media (max-width: 480px) {
     gap: 8px;
   }
 `;
 
-
 const IconButton = styled.button`
-  width: 52px;
-  height: 52px;
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: transparent;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  position: relative;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  padding: 0;
-  
+  border-radius: 50%;
+  transition: background-color 0.2s;
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
 
-  
-  @media (max-width: 1280px) {
-    width: 48px;
-    height: 48px;
-  }
-
-  @media (max-width: 1024px) {
-    width: 44px;
-    height: 44px;
-  }
-
   @media (max-width: 768px) {
-    width: 40px;
-    height: 40px;
-  }
-
-  @media (max-width: 480px) {
     width: 36px;
     height: 36px;
+    padding: 6px;
+    
+    /* Increase touch target size while keeping visual size */
+    &::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      right: -8px;
+      bottom: -8px;
+      z-index: 1;
+    }
   }
 `;
 
 const IconImg = styled.img`
   width: 24px;
   height: 24px;
-  object-fit: contain;
-
-  @media (max-width: 1024px) {
-    width: 22px;
-    height: 22px;
-  }
+  position: relative;
+  z-index: 2;
 
   @media (max-width: 768px) {
     width: 20px;
     height: 20px;
-  }
-
-  @media (max-width: 480px) {
-    width: 18px;
-    height: 18px;
   }
 `;
 
@@ -642,7 +782,7 @@ const PageContent = styled.main`
   padding: 24px 0;
   
   @media (max-width: 768px) {
-    width: calc(100% - 32px);
+    width: calc(100% - 16px);
     padding: 16px 0;
   }
 `;
@@ -700,21 +840,11 @@ const NewButton = styled.button`
   overflow: hidden;
   text-overflow: ellipsis; 
   align-self: flex-end;
-  
-  &:hover {
-    background-color: rgb(230, 184, 0);
-    animation: smartHover 300ms ease-out forwards;
-  }
+  transition: transform 300ms ease-out;
 
-  @keyframes smartHover {
-    0% {
-      transform: translateY(0);
-      box-shadow: 0 0 0 rgba(0,0,0,0);
-    }
-    100% {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
+  &:hover {
+    background-color: rgb(194, 155, 0);
+    transform: scale(1.02);
   }
 
   span {

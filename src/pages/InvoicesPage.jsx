@@ -1,139 +1,148 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { MainLayout } from '../layouts/MainLayout';
 import InstructionsTable from '../components/InstructionsTable';
-import { instructionsTableData } from '../constants/mockData';
+import { API_ENDPOINTS } from '../constants/api';
+import axios from 'axios';
+import { useToast } from '../services/ToastService';
+import LoadingOnPage from '../components/shared/LoadingOnPage';
+import { useNavigation } from '../hooks/useNavigation';
+import { useAuth } from '../contexts/AuthContext';
 
 const InvoicesPage = () => {
-    const [timeFilter, setTimeFilter] = useState('monthly');
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [filteredData, setFilteredData] = useState(instructionsTableData);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [filteredData, setFilteredData] = useState([]);
+    const [filters, setFilters] = useState({
+        is_paid: '',
+        per_page: 10,
+        page: 1
+    });
+    const { showError } = useToast();
+    const navigation = useNavigation();
+    const { user } = useAuth();
 
-    const filterButtons = [
-        { id: 'all', label: 'All', dotColor: 'white' },
-        { id: 'pending', label: 'Pending', dotColor: 'info' },
-        { id: 'completed', label: 'Completed', dotColor: 'success' }
+    const columns = [
+        { key: 'wpr', header: 'WPR no.', width: 'wpr' },
+        { key: 'title', header: 'Title', width: 'title' },
+        { key: 'price', header: 'Price', width: 'price' },
+        { key: 'is_paid', header: 'Status', width: 'is_paid' },
+        { key: 'paid_at', header: 'Paid at', width: 'paid_at' }
     ];
-  
-    const handleTimeFilterChange = (value) => {
-      setTimeFilter(value);
-      // Filter data based on time period
-      let filtered = [];
-      switch(value) {
-        case 'weekly':
-          filtered = instructionsTableData.slice(0, 3); // Example
-          break;
-        case 'biweekly':
-          filtered = instructionsTableData.slice(0, 6); // Example
-          break;
-        case 'monthly':
-          filtered = instructionsTableData; // All data
-          break;
-        default:
-          filtered = instructionsTableData;
-      }
-      setFilteredData(filtered);
+
+    const fetchInvoices = async () => {
+        try {
+            setLoading(true);
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+
+            // Build query parameters
+            const queryParams = new URLSearchParams();
+            if (filters.is_paid !== '') queryParams.append('is_paid', filters.is_paid);
+            queryParams.append('per_page', filters.per_page.toString());
+            queryParams.append('page', currentPage.toString());
+            
+            const response = await axios.get(`${API_ENDPOINTS.INVOICES}?${queryParams}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.data?.data) {
+                setFilteredData(response.data.data);
+                setTotalPages(Math.ceil(response.data.total / filters.per_page));
+            } else {
+                setFilteredData([]);
+            }
+        } catch (error) {
+            console.error('Error fetching invoices:', error);
+            setError(error.message || 'Failed to fetch invoices');
+            showError(error.message || 'Failed to fetch invoices');
+            setFilteredData([]);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleStatusFilterChange = (filterId) => {
-        setStatusFilter(filterId);
-        console.log('Filter changed to:', filterId);
+    useEffect(() => {
+        fetchInvoices();
+    }, [currentPage, filters]);
+
+    const handleFilterChange = (filterId) => {
+        setFilters(prev => ({
+            ...prev,
+            is_paid: filterId === 'paid' ? '1' : filterId === 'unpaid' ? '0' : '',
+            page: 1
+        }));
+        setCurrentPage(1);
     };
-  
-    const customFilters = (
-      <select 
-        value={timeFilter}
-        onChange={(e) => handleTimeFilterChange(e.target.value)}
-        style={{
-          padding: '8px 12px',
-          borderRadius: '4px',
-          border: '1px solid #ddd'
-        }}
-      >
-        <option value="weekly">Weekly</option>
-        <option value="biweekly">Bi-weekly</option>
-        <option value="monthly">Monthly</option>
-      </select>
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const renderCell = (key, value) => {
+        if (key === 'is_paid') {
+            return value ? 'Paid' : 'Unpaid';
+        }
+        if (key === 'price') {
+            return `£${parseFloat(value).toFixed(2)}`;
+        }
+        if (key === 'paid_at') {
+            return value ? new Date(value).toLocaleDateString('en-GB') : '-';
+        }
+        return value;
+    };
+
+    const handleRowClick = (rowData) => {
+        if (typeof navigation.handleNavigationFromTableRow === 'function') {
+            navigation.handleNavigationFromTableRow(rowData)
+        };
+    }
+
+    return (
+        <MainLayout 
+            isInvoicePage={true}
+            title="Invoices"
+            filterButtons={[
+                { id: '', label: 'All', dotColor: 'white' },
+                { id: 'paid', label: 'Paid', dotColor: 'success' },
+                { id: 'unpaid', label: 'Unpaid', dotColor: 'warning' }
+            ]}
+            onFilterChange={handleFilterChange}
+        >
+            {loading && <LoadingOnPage />}
+            <DashboardContainer>
+                <MainContent>
+                    <TableContainer>
+                        <InstructionsTable 
+                            data={filteredData}
+                            title="All Invoices"
+                            subtitle={`Monthly invoices generated by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
+                            columns={columns}
+                            renderCell={renderCell}
+                            minHeight={495}
+                            noDataCellHeight={420}
+                            itemsPerPage={filters.per_page}
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                            loading={loading}
+                            error={error}
+                            onRowClick={handleRowClick}
+                        />
+                    </TableContainer>
+                </MainContent>
+            </DashboardContainer>
+        </MainLayout>
     );
-  
-  
-  // Removed unused activeTab state since we're using the tabId directly from onTabChange
-  // If you need activeTab for other purposes, keep it but use it somewhere in your component
-
-//   const handleTabChange = (tabId) => {
-//     // Filter data based on selected tab
-//     let filtered = [];
-//     switch(tabId) {
-//       case 'new-requests':
-//         filtered = instructionsTableData.filter(item => item.status === '1st attempt');
-//         break;
-//       case 'in-progress':
-//         filtered = instructionsTableData.filter(item => 
-//           ['1st attempt', '2nd attempt', '3rd attempt', 'In Transit'].includes(item.status)
-//         );
-//         break;
-//       case 'completed':
-//         filtered = instructionsTableData.filter(item => item.status === 'Completed');
-//         break;
-//       case 'invoices':
-//         filtered = instructionsTableData.filter(item => item.type === 'Urgent');
-//         break;
-//       default:
-//         filtered = instructionsTableData;
-//     }
-//     setFilteredData(filtered);
-//   };
-
-  return (
-    <MainLayout 
-    showInvoicePageHeader={true}
-    title="Invoices" 
-    filterButtons={filterButtons} 
-    onFilterChange={handleStatusFilterChange} 
-    >
-      <DashboardContainer>
-        <MainContent>
-            <TableContainer>
-                <InstructionsTable 
-                data={filteredData}
-                title="All Invoices"
-                subtitle="Monthly invoices generated by firm"
-                // tabs={[
-                //     { id: 'new-requests', label: 'New requests' },
-                //     { id: 'in-progress', label: 'In progress' },
-                //     { id: 'completed', label: 'Completed' },
-                //     { id: 'invoices', label: 'Invoices' }
-                // ]}
-                columns={[
-                    { key: 'wpr', header: 'WPR no.' },
-                    { key: 'owner', header: 'Owner' },
-                    { key: 'serve', header: 'Serve name' },
-                    { key: 'court', header: 'Court name' },
-                    { key: 'type', header: 'Service type' },
-                    { key: 'deadline', header: 'Deadline' },
-                    { key: 'status', header: 'Process status' },
-                    { key: 'amount', header: 'Amount' },
-                ]}
-                // onTabChange={handleTabChange}
-                customFilters={customFilters}
-                renderCell={(key, value) => {
-                    if (key === 'status') {
-                      return <StatusBadge status={value}>{value}</StatusBadge>;
-                    }
-                    if (key === 'amount') {
-                      return `$${(Math.random() * 1000).toFixed(2)}`; // Example
-                    }
-                    return value;
-                  }}
-                minHeight={495}
-                noDataCellHeight={420}
-                itemsPerPage={8}
-                />
-            </TableContainer>
-        </MainContent>
-      </DashboardContainer>
-    </MainLayout>
-  );
 };
 
 const DashboardContainer = styled.div`
@@ -153,8 +162,8 @@ const MainContent = styled.div`
   }
   
   @media (max-width: 1280px) {
-  gap: 24px;
-}
+    gap: 24px;
+  }
 `;
 
 const TableContainer = styled.div`
@@ -164,28 +173,5 @@ const TableContainer = styled.div`
   overflow: hidden;
   width: 100%;
 `;
-
-const StatusBadge = styled.span`
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  
-  ${props => {
-    switch (props.status) {
-      case '1st attempt':
-        return 'background-color: #dcfce7; color: #166534;';
-      case '2nd attempt':
-        return 'background-color: #fef3c7; color: #92400e;';
-      case '3rd attempt':
-        return 'background-color: #fee2e2; color: #b91c1c;';
-      case 'In Transit':
-        return 'background-color: #dbeafe; color: #1e40af;';
-      default:
-        return 'background-color: #e5e7eb; color: #374151;';
-    }
-  }}
-`;
-
 
 export default InvoicesPage;

@@ -1,6 +1,10 @@
+import React from 'react';
 import { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
+import InstructionDetailsPage from '../pages/InstructionDetailsPage';
+import InvoiceDetailsPage from '../pages/InvoiceDetailsPage';
+import ProtectedRoute from './ProtectedRoute';
 
 const SignupPage = lazy(() => import('../pages/SignupPage'));
 const SigninPage = lazy(() => import('../pages/SigninPage'));
@@ -11,63 +15,83 @@ const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const InstructionsPage = lazy(() => import('../pages/InstructionsPage'))
 const InvoicesPage = lazy(() => import('../pages/InvoicesPage'));
+const AddInstructionPage = lazy(() => import('../pages/AddInstructionPage'))
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
+const NotificationsPage = lazy(() => import('../pages/NotificationsPage'));
+const ChatPage = lazy(() => import('../pages/ChatPage'));
 
 export const ROUTE_CONFIG = [
   {
     path: ROUTES.SIGNUP,
     element: <SignupPage />,
-    isPublic: true
   },
   {
     path: ROUTES.SIGNIN,
     element: <SigninPage />,
-    isPublic: true
   },
   {
     path: ROUTES.FIRM_SETUP,
     element: <FirmSetupPage />,
-    isPublic: true
   },
   {
     path: ROUTES.INDIVIDUAL_SETUP,
     element: <IndividualSetupPage />,
-    isPublic: true
   },
   {
     path: ROUTES.FORGOT_PASSWORD,
     element: <ForgotPasswordPage />,
-    isPublic: true
   },
   {
     path: ROUTES.RESET_PASSWORD,
     element: <ResetPasswordPage />,
-    isPublic: true
+  },
+  {
+    path: ROUTES.ROOT,
+    element: (<ProtectedRoute> <DashboardPage /> </ProtectedRoute>),
   },
   {
     path: ROUTES.DASHBOARD,
-    element: <DashboardPage />,
-    isPublic: false
+    element: (<ProtectedRoute> <DashboardPage /> </ProtectedRoute>),
   },
   {
     path: ROUTES.INSTRUCTIONS,
-    element: <InstructionsPage />,
+    element: <ProtectedRoute> <InstructionsPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
     path: ROUTES.INVOICES,
-    element: <InvoicesPage />,
+    element: <ProtectedRoute> <InvoicesPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
-    path: ROUTES.PROFILE,
-    element: <SettingsPage />,
+    path: ROUTES.SETTINGS,
+    element: <ProtectedRoute> <SettingsPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
-    path: ROUTES.ROOT,
-    element: <Navigate to={ROUTES.SIGNIN} replace />,
-    isPublic: true
+    path: ROUTES.NOTIFICATIONS,
+    element: <ProtectedRoute> <NotificationsPage /> </ProtectedRoute>,
+    isPublic: false
+  },
+  {
+    path: ROUTES.ADD_INSTRUCTION,
+    element: <ProtectedRoute> <AddInstructionPage /> </ProtectedRoute>,
+    isPublic: false
+  },
+  {
+    path: ROUTES.INSTRUCTION_DETAILS,
+    element: <ProtectedRoute> <InstructionDetailsPage /> </ProtectedRoute>,
+    isPublic: false
+  },
+  {
+    path: ROUTES.CHAT,
+    element: <ChatPage />,
+    isPublic: false
+  },
+  {
+    path: ROUTES.INVOICE_DETAILS,
+    element: <ProtectedRoute> <InvoiceDetailsPage /> </ProtectedRoute>,
+    isPublic: false
   },
   {
     path: ROUTES.NOT_FOUND,

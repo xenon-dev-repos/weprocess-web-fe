@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { SubLayout } from '../layouts/SubLayout';
 import { 
@@ -15,17 +15,20 @@ import {
 import { Images } from '../assets/images/index.js'
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useToast } from '../services/ToastService';
 // import { useNavigation } from '../hooks/useNavigation.js';
-// import { useApi } from '../hooks/useApi.js';
+import { useApi } from '../hooks/useApi.js';
+import { ROUTES } from '../constants/routes.js';
 
 const SettingsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { loading } = useAuth();
+  const { user, logout, formatPhoneNumber, setUser } = useAuth();
   // const { navigateToSignIn } = useNavigation();
-  // const api = useApi();
+  const { showError, showSuccess } = useToast();
+  const api = useApi();
   const searchParams = new URLSearchParams(location.search);
-  const urlTab = [...searchParams.keys()][0] || 'profile';
+  const urlTab = searchParams.get('tab') || 'profile';
   const [activeTab, setActiveTab] = useState(urlTab || 'profile');
 
   const [formData, setFormData] = useState({
@@ -34,19 +37,43 @@ const SettingsPage = () => {
     phone_number: '',
     billing_address: '',
   });
+
+  const [passwordFormData, setPasswordFormData] = useState({
+    current_password: '',
+    new_password: '',
+  });
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [cursorPosition, setCursorPosition] = useState(null);
-  const [headerData, setHeaderData] = useState({
-    title: 'Profile',
-    icon: Images.dashboard.profileIcon
+  // const [headerData, setHeaderData] = useState({
+  //   title: 'Profile',
+  //   icon: Images.dashboard.profileIcon
+  // });
+  const [headerData, setHeaderData] = useState(() => {
+    switch(urlTab) {
+      case 'password':
+        return {
+          title: 'Change Password', 
+          icon: Images.dashboard.lockIcon
+        };
+      case 'logout':
+        return {
+          title: 'Logout',
+          icon: Images.dashboard.logoutIcon
+        };
+      default:
+        return {
+          title: 'Profile',
+          icon: Images.dashboard.profileIcon
+        };
+    }
   });
   const phoneInputRef = useRef(null);
-
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (cursorPosition !== null && phoneInputRef.current) {
@@ -57,23 +84,26 @@ const SettingsPage = () => {
 
   const handleChange = (e) => {
     const { name, value, selectionStart } = e.target;
-    
+    if (activeTab === 'password') {
+      setPasswordFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+
+      return;
+    }
+
     if (name === 'phone_number') {
-      setCursorPosition(selectionStart);
-      const digitsOnly = value.replace(/\D/g, '');
-      let formattedValue = digitsOnly;
-      
-      // UK phone number formatting
-      if (digitsOnly.startsWith('7')) {
-        if (digitsOnly.length > 5) formattedValue = `${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5, 8)} ${digitsOnly.slice(8, 11)}`;
-      } else {
-        if (digitsOnly.length > 3) formattedValue = `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 6)} ${digitsOnly.slice(6, 10)}`;
-      }
+      const formattedValue = formatPhoneNumber(value, phoneNumber);
+      const cursorOffset = formattedValue.length - value.length;
+      const newCursorPosition = selectionStart + cursorOffset;
       
       setPhoneNumber(formattedValue);
+      setCursorPosition(newCursorPosition);
+
       setFormData(prev => ({
         ...prev,
-        phone_number: digitsOnly
+        phone_number: formattedValue.replace(/\s/g, '')
       }));
     } else {
       setFormData(prev => ({
@@ -83,23 +113,105 @@ const SettingsPage = () => {
     }
   };
 
+  const validateEmail = (email) => {
+    // Basic email regex
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Add your form submission logic here
+    setEmailError('');
+    if (!validateEmail(formData.email)) {
+      setEmailError('Please enter a valid email address.');
+      return;
+    }
+    try {
+      const response = await api.updateUserProfile(formData);
+      if (response.success) {
+        // Update local storage
+        const existingUserData = JSON.parse(localStorage.getItem('userData')) || {};
+        const newUserData = {
+          ...existingUserData,
+          ...response.client // Use the client data from the API response
+        };
+        localStorage.setItem('userData', JSON.stringify(newUserData));
+        
+        // Update auth context
+        setUser(newUserData);
+        
+        // Show success message
+        // showSuccess('Profile updated successfully');
+      }
+    } catch (err) {
+      console.error('Profile update error:', err);
+      showError(err.message || 'Failed to update profile');
+    }
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+    if (passwordFormData.new_password === passwordFormData.current_password) {
+      setPasswordError('New password must be different from the current password.');
+      return;
+    }
+    if (passwordFormData.new_password !== confirmPassword) {
+      showError("New passwords don't match");
+      return;
+    }
+    try {
+      await api.updateUserPassword({
+        current_password: passwordFormData.current_password,
+        new_password: passwordFormData.new_password
+      });
+    } catch (err) {
+      console.error('password update error:', err);
+    }
   };
 
   useEffect(() => {
-    navigate(`/settings?${activeTab}`, { replace: true });
+    if (activeTab === 'profile' && user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        phone_number: user.phone_number?.replace(/\D/g, '') || '',
+        billing_address: user.billing_address || '',
+      });
+  
+      // Format phone number visually for display
+      const digitsOnly = user.phone_number?.replace(/\D/g, '') || '';
+      let formattedPhone = digitsOnly;
+  
+      if (digitsOnly.startsWith('7')) {
+        if (digitsOnly.length > 5) {
+          formattedPhone = `${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5, 8)} ${digitsOnly.slice(8, 11)}`;
+        }
+      } else {
+        if (digitsOnly.length > 3) {
+          formattedPhone = `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 6)} ${digitsOnly.slice(6, 10)}`;
+        }
+      }
+  
+      setPhoneNumber(formattedPhone);
+    }
+  }, [user, activeTab]);  
+
+  useEffect(() => {
+    navigate(`${ROUTES.SETTINGS}?tab=${activeTab}`, { replace: true });
   }, [activeTab, navigate]);
 
   useEffect(() => {
     if (urlTab && urlTab !== activeTab) {
       handleItemClick(urlTab);
     }
-  }, [urlTab, activeTab]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlTab]);
 
   const handleItemClick = (action) => {
+    if (action === 'logout') {
+      logout();
+      return;
+    }
     switch(action) {
       case 'profile':
         setHeaderData({
@@ -111,12 +223,6 @@ const SettingsPage = () => {
         setHeaderData({
           title: 'Change Password', 
           icon: Images.dashboard.lockIcon
-        });
-        break;
-      case 'logout':
-        setHeaderData({
-          title: 'Logout',
-          icon: Images.dashboard.logoutIcon
         });
         break;
       default:
@@ -134,7 +240,7 @@ const SettingsPage = () => {
         return (
           <FormContainer>
             <form onSubmit={handleSubmit}>
-            <FormGroup>
+              <FormGroup>
                 <Label>Full name</Label>
                 <Input
                   type="text"
@@ -143,35 +249,48 @@ const SettingsPage = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
+                  $height="56px"
                 />
               </FormGroup>
 
               <FormGroup>
-                <Label>Email address (optional)</Label>
+                <Label>Email address</Label>
                 <Input
                   type="email"
                   name="email"
                   placeholder="example@email.com"
                   value={formData.email}
                   onChange={handleChange}
+                  $height="56px"
+                  required
+                  disabled
+                  style={{ 
+                    backgroundColor: '#f5f5f5',
+                    cursor: 'not-allowed',
+                    opacity: 0.8
+                  }}
                 />
+                {emailError && (
+                  <span style={{ color: 'red', fontSize: '13px' }}>{emailError}</span>
+                )}
               </FormGroup>
                   
               <FormGroup>
                 <Label>Contact number</Label>
                 <PhoneInputContainer>
-                  <CountryCode>
+                  <CountryCode $height={'56px'}>
                     <FlagIcon src={Images.auth.ukFlag} alt='Flag'/>
                     <span>+44</span>
                   </CountryCode>
                   <Input
                     type="tel"
                     name="phone_number"
-                    placeholder="020 7946 0958"
+                    placeholder="71 7946 0958"
                     value={phoneNumber}
                     onChange={handleChange}
                     required
                     ref={phoneInputRef}
+                    $height="56px"
                   />
                 </PhoneInputContainer>
               </FormGroup>
@@ -185,16 +304,14 @@ const SettingsPage = () => {
                   value={formData.billing_address}
                   onChange={handleChange}
                   required
+                  $height="56px"
                 />
               </FormGroup>
               
               <ButtonGroup>
-                <FormButton type="submit" disabled={loading}>
-                {loading ? 'Processing...' : 'Update'}
+                <FormButton type="submit" disabled={api.loading}>
+                {api.loading ? 'Updating' : 'Update'}
                 </FormButton>
-                <CancelButton type="button" onClick={() => console.log('Cancel clicked')}>
-                  Cancel
-                </CancelButton>
               </ButtonGroup>
             </form>
           </FormContainer>
@@ -202,20 +319,22 @@ const SettingsPage = () => {
       case 'password':
         return (
           <FormContainer>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handlePasswordSubmit}>
             <FormGroup>
                 <Label>Current Password</Label>
                 <PasswordInputContainer>
                   <Input
-                    type={showPassword ? "text" : "password"}
+                    type={showCurrentPassword ? "text" : "password"}
+                    name="current_password"
                     placeholder="********"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    value={passwordFormData.current_password}
+                    onChange={handleChange}
                     required
                     minLength="8"
+                    $height="56px"
                   />
-                  <PasswordToggle onClick={togglePasswordVisibility} type="button">
-                    {showPassword ? (
+                  <PasswordToggle onClick={toggleCurrentPasswordVisibility} type="button">
+                    {showCurrentPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                         <line x1="1" y1="1" x2="23" y2="23"></line>
@@ -234,15 +353,17 @@ const SettingsPage = () => {
                 <Label>New Password</Label>
                 <PasswordInputContainer>
                   <Input
-                    type={showPassword ? "text" : "password"}
+                    type={showNewPassword ? "text" : "password"}
+                    name="new_password"
                     placeholder="********"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    value={passwordFormData.new_password}
+                    onChange={handleChange}
                     required
                     minLength="8"
+                    $height="56px"
                   />
-                  <PasswordToggle onClick={togglePasswordVisibility} type="button">
-                    {showPassword ? (
+                  <PasswordToggle onClick={toggleNewPasswordVisibility} type="button">
+                    {showNewPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                         <line x1="1" y1="1" x2="23" y2="23"></line>
@@ -255,6 +376,9 @@ const SettingsPage = () => {
                     )}
                   </PasswordToggle>
                 </PasswordInputContainer>
+                {passwordError && (
+                  <span style={{ color: 'red', fontSize: '13px' }}>{passwordError}</span>
+                )}
               </FormGroup>
               
               <FormGroup>
@@ -267,6 +391,7 @@ const SettingsPage = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     minLength="8"
+                    $height="56px"
                   />
                   <PasswordToggle onClick={toggleConfirmPasswordVisibility} type="button">
                     {showConfirmPassword ? (
@@ -285,38 +410,39 @@ const SettingsPage = () => {
               </FormGroup>
 
               <ButtonGroup>
-                <FormButton type="submit" disabled={loading}>
-                {loading ? 'Processing...' : 'Update'}
+                <FormButton type="submit" disabled={api.loading}>
+                {api.loading ? 'Updating' : 'Update'}
                 </FormButton>
-                <CancelButton type="button" onClick={() => console.log('Cancel clicked')}>
+                {/* <CancelButton type="button" onClick={() => {
+                  setPasswordFormData({
+                    current_password: '',
+                    new_password: ''
+                  });
+                  setConfirmPassword('');
+                }}>
                   Cancel
-                </CancelButton>
+                </CancelButton> */}
               </ButtonGroup>
             </form>
           </FormContainer>
         );
       case 'logout':
-        return (
-          <FormContainer>
-            <h2>Are you sure you want to logout?</h2>
-            <ButtonGroup>
-                <FormButton type="submit" disabled={loading}>
-                {loading ? 'Processing...' : 'Logout'}
-                </FormButton>
-              </ButtonGroup>
-          </FormContainer>
-        );
+        return null;
       default:
         return null;
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  const toggleCurrentPasswordVisibility = () => {
+    setShowCurrentPassword((prev) => !prev);
+  };
+
+  const toggleNewPasswordVisibility = () => {
+    setShowNewPassword((prev) => !prev);
   };
 
   const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
+    setShowConfirmPassword((prev) => !prev);
   };
 
   // const handleBackToLogin = () => {

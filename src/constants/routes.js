@@ -1,20 +1,23 @@
 export const ROUTES = {
 // Public routes
-ROOT: '/',
 SIGNUP: '/signup',
 SIGNIN: '/signin',
 FORGOT_PASSWORD: '/forgot-password',
 RESET_PASSWORD: '/reset-password',
-
-// Setup routes
 FIRM_SETUP: '/firm-setup',
 INDIVIDUAL_SETUP: '/individual-setup',
 
 // App routes
+ROOT: '/',
 DASHBOARD: '/dashboard',
 INSTRUCTIONS: '/instructions',
 INVOICES: '/invoices',
-PROFILE: '/settings',
+SETTINGS: '/settings',
+ADD_INSTRUCTION: '/add-new-instruction',
+INSTRUCTION_DETAILS: '/instruction-details',
+INVOICE_DETAILS: '/invoice-details',
+NOTIFICATIONS: '/notifications',
+CHAT: '/chat',
 
 // Fallback route
 NOT_FOUND: '*',

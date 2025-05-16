@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -15,7 +15,7 @@ const InstructionsTable = ({
   itemsPerPage = 5,
   showPagination = true,
   onRowClick = null,
-  minHeight  = 'auto',
+  minHeight = 'auto',
   noDataCellHeight,
 }) => {
   const [activeTab, setActiveTab] = useState(tabs[0]?.id || '');
@@ -45,6 +45,26 @@ const InstructionsTable = ({
     setCurrentPage(1);
     onTabChange(tabId);
   };
+
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      pageNumbers.push(1);
+      
+      if (currentPage <= 3) {
+        pageNumbers.push(2, 3, 4, '...', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pageNumbers.push('...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pageNumbers.push('...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+    return pageNumbers;
+  };
   
   return (
     <TableContainer>
@@ -63,7 +83,7 @@ const InstructionsTable = ({
                 {tabs.map(tab => (
                   <Tab 
                     key={tab.id}
-                    active={activeTab === tab.id}
+                    $active={activeTab === tab.id}
                     onClick={() => handleTabChange(tab.id)}
                   >
                     {tab.label}
@@ -75,23 +95,21 @@ const InstructionsTable = ({
         </FiltersContainer>
       </TableHeader>
 
-      <TableContentContainer style={{minHeight: minHeight}}>
-      {/* {currentData.length > 0 ? (
-        <> */}
+      <TableContentContainer style={{ minHeight: minHeight }}>
           <ScrollableTableContainer>
             <Table>
               <TableHead>
-                <tr>
+                <HeaderRow>
                   {columns.map(column => (
                     <TableHeaderCell 
                       key={column.key} 
-                      width={column.width}
-                      align={column.align}
+                      $width={column.width}
+                      $align={column.align}
                     >
                       {column.header}
                     </TableHeaderCell>
                   ))}
-                </tr>
+                </HeaderRow>
               </TableHead>
               <tbody>
                 {currentData.length > 0 ? (
@@ -105,7 +123,7 @@ const InstructionsTable = ({
                       {columns.map(column => (
                         <TableCell 
                           key={column.key}
-                          align={column.align}
+                          $align={column.align}
                         >
                           {renderCell 
                             ? renderCell(column.key, row[column.key], row, index)
@@ -116,65 +134,66 @@ const InstructionsTable = ({
                     </TableRow>
                   ))
                 ) : (
-                  <EmptyStateContainerRow style={{height: noDataCellHeight}}>
-                    <TableCell colSpan={columns.length} align="center">
+                  <EmptyStateContainerRow style={{ height: noDataCellHeight }}>
+                    <EmptyTableCell colSpan={columns.length} $align="center">
                       No data available
-                    </TableCell>
+                    </EmptyTableCell>
                   </EmptyStateContainerRow>
                 )}
               </tbody>
             </Table>
           </ScrollableTableContainer>
-          {showPagination && data.length > itemsPerPage && (
+
+          {showPagination && data.length > 0 && (
           <Pagination>
             <PaginationInfo>
-              Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} entries
+              Showing {data.length > 0 ? startIndex + 1 : 0} to {Math.min(endIndex, data.length)} of {data.length} {data.length === 1 ? 'entry' : 'entries'}
             </PaginationInfo>
-            <PaginationControls>
-              <PaginationArrowButton 
-                onClick={() => handlePageChange(1)}
-                disabled={currentPage === 1}
-              >
-                &lt;&lt;
-              </PaginationArrowButton>
-              <PaginationArrowButton 
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                &lt;
-              </PaginationArrowButton>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <PaginationNumberButton 
-                  key={page}
-                  $active={currentPage === page}
-                  onClick={() => handlePageChange(page)}
+            {data.length > itemsPerPage && (
+              <PaginationControls>
+                <PaginationArrowButton 
+                  onClick={() => handlePageChange(1)}
+                  disabled={currentPage === 1}
                 >
-                  {page}
-                </PaginationNumberButton>
-              ))}
-              
-              <PaginationArrowButton 
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                &gt;
-              </PaginationArrowButton>
-              <PaginationArrowButton 
-                onClick={() => handlePageChange(totalPages)}
-                disabled={currentPage === totalPages}
-              >
-                &gt;&gt;
-              </PaginationArrowButton>
-            </PaginationControls>
+                  &lt;&lt;
+                </PaginationArrowButton>
+                <PaginationArrowButton 
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  &lt;
+                </PaginationArrowButton>
+                
+                {getPageNumbers().map((page, index) => (
+                  page === '...' ? (
+                    <PaginationEllipsis key={`ellipsis-${index}`}>...</PaginationEllipsis>
+                  ) : (
+                    <PaginationNumberButton 
+                      key={page}
+                      $active={currentPage === page}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </PaginationNumberButton>
+                  )
+                ))}
+                
+                <PaginationArrowButton 
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  &gt;
+                </PaginationArrowButton>
+                <PaginationArrowButton 
+                  onClick={() => handlePageChange(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  &gt;&gt;
+                </PaginationArrowButton>
+              </PaginationControls>
+            )}
           </Pagination>
           )}
-        {/* </>
-        ) : (
-          <EmptyStateContainer>
-            <EmptyStateMessage>No data available</EmptyStateMessage>
-          </EmptyStateContainer>
-        )} */}
       </TableContentContainer>
     </TableContainer>
   );
@@ -204,13 +223,13 @@ InstructionsTable.propTypes = {
   itemsPerPage: PropTypes.number,
   showPagination: PropTypes.bool,
   onRowClick: PropTypes.func,
-  minHeight : PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  noDataCellHeight : PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  minHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  noDataCellHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 const TableContainer = styled.div`
   background-color: white;
-  border-radius: 12px;
+  border-radius: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;
@@ -218,7 +237,7 @@ const TableContainer = styled.div`
   height: 100%;
 
   @media (max-width: 768px) {
-    border-radius: 10px;
+    border-radius: 16px;
   }
 `;
 
@@ -314,22 +333,38 @@ const Tab = styled.button`
   color: #6b7280;
   min-width: max-content;
   white-space: nowrap;
+  transition: all 0.2s ease-in-out;
   
-  ${props => props.active && `
+  ${props => props.$active && `
     font-weight: 500;
     color: #126456;
     
     &:after {
       content: '';
       position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 16px);
+      bottom: -2px;
+      left: 0;
+      width: 100%;
       height: 2px;
       background-color: #126456;
+      transition: all 0.2s ease-in-out;
     }
   `}
+
+  &:hover {
+    color: #126456;
+    
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: ${props => props.$active ? '#126456' : '#12645680'};
+      transition: all 0.2s ease-in-out;
+    }
+  }
 
   @media (max-width: 768px) {
     font-size: 13px;
@@ -342,139 +377,195 @@ const Tab = styled.button`
   }
 `;
 
-
 const TableContentContainer = styled.div`
   display: flex;
   flex-direction: column;
-  // min-height: ${props => typeof props.minHeight === 'number' ? `${props.minHeight}px` : props.minHeight};
   flex-grow: 1;
   position: relative;
   padding: 0 24px 24px;
 
-  @media (min-width: 768px) {
-    padding: 0 24px 24px;
-  }
-
-  @media (max-width: 480px) {
+  @media (max-width: 768px) {
     padding: 0 16px 16px;
   }
 `;
 
 const ScrollableTableContainer = styled.div`
-  // overflow-x: auto;
+  overflow-x: auto;
   margin-bottom: 16px;
   flex: 1;
-  
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #E5E7EB transparent;
 
-  @media (max-width: 1024px) {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; 
+  &::-webkit-scrollbar {
+    height: 8px;
   }
 
-  @media (max-width: 768px) {
-    margin-bottom: 12px;
+  &::-webkit-scrollbar-track {
+    background: transparent;
   }
-`;
 
-const EmptyStateContainerRow = styled.tr`
-  height: 309px;
+  &::-webkit-scrollbar-thumb {
+    background-color: #E5E7EB;
+    border-radius: 4px;
+  }
+
+  @media (min-width: 1024px) {
+    overflow-x: visible;
+  }
 `;
 
 const Table = styled.table`
   width: 100%;
-  border-collapse: collapse;
-  
-  @media (min-width: 1025px) {
-    table-layout: fixed;
-    width: 100%;
-  }
-  
-  
-  @media (max-width: 1024px) {
-    table-layout: auto;
-    min-width: 1024px; 
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+
+  @media (max-width: 1023px) {
+    width: max-content;
+    min-width: 100%;
   }
 `;
 
 const TableHead = styled.thead`
-  background-color: #F5F5F5;
+  background-color: #F9FAFB;
+  border-bottom: 1px solid #E5E7EB;
+`;
+
+const HeaderRow = styled.tr`
+  background-color: #F9FAFB;
+  border-radius: 16px;
 `;
 
 const TableHeaderCell = styled.th`
-  padding: 12px 16px;
+  padding: 16px;
+  text-align: ${props => props.$align || 'left'};
   font-family: 'Manrope', sans-serif;
-  color: #656565;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 100%;
-  letter-spacing: 0%;
-  padding: 16px 12px;
-  text-align: ${props => props.align || 'left'};
-  vertical-align: middle;
-  width: ${props => props.width || 'auto'};
-  
+  font-size: 14px;
+  font-weight: 600;
+  color: #4B5563;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  border-bottom: 1px solid #E5E7EB;
+
   &:first-child {
-    padding-left: 20px;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
   }
 
-  @media (max-width: 1024px) {
-    padding: 10px 14px;
+  &:last-child {
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
   }
 
-  @media (max-width: 768px) {
-    padding: 10px 12px;
-    font-size: 13px;
+  @media (min-width: 1700px) {
+    width: ${props => {
+      switch (props.$width) {
+        case 'wpr': return '150px';
+        case 'owner': return '200px';
+        case 'serve': return '250px';
+        case 'court': return '250px';
+        case 'type': return '180px';
+        case 'deadline': return '150px';
+        case 'status': return '150px';
+        case 'invoice_number': return '150px';
+        case 'title': return '300px';
+        case 'price': return '150px';
+        case 'is_paid': return '120px';
+        case 'paid_at': return '150px';
+        default: return 'auto';
+      }
+    }};
   }
 
-  @media (max-width: 480px) {
-    padding: 8px 10px;
-    font-size: 12px;
+  @media (min-width: 1440px) and (max-width: 1699px) {
+    width: ${props => {
+      switch (props.$width) {
+        case 'wpr': return '130px';
+        case 'owner': return '180px';
+        case 'serve': return '220px';
+        case 'court': return '220px';
+        case 'type': return '160px';
+        case 'deadline': return '130px';
+        case 'status': return '130px';
+        case 'invoice_number': return '130px';
+        case 'title': return '250px';
+        case 'price': return '130px';
+        case 'is_paid': return '100px';
+        case 'paid_at': return '130px';
+        default: return 'auto';
+      }
+    }};
+  }
+
+  @media (max-width: 1439px) {
+    width: ${props => {
+      switch (props.$width) {
+        case 'wpr': return '110px';
+        case 'owner': return '160px';
+        case 'serve': return '200px';
+        case 'court': return '200px';
+        case 'type': return '140px';
+        case 'deadline': return '110px';
+        case 'status': return '110px';
+        case 'invoice_number': return '110px';
+        case 'title': return '200px';
+        case 'price': return '110px';
+        case 'is_paid': return '90px';
+        case 'paid_at': return '110px';
+        default: return 'auto';
+      }
+    }};
   }
 `;
 
 const TableRow = styled.tr`
+  height: 63px;
+  cursor: ${props => props.$clickable ? 'pointer' : 'default'};
+  background-color: ${props => props.$selected ? '#F3F4F6' : 'white'};
+  transition: background-color 0.2s ease;
+  border-radius: 20px;
+
   &:hover {
-    background-color: ${props => props.$clickable ? 'rgba(18, 100, 86, 0.08)' : 'transparent'};
-    cursor: ${props => props.clickable ? 'pointer' : 'default'};
+    background-color: ${props => props.$clickable ? '#F0F6E3' : 'white'};
   }
 
-  ${props => props.$selected && `
-    background-color: rgba(18, 100, 86, 0.08) !important;
-  `}
+  td:first-child {
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+  }
+
+  td:last-child {
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+  }
 `;
 
 const TableCell = styled.td`
   padding: 16px;
+  text-align: ${props => props.$align || 'left'};
   font-family: 'Manrope', sans-serif;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 100%;
-  letter-spacing: 0px;
-  color: #1f2937;
-  vertical-align: middle;
-  text-align: ${props => props.align || 'left'};
-  
-  text-wrap: nowrap;
-  
-  // &:first-child {
-  //   padding-left: 20px;
-  // }
+  font-size: 14px;
+  color: #1F2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 0;
+`;
 
-    @media (max-width: 1024px) {
-    padding: 14px;
-    font-size: 13px;
-  }
+const EmptyStateContainerRow = styled.tr`
+  height: ${props => props.height || '309px'};
+`;
 
-
-  @media (max-width: 768px) {
-    padding: 12px;
-    font-size: 13px;
-  }
-
-  @media (max-width: 480px) {
-    padding: 10px;
-    font-size: 12px;
-  }
+const EmptyTableCell = styled.td`
+  text-align: ${props => props.$align || 'center'};
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  color: #6B7280;
+  padding: 16px;
+  border-bottom: 1px solid #E5E7EB;
 `;
 
 const Pagination = styled.div`
@@ -549,6 +640,12 @@ const PaginationArrowButton = styled.button`
     cursor: not-allowed;
     opacity: 0.5;
   }
+`;
+
+const PaginationEllipsis = styled.span`
+  padding: 0 8px;
+  color: #6B7280;
+  font-size: 14px;
 `;
 
 export default InstructionsTable;

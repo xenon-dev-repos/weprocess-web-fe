@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -124,6 +125,7 @@ const AccountTypeOption = styled.div`
   cursor: pointer;
   // background-color: ${props => props.selected ? 'var(--color-primary-100)' : 'white'};
   background-color: white;
+  height: 56px;
 `;
 
 const Radio = styled.div`

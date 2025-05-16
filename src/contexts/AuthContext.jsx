@@ -1,6 +1,8 @@
+import React from 'react';
 import { createContext, useState, useContext, useEffect } from 'react';
 import { API_ENDPOINTS } from '../constants/api';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -60,18 +62,29 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       return value;
     }
     
+    let formattedValue = '';
     // UK mobile format: 7700 900123 (10 digits)
     if (digitsOnly.startsWith('7')) {
-      if (digitsOnly.length <= 4) return digitsOnly;
-      if (digitsOnly.length <= 7) return `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4)}`;
-      return `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4, 7)} ${digitsOnly.slice(7, 10)}`;
+      if (digitsOnly.length <= 4) {
+        formattedValue = digitsOnly;
+      } else if (digitsOnly.length <= 7) {
+        formattedValue = `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4)}`;
+      } else {
+        formattedValue = `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4, 7)} ${digitsOnly.slice(7, 10)}`;
+      }
     }
-    // UK landline format without leading 0: 20 7946 0958 (10 digits)
+    // UK landline format without leading 0: 71 7946 0958 (10 digits)
     else {
-      if (digitsOnly.length <= 2) return digitsOnly;
-      if (digitsOnly.length <= 6) return `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2)}`;
-      return `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2, 6)} ${digitsOnly.slice(6, 10)}`;
+      if (digitsOnly.length <= 2) {
+        formattedValue = digitsOnly;
+      } else if (digitsOnly.length <= 6) {
+        formattedValue = `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2)}`;
+      } else {
+        formattedValue = `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2, 6)} ${digitsOnly.slice(6, 10)}`;
+      }
     }
+    
+    return formattedValue;
   };
 
   // const togglePasswordVisibility = () => {
@@ -208,6 +221,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
     setToken(null);
     setUser(null);
     toast.showInfo('You have been logged out');
+    navigate('signin');
   };
 
   const forgotPassword = async (email) => {
@@ -386,8 +400,50 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
     return !!token && !!userData;
   };
 
+  const getServes = async (params = {}) => {
+    try {
+      setLoading(true);
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      // Build query parameters
+      const queryParams = new URLSearchParams();
+      if (params.status) queryParams.append('status', params.status);
+      if (params.deadline) queryParams.append('deadline', params.deadline);
+      if (params.client_id) queryParams.append('client_id', params.client_id);
+      queryParams.append('sort_by', 'deadline,price');
+      queryParams.append('sort_order', 'desc,asc');
+      queryParams.append('per_page', '10');
+
+      const response = await axios.get(`${API_ENDPOINTS.SERVES}?${queryParams.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.data) {
+        throw new Error('No data received from server');
+      }
+      console.log('Serves fetched successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching serves:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch serves';
+      toast.showError(errorMessage);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value = {
     user,
+    setUser,
     loading,
     setLoading,
     error,
@@ -408,6 +464,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
     isAuthenticated,
     navigate,
     formatPhoneNumber,
+    getServes,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
