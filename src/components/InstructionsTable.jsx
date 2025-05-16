@@ -45,6 +45,32 @@ const InstructionsTable = ({
     setCurrentPage(1);
     onTabChange(tabId);
   };
+
+  // Function to generate page numbers array with ellipsis
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    if (totalPages <= 5) {
+      // If total pages are 5 or less, show all pages
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Always show first page
+      pageNumbers.push(1);
+      
+      if (currentPage <= 3) {
+        // If current page is near the start
+        pageNumbers.push(2, 3, 4, '...', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        // If current page is near the end
+        pageNumbers.push('...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        // If current page is in the middle
+        pageNumbers.push('...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+    return pageNumbers;
+  };
   
   return (
     <TableContainer>
@@ -76,8 +102,6 @@ const InstructionsTable = ({
       </TableHeader>
 
       <TableContentContainer style={{minHeight: minHeight}}>
-      {/* {currentData.length > 0 ? (
-        <> */}
           <ScrollableTableContainer>
             <Table>
               <TableHead>
@@ -125,56 +149,56 @@ const InstructionsTable = ({
               </tbody>
             </Table>
           </ScrollableTableContainer>
-          {showPagination && data.length > itemsPerPage && (
+          {showPagination && data.length > 0 && (
           <Pagination>
             <PaginationInfo>
-              Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} entries
+              Showing {data.length > 0 ? startIndex + 1 : 0} to {Math.min(endIndex, data.length)} of {data.length} {data.length === 1 ? 'entry' : 'entries'}
             </PaginationInfo>
-            <PaginationControls>
-              <PaginationArrowButton 
-                onClick={() => handlePageChange(1)}
-                disabled={currentPage === 1}
-              >
-                &lt;&lt;
-              </PaginationArrowButton>
-              <PaginationArrowButton 
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                &lt;
-              </PaginationArrowButton>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <PaginationNumberButton 
-                  key={page}
-                  $active={currentPage === page}
-                  onClick={() => handlePageChange(page)}
+            {data.length > itemsPerPage && (
+              <PaginationControls>
+                <PaginationArrowButton 
+                  onClick={() => handlePageChange(1)}
+                  disabled={currentPage === 1}
                 >
-                  {page}
-                </PaginationNumberButton>
-              ))}
-              
-              <PaginationArrowButton 
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                &gt;
-              </PaginationArrowButton>
-              <PaginationArrowButton 
-                onClick={() => handlePageChange(totalPages)}
-                disabled={currentPage === totalPages}
-              >
-                &gt;&gt;
-              </PaginationArrowButton>
-            </PaginationControls>
+                  &lt;&lt;
+                </PaginationArrowButton>
+                <PaginationArrowButton 
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  &lt;
+                </PaginationArrowButton>
+                
+                {getPageNumbers().map((page, index) => (
+                  page === '...' ? (
+                    <PaginationEllipsis key={`ellipsis-${index}`}>...</PaginationEllipsis>
+                  ) : (
+                    <PaginationNumberButton 
+                      key={page}
+                      $active={currentPage === page}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </PaginationNumberButton>
+                  )
+                ))}
+                
+                <PaginationArrowButton 
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  &gt;
+                </PaginationArrowButton>
+                <PaginationArrowButton 
+                  onClick={() => handlePageChange(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  &gt;&gt;
+                </PaginationArrowButton>
+              </PaginationControls>
+            )}
           </Pagination>
           )}
-        {/* </>
-        ) : (
-          <EmptyStateContainer>
-            <EmptyStateMessage>No data available</EmptyStateMessage>
-          </EmptyStateContainer>
-        )} */}
       </TableContentContainer>
     </TableContainer>
   );
@@ -575,6 +599,12 @@ const PaginationArrowButton = styled.button`
     cursor: not-allowed;
     opacity: 0.5;
   }
+`;
+
+const PaginationEllipsis = styled.span`
+  padding: 0 8px;
+  color: #6B7280;
+  font-size: 14px;
 `;
 
 export default InstructionsTable;
