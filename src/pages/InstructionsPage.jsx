@@ -131,16 +131,13 @@ const InstructionsPage = () => {
     });
 
     const columns = [
-        { key: 'wpr', header: 'WPR no.' },
-        { key: 'owner', header: 'Owner' },
-        { key: 'serve', header: 'Serve name' },
-        { key: 'type', header: 'Service type' },
-        { key: 'court', header: 'Court name' },
-        { key: 'recipientName', header: "Recipient's name" },
-        { key: 'recipientAddress', header: "Recipient's address" },
-        { key: 'dateIssues', header: 'Date issues' },
-        { key: 'deadline', header: 'Deadline' },
-        { key: 'status', header: 'Process status' },
+        { key: 'wpr', header: 'WPR no.', width: 'wpr' },
+        { key: 'owner', header: 'Owner', width: 'owner' },
+        { key: 'serve', header: 'Serve name', width: 'serve' },
+        { key: 'court', header: 'Court name', width: 'court' },
+        { key: 'type', header: 'Service type', width: 'type' },
+        { key: 'deadline', header: 'Deadline', width: 'deadline' },
+        { key: 'status', header: 'Process status', width: 'status' }
     ];
 
     const tableData = filteredData.map(mapServeToTableRow);
@@ -165,7 +162,7 @@ const InstructionsPage = () => {
                         <InstructionsTable 
                             data={tableData}
                             title="Instructions In Progress"
-                            subtitle="Monthly instructions requested by firm"
+                            subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
                             columns={columns}
                             customFilters={customFilters}
                             renderCell={(key, value) => {

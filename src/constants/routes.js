@@ -17,6 +17,7 @@ ADD_INSTRUCTION: '/add-new-instruction',
 INSTRUCTION_DETAILS: '/instruction-details',
 INVOICE_DETAILS: '/invoice-details',
 NOTIFICATIONS: '/notifications',
+CHAT: '/chat',
 
 // Fallback route
 NOT_FOUND: '*',
