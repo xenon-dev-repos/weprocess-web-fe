@@ -33,21 +33,21 @@ const InstructionsPage = () => {
     const filterButtons = [
         { id: '', label: 'All', dotColor: 'white' },
         { id: 'pending', label: 'Pending', dotColor: 'info' },
-        { id: 'in_progress', label: 'In Progress', dotColor: 'warning' },
+        { id: 'active', label: 'In Progress', dotColor: 'warning' },
         { id: 'completed', label: 'Completed', dotColor: 'success' }
     ];
   
     const handleTimeFilterChange = (value) => {
         setTimeFilter(value);
-        fetchServes();
+        fetchServes(statusFilter);
     };
 
     const handleStatusFilterChange = (filterId) => {
         setStatusFilter(filterId);
-        fetchServes();
+        fetchServes(filterId);
     };
 
-    const fetchServes = async () => {
+    const fetchServes = async (status = statusFilter) => {
         try {
             setLoading(true);
             
@@ -56,14 +56,13 @@ const InstructionsPage = () => {
                 return;
             }
 
-            const response = await getServes({
-                status: statusFilter,
-                // deadline: getDeadlineDate(timeFilter),
-                // sort_by: 'deadline,price',
-                // sort_order: 'desc,asc',
-                per_page: 10,
-                // user_id: user.id
-            });
+            // Only include status in params if it's not empty
+            const params = {
+                client_id: user.id,
+                ...(status && { status: status })
+            };
+
+            const response = await getServes(params);
             
             if (response.success) {
                 setFilteredData(response.serves.data || []);
@@ -79,8 +78,10 @@ const InstructionsPage = () => {
     };
   
     useEffect(() => {
-        fetchServes();
-    }, [statusFilter]);
+        if (user?.id) {
+            fetchServes(statusFilter);
+        }
+    }, [statusFilter, user?.id]);
   
     const customFilters = (
       <select 
@@ -110,7 +111,8 @@ const InstructionsPage = () => {
         switch (status) {
             case 'pending': return { label: 'Pending', bg: '#dcfce7', color: '#166534' };
             case 'completed': return { label: 'Completed', bg: '#dbeafe', color: '#1e40af' };
-            case 'new': return { label: 'New', bg: '#e0e7ff', color: '#3730a3' };
+            case 'active': return { label: 'In Progress', bg: '#e0e7ff', color: '#3730a3' };
+            case 'new': return { label: 'New', bg: '#e5e7eb', color: '#374151' };
             default: return { label: status, bg: '#e5e7eb', color: '#374151' };
         }
     };

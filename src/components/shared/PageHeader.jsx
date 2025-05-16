@@ -10,7 +10,9 @@ export const PageHeader = ({ title, filterButtons, onFilterChange, isAddInstruct
 
   const handleFilterClick = (filterId) => {
     setActiveFilter(filterId);
-    onFilterChange(filterId);
+    if (onFilterChange) {
+      onFilterChange(filterId);
+    }
   };
 
   const StepsCompletedOverTotal = ({ steps, isStepComplete, isSubmitted }) => {

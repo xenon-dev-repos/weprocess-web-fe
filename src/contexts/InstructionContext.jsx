@@ -581,9 +581,9 @@ useEffect(() => {
       const response = await api.getServeById(id);
       const serve = response.serve;
       
-      setCurrentServeData(serve);
-
-      const mappedFormData = mapServeToFormData(serve);
+      if (serve) {
+          setCurrentServeData(serve);
+                const mappedFormData = mapServeToFormData(serve);
       setFormData(mappedFormData);
 
       if (serve.recipient_phone) {
@@ -597,6 +597,11 @@ useEffect(() => {
       }
         
       return serve;
+
+      } else {
+          setCurrentServeData(null);
+      }
+
     } catch (error) {
       console.error('Error fetching serve:', error);
       throw error;
@@ -640,6 +645,7 @@ useEffect(() => {
     <InstructionContext.Provider
       value={{
         formData,
+        initialFormData,
         isLoading,
 
         currentStep,

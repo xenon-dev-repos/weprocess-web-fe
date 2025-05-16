@@ -62,7 +62,7 @@ export const Step4ServiceType = () => {
         'Delivery within 3 attempts',
         'Documents delivered at doorsteps'
       ],
-      price: '£150'
+      price: '£10'
     },
     {
       id: 'urgent',

@@ -402,23 +402,23 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
 
   const getServes = async (params = {}) => {
     try {
-      setLoading(false);
+      setLoading(true);
 
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No authentication token found');
       }
 
-      const queryParams = new URLSearchParams({
-        status: params.status || '',
-        deadline: params.deadline || '',
-        sort_by: params.sort_by || 'deadline,price',
-        sort_order: params.sort_order || 'desc,asc',
-        per_page: params.per_page || 10,
-        user_id: params.user_id || ''
-      }).toString();
+      // Build query parameters
+      const queryParams = new URLSearchParams();
+      if (params.status) queryParams.append('status', params.status);
+      if (params.deadline) queryParams.append('deadline', params.deadline);
+      if (params.client_id) queryParams.append('client_id', params.client_id);
+      queryParams.append('sort_by', 'deadline,price');
+      queryParams.append('sort_order', 'desc,asc');
+      queryParams.append('per_page', '10');
 
-      const response = await axios.get(`${API_ENDPOINTS.SERVES}?${queryParams}`, {
+      const response = await axios.get(`${API_ENDPOINTS.SERVES}?${queryParams.toString()}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
