@@ -401,10 +401,16 @@ const DashboardPage = () => {
                 onTabChange={handleTabChange}
                 renderCell={(key, value) => {
                   if (key === 'status') {
-                    return <StatusBadge $status={value}>{value}</StatusBadge>;
+                    return <StatusBadgeTable $status={value}>{value}</StatusBadgeTable>;
                   }
                   return value;
                 }}
+                  // renderCell={(key, value) => {
+                  //   if (key === 'status') {
+                  //     return value; // Just return the value, let table handle the badge
+                  //   }
+                  //   return value;
+                  // }}
                 minHeight={348}
                 noDataCellHeight={309}
                 onRowClick={handleRowClick}
@@ -425,7 +431,7 @@ const DashboardPage = () => {
               </ChartHeader>
               <SubTitle>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</SubTitle>
               <ChartCanvasWrapper>
-                <canvas ref={barChartRef} height="180"></canvas>
+                <canvas ref={barChartRef} height="200"></canvas>
               </ChartCanvasWrapper>
             </ChartCard>
 
@@ -517,7 +523,7 @@ const TableContainer = styled.div`
 `;
 
 const ChartCanvasWrapper = styled.div`
-  height: 214px;
+  height: 255px;
   position: relative;
   width: 100%;
   
@@ -533,6 +539,7 @@ const ChartCard = styled.div`
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   width: 100%;
+  min-height: 373px;
 `;
 
 const ChartHeader = styled.div`
@@ -565,7 +572,7 @@ const Select = styled.select`
   padding-right: 40px;
 
   &:hover {
-    border-color: #9ca3af;
+    border-color: #043F35;
   }
 
   &:focus {
@@ -601,6 +608,30 @@ const StatusBadge = styled.span`
     }
   }}
 `;
+
+
+const StatusBadgeTable = styled.span`
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  
+  ${props => {
+    switch (props.$status) {
+      case 'new':
+        return 'background-color: #dcfce7; color: #166534;';
+      case '2nd attempt':
+        return 'background-color: #fef3c7; color: #92400e;';
+      case '3rd attempt':
+        return 'background-color: #fee2e2; color: #b91c1c;';
+      case 'In Transit':
+        return 'background-color: #dbeafe; color: #1e40af;';
+      default:
+        return 'background-color: #e5e7eb; color: #374151;';
+    }
+  }}
+`;
+
 
 
 export default DashboardPage;

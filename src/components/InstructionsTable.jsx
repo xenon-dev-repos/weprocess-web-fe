@@ -15,7 +15,7 @@ const InstructionsTable = ({
   itemsPerPage = 5,
   showPagination = true,
   onRowClick = null,
-  minHeight  = 'auto',
+  minHeight = 'auto',
   noDataCellHeight,
 }) => {
   const [activeTab, setActiveTab] = useState(tabs[0]?.id || '');
@@ -46,26 +46,20 @@ const InstructionsTable = ({
     onTabChange(tabId);
   };
 
-  // Function to generate page numbers array with ellipsis
   const getPageNumbers = () => {
     const pageNumbers = [];
     if (totalPages <= 5) {
-      // If total pages are 5 or less, show all pages
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
       }
     } else {
-      // Always show first page
       pageNumbers.push(1);
       
       if (currentPage <= 3) {
-        // If current page is near the start
         pageNumbers.push(2, 3, 4, '...', totalPages);
       } else if (currentPage >= totalPages - 2) {
-        // If current page is near the end
         pageNumbers.push('...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
       } else {
-        // If current page is in the middle
         pageNumbers.push('...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
       }
     }
@@ -101,11 +95,11 @@ const InstructionsTable = ({
         </FiltersContainer>
       </TableHeader>
 
-      <TableContentContainer style={{minHeight: minHeight}}>
+      <TableContentContainer style={{ minHeight: minHeight }}>
           <ScrollableTableContainer>
             <Table>
               <TableHead>
-                <tr>
+                <HeaderRow>
                   {columns.map(column => (
                     <TableHeaderCell 
                       key={column.key} 
@@ -115,7 +109,7 @@ const InstructionsTable = ({
                       {column.header}
                     </TableHeaderCell>
                   ))}
-                </tr>
+                </HeaderRow>
               </TableHead>
               <tbody>
                 {currentData.length > 0 ? (
@@ -140,15 +134,16 @@ const InstructionsTable = ({
                     </TableRow>
                   ))
                 ) : (
-                  <EmptyStateContainerRow style={{height: noDataCellHeight}}>
-                    <TableCell colSpan={columns.length} $align="center">
+                  <EmptyStateContainerRow style={{ height: noDataCellHeight }}>
+                    <EmptyTableCell colSpan={columns.length} $align="center">
                       No data available
-                    </TableCell>
+                    </EmptyTableCell>
                   </EmptyStateContainerRow>
                 )}
               </tbody>
             </Table>
           </ScrollableTableContainer>
+
           {showPagination && data.length > 0 && (
           <Pagination>
             <PaginationInfo>
@@ -228,8 +223,8 @@ InstructionsTable.propTypes = {
   itemsPerPage: PropTypes.number,
   showPagination: PropTypes.bool,
   onRowClick: PropTypes.func,
-  minHeight : PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  noDataCellHeight : PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  minHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  noDataCellHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 const TableContainer = styled.div`
@@ -382,48 +377,54 @@ const Tab = styled.button`
   }
 `;
 
-
 const TableContentContainer = styled.div`
   display: flex;
   flex-direction: column;
-  // min-height: ${props => typeof props.minHeight === 'number' ? `${props.minHeight}px` : props.minHeight};
   flex-grow: 1;
   position: relative;
   padding: 0 24px 24px;
 
-  @media (min-width: 768px) {
-    padding: 0 24px 24px;
-  }
-
-  @media (max-width: 480px) {
+  @media (max-width: 768px) {
     padding: 0 16px 16px;
   }
 `;
 
 const ScrollableTableContainer = styled.div`
-  // overflow-x: auto;
+  overflow-x: auto;
   margin-bottom: 16px;
   flex: 1;
-  
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #E5E7EB transparent;
 
-  @media (max-width: 1024px) {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; 
+  &::-webkit-scrollbar {
+    height: 8px;
   }
 
-  @media (max-width: 768px) {
-    margin-bottom: 12px;
+  &::-webkit-scrollbar-track {
+    background: transparent;
   }
-`;
 
-const EmptyStateContainerRow = styled.tr`
-  height: 309px;
+  &::-webkit-scrollbar-thumb {
+    background-color: #E5E7EB;
+    border-radius: 4px;
+  }
+
+  @media (min-width: 1024px) {
+    overflow-x: visible;
+  }
 `;
 
 const Table = styled.table`
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   table-layout: fixed;
+
+  @media (max-width: 1023px) {
+    width: max-content;
+    min-width: 100%;
+  }
 `;
 
 const TableHead = styled.thead`
@@ -431,8 +432,13 @@ const TableHead = styled.thead`
   border-bottom: 1px solid #E5E7EB;
 `;
 
+const HeaderRow = styled.tr`
+  background-color: #F9FAFB;
+  border-radius: 16px;
+`;
+
 const TableHeaderCell = styled.th`
-  padding: 12px 16px;
+  padding: 16px;
   text-align: ${props => props.$align || 'left'};
   font-family: 'Manrope', sans-serif;
   font-size: 14px;
@@ -441,7 +447,18 @@ const TableHeaderCell = styled.th`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: ${props => props.$width || 'auto'};
+  position: relative;
+  border-bottom: 1px solid #E5E7EB;
+
+  &:first-child {
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+  }
+
+  &:last-child {
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+  }
 
   @media (min-width: 1700px) {
     width: ${props => {
@@ -505,12 +522,24 @@ const TableHeaderCell = styled.th`
 `;
 
 const TableRow = styled.tr`
+  height: 63px;
   cursor: ${props => props.$clickable ? 'pointer' : 'default'};
   background-color: ${props => props.$selected ? '#F3F4F6' : 'white'};
   transition: background-color 0.2s ease;
+  border-radius: 20px;
 
   &:hover {
-    background-color: ${props => props.$clickable ? '#F9FAFB' : 'white'};
+    background-color: ${props => props.$clickable ? '#F0F6E3' : 'white'};
+  }
+
+  td:first-child {
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+  }
+
+  td:last-child {
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
   }
 `;
 
@@ -524,6 +553,18 @@ const TableCell = styled.td`
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 0;
+`;
+
+const EmptyStateContainerRow = styled.tr`
+  height: ${props => props.height || '309px'};
+`;
+
+const EmptyTableCell = styled.td`
+  text-align: ${props => props.$align || 'center'};
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  color: #6B7280;
+  padding: 16px;
   border-bottom: 1px solid #E5E7EB;
 `;
 
