@@ -18,6 +18,7 @@ const InstructionsTable = ({
   minHeight = 'auto',
   noDataCellHeight,
 }) => {
+  console.log("data of table: ", data)
   const [activeTab, setActiveTab] = useState(tabs[0]?.id || '');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -145,11 +146,11 @@ const InstructionsTable = ({
           </ScrollableTableContainer>
 
           {showPagination && data.length > 0 && (
-          <Pagination>
-            <PaginationInfo>
-              Showing {data.length > 0 ? startIndex + 1 : 0} to {Math.min(endIndex, data.length)} of {data.length} {data.length === 1 ? 'entry' : 'entries'}
-            </PaginationInfo>
-            {data.length > itemsPerPage && (
+            <Pagination>
+              <PaginationInfo>
+                Showing {data.length > 0 ? startIndex + 1 : 0} to {Math.min(endIndex, data.length)} of {data.length} {data.length === 1 ? 'entry' : 'entries'}
+              </PaginationInfo>
+
               <PaginationControls>
                 <PaginationArrowButton 
                   onClick={() => handlePageChange(1)}
@@ -191,9 +192,9 @@ const InstructionsTable = ({
                   &gt;&gt;
                 </PaginationArrowButton>
               </PaginationControls>
-            )}
-          </Pagination>
+            </Pagination>
           )}
+          
       </TableContentContainer>
     </TableContainer>
   );
@@ -229,17 +230,25 @@ InstructionsTable.propTypes = {
 
 const TableContainer = styled.div`
   background-color: white;
-  border-radius: 24px;
+  border-radius: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-
-  @media (max-width: 768px) {
-    border-radius: 16px;
-  }
+  width: 100%;
 `;
+
+// const TableContainer = styled.div`
+//   background-color: white;
+//   border-radius: 24px;
+//   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+//   overflow: hidden;
+//   display: flex;
+//   flex-direction: column;
+//   height: 100%;
+
+//   @media (max-width: 768px) {
+//     border-radius: 16px;
+//   }
+// `;
 
 const TableHeader = styled.div`
   display: flex;
@@ -397,22 +406,22 @@ const ScrollableTableContainer = styled.div`
   scrollbar-width: thin;
   scrollbar-color: #E5E7EB transparent;
 
-  &::-webkit-scrollbar {
-    height: 8px;
-  }
+  // &::-webkit-scrollbar {
+  //   height: 8px;
+  // }
 
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
+  // &::-webkit-scrollbar-track {
+  //   background: transparent;
+  // }
 
-  &::-webkit-scrollbar-thumb {
-    background-color: #E5E7EB;
-    border-radius: 4px;
-  }
+  // &::-webkit-scrollbar-thumb {
+  //   background-color: #E5E7EB;
+  //   border-radius: 4px;
+  // }
 
-  @media (min-width: 1024px) {
-    overflow-x: visible;
-  }
+  // @media (min-width: 1024px) {
+  //   overflow-x: visible;
+  // }
 `;
 
 const Table = styled.table`
@@ -546,9 +555,12 @@ const TableRow = styled.tr`
 const TableCell = styled.td`
   padding: 16px;
   text-align: ${props => props.$align || 'left'};
-  font-family: 'Manrope', sans-serif;
-  font-size: 14px;
-  color: #1F2937;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: 0px;
+  vertical-align: middle;
+  color: #222222;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

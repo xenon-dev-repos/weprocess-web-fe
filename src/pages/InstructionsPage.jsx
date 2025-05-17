@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { ROUTES } from '../constants/routes';
+import { formatDate } from '../utils/helperFunctions';
 
 const InstructionsPage = () => {
     const [timeFilter, setTimeFilter] = useState('monthly');
@@ -16,19 +17,19 @@ const InstructionsPage = () => {
     const { user, getServes } = useAuth();
     const navigation = useNavigation();
 
-    const getDeadlineDate = (filter) => {
-        const today = new Date();
-        switch(filter) {
-            case 'weekly':
-                return new Date(today.setDate(today.getDate() + 7)).toISOString().split('T')[0];
-            case 'biweekly':
-                return new Date(today.setDate(today.getDate() + 14)).toISOString().split('T')[0];
-            case 'monthly':
-                return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
-            default:
-                return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
-        }
-    };
+    // const getDeadlineDate = (filter) => {
+    //     const today = new Date();
+    //     switch(filter) {
+    //         case 'weekly':
+    //             return new Date(today.setDate(today.getDate() + 7)).toISOString().split('T')[0];
+    //         case 'biweekly':
+    //             return new Date(today.setDate(today.getDate() + 14)).toISOString().split('T')[0];
+    //         case 'monthly':
+    //             return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
+    //         default:
+    //             return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
+    //     }
+    // };
 
     const filterButtons = [
         { id: '', label: 'All', dotColor: 'white' },
@@ -59,14 +60,17 @@ const InstructionsPage = () => {
             // Only include status in params if it's not empty
             const params = {
                 client_id: user.id,
+                // page: page,
+                // per_page: 10,
                 ...(status && { status: status })
             };
 
             const response = await getServes(params);
             
-            if (response.success) {
+            if (response.success && response?.serves?.data) {
                 setFilteredData(response.serves.data || []);
             } else {
+                setFilteredData([]);
                 console.error(response.message || 'Failed to fetch serves');
             }
         } catch (error) {
@@ -99,14 +103,6 @@ const InstructionsPage = () => {
       </select>
     );
 
-    const formatDate = (dateStr) => {
-        if (!dateStr) return 'N/A';
-        // Handles both "YYYY-MM-DD" and "DD/MM/YYYY"
-        if (dateStr.includes('/')) return dateStr;
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-GB');
-    };
-
     const getStatusBadge = (status) => {
         switch (status) {
             case 'pending': return { label: 'Pending', bg: '#dcfce7', color: '#166534' };
@@ -123,9 +119,9 @@ const InstructionsPage = () => {
         serve: serve.title,
         type: serve.priority ? serve.priority.charAt(0).toUpperCase() + serve.priority.slice(1) : 'N/A',
         court: serve.issuing_court,
-        recipientName: serve.recipient_name,
-        recipientAddress: serve.recipient_address,
-        dateIssues: formatDate(serve.date_of_submission) !== 'N/A' ? formatDate(serve.date_of_submission) : formatDate(serve.created_at),
+        recipient_name: serve.recipient_name,
+        recipient_address: serve.recipient_address,
+        date_of_submission: formatDate(serve.date_of_submission) !== 'N/A' ? formatDate(serve.date_of_submission) : formatDate(serve.created_at),
         deadline: serve.deadline,
         status: serve.status,
     });
@@ -134,8 +130,11 @@ const InstructionsPage = () => {
         { key: 'wpr', header: 'WPR no.', width: 'wpr' },
         { key: 'owner', header: 'Owner', width: 'owner' },
         { key: 'serve', header: 'Serve name', width: 'serve' },
-        { key: 'court', header: 'Court name', width: 'court' },
         { key: 'type', header: 'Service type', width: 'type' },
+        { key: 'court', header: 'Court name', width: 'court' },
+        { key: 'recipient_name', header: "Recipient's Name", width: 'serve' },
+        { key: 'recipient_address', header: "Recipient's Address", width: 'serve' },
+        { key: 'date_of_submission', header: 'Date Issues', width: 'deadline' },
         { key: 'deadline', header: 'Deadline', width: 'deadline' },
         { key: 'status', header: 'Process status', width: 'status' }
     ];
@@ -158,33 +157,31 @@ const InstructionsPage = () => {
             {loading && <LoadingOnPage />}
             <DashboardContainer>
                 <MainContent>
-                    <TableContainer>
-                        <InstructionsTable 
-                            data={tableData}
-                            title="Instructions In Progress"
-                            subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
-                            columns={columns}
-                            customFilters={customFilters}
-                            renderCell={(key, value) => {
-                                if (key === 'status') {
-                                    const { label, bg, color } = getStatusBadge(value);
-                                    return (
-                                        <StatusBadge style={{ backgroundColor: bg, color }}>
-                                            {label}
-                                        </StatusBadge>
-                                    );
-                                }
-                                if (key === 'dateIssues' || key === 'deadline') {
-                                    return formatDate(value);
-                                }
-                                return value;
-                            }}
-                            minHeight={495}
-                            noDataCellHeight={420}
-                            itemsPerPage={10}
-                            onRowClick={handleRowClick}
-                        />
-                    </TableContainer>
+                    <InstructionsTable 
+                        data={tableData}
+                        title="Instructions In Progress"
+                        subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
+                        columns={columns}
+                        customFilters={customFilters}
+                        renderCell={(key, value) => {
+                            if (key === 'status') {
+                                const { label, bg, color } = getStatusBadge(value);
+                                return (
+                                    <StatusBadge style={{ backgroundColor: bg, color }}>
+                                        {label}
+                                    </StatusBadge>
+                                );
+                            }
+                            if (key === 'date_of_submission' || key === 'deadline') {
+                                return formatDate(value);
+                            }
+                            return value;
+                        }}
+                        minHeight={495}
+                        noDataCellHeight={420}
+                        itemsPerPage={10}
+                        onRowClick={handleRowClick}
+                    />
                 </MainContent>
             </DashboardContainer>
         </MainLayout>
@@ -210,14 +207,6 @@ const MainContent = styled.div`
   @media (max-width: 1280px) {
   gap: 24px;
 }
-`;
-
-const TableContainer = styled.div`
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  width: 100%;
 `;
 
 const StatusBadge = styled.span`
