@@ -8,9 +8,19 @@ import { useNavigation } from '../hooks/useNavigation';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { ROUTES } from '../constants/routes';
 import { formatDate } from '../utils/helperFunctions';
+import CustomSelect from '../components/shared/CustomSelect';
+
+const FilterOptions = [
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Bi-weekly', value: 'biweekly' },
+    { label: 'Monthly', value: 'monthly' },
+    { label: 'Quarterly', value: 'quarterly' },
+    { label: 'Annually', value: 'annually' }
+];
 
 const InstructionsPage = () => {
     const [timeFilter, setTimeFilter] = useState('monthly');
+    const [deadlineDate, setDeadlineDate] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [filteredData, setFilteredData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,20 +33,32 @@ const InstructionsPage = () => {
     //     per_page: 10,
     //     total: 0
     // });
-
-    // const getDeadlineDate = (filter) => {
-    //     const today = new Date();
-    //     switch(filter) {
-    //         case 'weekly':
-    //             return new Date(today.setDate(today.getDate() + 7)).toISOString().split('T')[0];
-    //         case 'biweekly':
-    //             return new Date(today.setDate(today.getDate() + 14)).toISOString().split('T')[0];
-    //         case 'monthly':
-    //             return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
-    //         default:
-    //             return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
-    //     }
-    // };
+    const getDeadlineDate = (filter) => {
+        const today = new Date();
+        const result = new Date(today); // Create a copy to avoid mutating original date
+        
+        switch(filter) {
+            case 'weekly':
+                result.setDate(result.getDate() + 7);
+                break;
+            case 'biweekly':
+                result.setDate(result.getDate() + 14);
+                break;
+            case 'monthly':
+                result.setMonth(result.getMonth() + 1);
+                break;
+            case 'quarterly':
+                result.setMonth(result.getMonth() + 3);
+                break;
+            case 'annually':
+                result.setFullYear(result.getFullYear() + 1);
+                break;
+            default: // monthly as fallback
+                result.setMonth(result.getMonth() + 1);
+        }
+        
+        return result.toISOString().split('T')[0]; // Format as yyyy-mm-dd
+    };
 
     const filterButtons = [
         { id: '', label: 'All', dotColor: 'white' },
@@ -46,18 +68,22 @@ const InstructionsPage = () => {
     ];
   
     const handleTimeFilterChange = (value) => {
+        const calculatedDate = getDeadlineDate(value);
         setTimeFilter(value);
-        fetchServes(statusFilter);
+        setDeadlineDate(calculatedDate);
+        fetchServes(statusFilter, calculatedDate);
     };
 
     const handleStatusFilterChange = (filterId) => {
         setStatusFilter(filterId);
-        fetchServes(filterId);
+        fetchServes(filterId, deadlineDate);
     };
 
     // const handleTimeFilterChange = (value) => {
+    //     const calculatedDate = getDeadlineDate(value);
     //     setTimeFilter(value);
-    //     fetchServes(statusFilter, pagination.current_page);
+    //     setDeadlineDate(calculatedDate);
+    //     fetchServes(statusFilter, calculatedDate, pagination.current_page);
     // };
 
     // const handleStatusFilterChange = (filterId) => {
@@ -67,7 +93,7 @@ const InstructionsPage = () => {
     //         ...prev,
     //         current_page: 1
     //     }));
-    //     fetchServes(filterId, 1);
+    //     fetchServes(filterId, 1, deadlineDate);
     // };
 
     // const handlePageChange = (page) => {
@@ -75,10 +101,10 @@ const InstructionsPage = () => {
     //         ...prev,
     //         current_page: page
     //     }));
-    //     fetchServes(statusFilter, page);
+    //     fetchServes(statusFilter, page, deadlineDate);
     // };
 
-    const fetchServes = async (status = statusFilter) => {
+    const fetchServes = async (status = statusFilter, deadline = deadlineDate) => {
         try {
             setLoading(true);
             
@@ -91,7 +117,8 @@ const InstructionsPage = () => {
                 client_id: user.id,
                 // page: page,
                 // per_page: pagination.per_page,
-                ...(status && { status: status })
+                ...(status && { status: status }),
+                ...(deadline && { deadline: deadline })
             };
 
             const response = await getServes(params);
@@ -131,31 +158,29 @@ const InstructionsPage = () => {
     };
   
     useEffect(() => {
+        const initialDeadline = getDeadlineDate(timeFilter);
+        setDeadlineDate(initialDeadline);
+        
         if (user?.id) {
-            fetchServes(statusFilter);
+            fetchServes(statusFilter, initialDeadline);
         }
-    }, [statusFilter, user?.id]);
+    }, [user?.id]);
 
     // useEffect(() => {
     //     if (user?.id) {
     //         fetchServes(statusFilter, pagination.current_page);
     //     }
     // }, [user?.id, pagination.current_page]);
+
+
   
     const customFilters = (
-      <select 
-        value={timeFilter}
-        onChange={(e) => handleTimeFilterChange(e.target.value)}
-        style={{
-          padding: '8px 12px',
-          borderRadius: '12px',
-          border: '1px solid #ddd'
-        }}
-      >
-        <option value="weekly">Weekly</option>
-        <option value="biweekly">Bi-weekly</option>
-        <option value="monthly">Monthly</option>
-      </select>
+        <CustomSelect
+            options={FilterOptions}
+            defaultValue="monthly"
+            // onChange={(value) => console.log('Selected:', value)}
+            onChange={(value) => handleTimeFilterChange(value)}
+        />
     );
 
     const mapServeToTableRow = (serve) => ({
@@ -248,14 +273,6 @@ const MainContent = styled.div`
   @media (max-width: 1280px) {
   gap: 24px;
 }
-`;
-
-const StatusBadge = styled.span`
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    text-transform: capitalize;
 `;
 
 export default InstructionsPage;

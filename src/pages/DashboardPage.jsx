@@ -11,6 +11,32 @@ import { useToast } from '../services/ToastService';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
+import CustomSelect from '../components/shared/CustomSelect';
+
+const graphFilterOptions = [
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Bi-weekly', value: 'biweekly' },
+    { label: 'Monthly', value: 'monthly' },
+    // { label: 'Quarterly', value: 'quarterly' },
+    // { label: 'Annually', value: 'annually' }
+];
+
+const DashboardTableFilters = [
+      { id: 'new-requests', label: 'New requests' },
+      { id: 'in-progress', label: 'In progress' },
+      { id: 'completed', label: 'Completed' },
+      { id: 'invoices', label: 'Invoices' }
+    ]
+
+const columns = [
+      { key: 'wpr', header: 'WPR no.' },
+      { key: 'owner', header: 'Owner' },
+      { key: 'serve', header: 'Serve name' },
+      { key: 'court', header: 'Court name' },
+      { key: 'type', header: 'Service type' },
+      { key: 'deadline', header: 'Deadline' },
+      { key: 'status', header: 'Process status' },
+    ]
 
 const DashboardPage = () => {
   const barChartRef = useRef(null);
@@ -77,14 +103,8 @@ const DashboardPage = () => {
     }
   };
 
-  // Get the label for the active tab
   const getActiveTabLabel = () => {
-    const tabs = [
-      { id: 'new-requests', label: 'New Requests' },
-      { id: 'in-progress', label: 'In Progress' },
-      { id: 'completed', label: 'Completed' },
-      { id: 'invoices', label: ' Pending Invoices' }
-    ];
+    const tabs = DashboardTableFilters;
     const activeTabObj = tabs.find(tab => tab.id === activeTab);
     return activeTabObj ? activeTabObj.label : 'Instructions';
   };
@@ -98,47 +118,41 @@ const DashboardPage = () => {
         return;
       }
 
-          // Handle the invoices case separately
-    if (status === 'invoices') {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const queryParams = new URLSearchParams();
-      if (invoicesFilter.is_paid !== '') queryParams.append('is_paid', invoicesFilter.is_paid);
-      queryParams.append('per_page', invoicesFilter.per_page.toString());
-      
-      const response = await axios.get(`${API_ENDPOINTS.INVOICES}?${queryParams}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+      if (status === 'invoices') {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found');
         }
-      });
 
-      console.log("Invoice API Response:", response); // Debug log
+        const queryParams = new URLSearchParams();
+        if (invoicesFilter.is_paid !== '') queryParams.append('is_paid', invoicesFilter.is_paid);
+        queryParams.append('per_page', invoicesFilter.per_page.toString());
+        
+        const response = await axios.get(`${API_ENDPOINTS.INVOICES}?${queryParams}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
 
-      // Check if response.data exists and has the expected structure
-      if (response.data && response.data.success) {
-        const mappedInvoices = response.data.data.map(invoice => ({
-          wpr: invoice.invoice_number,
-          owner: invoice.owner || 'N/A',
-          serve: invoice.title || 'N/A',
-          type: invoice.type || 'N/A',
-          court: invoice.issuing_court || 'N/A',
-          deadline: invoice.deadline || 'N/A',
-          status: invoice.is_paid ? 'Paid' : 'Unpaid',
-        }));
-        console.log("Mapped Invoices:", mappedInvoices); // Debug log
-        setFilteredData(mappedInvoices);
-      } else {
-        console.error('Invoice data structure unexpected:', response.data);
-        setFilteredData([]);
+        if (response.data && response.data.success) {
+          const mappedInvoices = response.data.data.map(invoice => ({
+            wpr: invoice.invoice_number,
+            owner: invoice.owner || 'N/A',
+            serve: invoice.title || 'N/A',
+            type: invoice.type || 'N/A',
+            court: invoice.issuing_court || 'N/A',
+            deadline: invoice.deadline || 'N/A',
+            status: invoice.is_paid ? 'Paid' : 'Unpaid',
+          }));
+          setFilteredData(mappedInvoices);
+        } else {
+          console.error('Invoice data structure unexpected:', response.data);
+          setFilteredData([]);
+        }
+        return;
       }
-      return; // Exit early, don't proceed to getServes
-    }
-
 
       const params = {
         client_id: user.id,
@@ -271,14 +285,37 @@ const DashboardPage = () => {
     }
 
     if (barChartRef.current) {
+
       const barCtx = barChartRef.current.getContext('2d');
-      const barData = [
-        dashboardData.monthly_data.january.totalRequests,
-        dashboardData.monthly_data.february.totalRequests,
-        dashboardData.monthly_data.march.totalRequests,
-        dashboardData.monthly_data.april.totalRequests,
-        dashboardData.monthly_data.may.totalRequests
+
+      // 1. Get all 12 months in order
+      const allMonths = [
+        'january', 'february', 'march', 'april', 'may', 'june',
+        'july', 'august', 'september', 'october', 'november', 'december'
       ];
+
+      // 2. Create color palette for 12 months
+      const monthColors = [
+        '#FF5B5B', '#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', 
+        '#EC4899', '#6366F1', '#14B8A6', '#F97316', '#06B6D4',
+        '#A855F7', '#EF4444'
+      ];
+
+      // 3. Prepare data in correct month order
+      const monthLabels = [];
+      const barData = [];
+      const backgroundColors = [];
+
+      allMonths.forEach((month, index) => {
+        if (dashboardData.monthly_data[month]) {
+          monthLabels.push(month.charAt(0).toUpperCase() + month.slice(1));
+          barData.push(dashboardData.monthly_data[month].totalRequests || 0);
+          backgroundColors.push(monthColors[index]);
+        }
+      });
+
+      // 4. Calculate dynamic bar thickness based on available months
+      const barThickness = Math.min(70, Math.max(20, 400 / monthLabels.length));
       
       // Check if there's any data
       const hasBarData = barData.some(value => value > 0);
@@ -312,12 +349,12 @@ const DashboardPage = () => {
         barChartInstance = new Chart(barCtx, {
           type: 'bar',
           data: {
-            labels: ['January', 'February', 'March', 'April', 'May'],
+            labels: monthLabels,
             datasets: [
               {
                 label: 'Total Requests',
                 data: barData,
-                backgroundColor: ['#000', '#000', '#000', '#000', '#FF5B5B'],
+                backgroundColor: backgroundColors,
                 borderRadius: {
                   topLeft: 20,
                   topRight: 20,
@@ -325,8 +362,8 @@ const DashboardPage = () => {
                   bottomRight: 0
                 },
                 borderSkipped: false,
-                barThickness: 40,
-                maxBarThickness: 40
+                barThickness: barThickness,
+                // maxBarThickness: 60
               }
             ],
           },
@@ -342,7 +379,8 @@ const DashboardPage = () => {
               y: { 
                 beginAtZero: true,
                 grid: {
-                  display: false
+                  display: false,
+                  drawBorder: false
                 },
                 ticks: {
                   display: false
@@ -353,7 +391,10 @@ const DashboardPage = () => {
               },
               x: {
                 grid: {
-                  display: false
+                  drawOnChartArea: true,
+                  lineWidth: 0.5,
+                  color: '#E5E7EB',
+                  drawTicks: false
                 },
                 border: {
                   display: false
@@ -375,7 +416,7 @@ const DashboardPage = () => {
               const {ctx, data, chartArea, scales: {x, y}} = chart;
               
               ctx.save();
-              ctx.font = '600 14px Manrope';
+              ctx.font = '700 24px Manrope';
               ctx.fillStyle = '#1F2937';
               ctx.textAlign = 'center';
               
@@ -451,21 +492,8 @@ const DashboardPage = () => {
               data={filteredData}
               title={`Instructions ${getActiveTabLabel()}`}
               subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
-              tabs={[
-                { id: 'new-requests', label: 'New requests' },
-                { id: 'in-progress', label: 'In progress' },
-                { id: 'completed', label: 'Completed' },
-                { id: 'invoices', label: 'Invoices' }
-              ]}
-              columns={[
-                { key: 'wpr', header: 'WPR no.' },
-                { key: 'owner', header: 'Owner' },
-                { key: 'serve', header: 'Serve name' },
-                { key: 'court', header: 'Court name' },
-                { key: 'type', header: 'Service type' },
-                { key: 'deadline', header: 'Deadline' },
-                { key: 'status', header: 'Process status' },
-              ]}
+              tabs={DashboardTableFilters}
+              columns={columns}
               onTabChange={handleTabChange}
               minHeight={348}
               noDataCellHeight={348}
@@ -478,12 +506,11 @@ const DashboardPage = () => {
             <ChartCard>
               <ChartHeader>
                 <ChartTitle>Instructions requested</ChartTitle>
-                <Select>
-                  <option>Weekly</option>
-                  <option>Monthly</option>
-                  <option>Quarterly</option>
-                  <option>Annually</option>
-                </Select>
+                <CustomSelect
+                  options={graphFilterOptions}
+                  defaultValue="Monthly"
+                  onChange={(value) => console.log('Selected:', value)}
+                />
               </ChartHeader>
               <SubTitle>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</SubTitle>
               <ChartCanvasWrapper>
@@ -494,12 +521,11 @@ const DashboardPage = () => {
             <ChartCard>
               <ChartHeader>
                 <ChartTitle>Instructions status</ChartTitle>
-                <Select>
-                  <option>Weekly</option>
-                  <option>Monthly</option>
-                  <option>Quarterly</option>
-                  <option>Annually</option>
-                </Select>
+                <CustomSelect
+                  options={graphFilterOptions}
+                  defaultValue="Monthly"
+                  onChange={(value) => console.log('Selected:', value)}
+                />
               </ChartHeader>
               <SubTitle>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</SubTitle>
               <ChartCanvasWrapper>
@@ -601,7 +627,7 @@ const ChartCard = styled.div`
 const ChartHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 `;
 
 const ChartTitle = styled.h3`
@@ -611,97 +637,10 @@ const ChartTitle = styled.h3`
   margin: 0;
 `;
 
-const Select = styled.select`
-  border: 1px solid #d1d5db;
-  border-radius: 20px;
-  padding: 8px 16px;
-  color: #4b5563;
-  background-color: white;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  outline: none;
-  appearance: none;
-  transition: all 0.2s ease;
-  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%234b5563' stroke-width='1.67' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  padding-right: 40px;
-  min-width: 120px;
-
-  /* Remove all default browser focus styles */
-  &:focus {
-    outline: none !important;
-    border-color: #043F35 !important;
-    box-shadow: 0 0 0 2px rgba(4, 63, 53, 0.1) !important;
-  }
-
-  /* For modern browsers */
-  &:focus-visible {
-    outline: none !important;
-    border-color: #043F35 !important;
-    box-shadow: 0 0 0 2px rgba(4, 63, 53, 0.1) !important;
-  }
-
-  &:hover {
-    border-color: #043F35;
-  }
-
-  /* Remove default styling in different browsers */
-  &::-ms-expand {
-    display: none; /* Remove default arrow in IE */
-  }
-
-  /* Remove the blue highlight in Firefox */
-  &:-moz-focusring {
-    color: transparent;
-    text-shadow: 0 0 0 #4b5563;
-  }
-
-  /* Style for dropdown options */
-  option {
-    padding: 8px 12px;
-    background-color: white;
-    color: #1f2937;
-    
-    &:hover {
-      background-color: #043F35 !important;
-      color: white !important;
-    }
-    
-    &:checked, &:selected {
-      background-color: #043F35 !important;
-      color: white !important;
-    }
-  }
-`;
-
 const SubTitle = styled.p`
   font-size: 14px;
   color: #6b7280;
   margin: 0 0 16px 0;
-`;
-
-const StatusBadge = styled.span`
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  
-  ${props => {
-    switch (props.$status) {
-      case '1st attempt':
-        return 'background-color: #dcfce7; color: #166534;';
-      case '2nd attempt':
-        return 'background-color: #fef3c7; color: #92400e;';
-      case '3rd attempt':
-        return 'background-color: #fee2e2; color: #b91c1c;';
-      case 'In Transit':
-        return 'background-color: #dbeafe; color: #1e40af;';
-      default:
-        return 'background-color: #e5e7eb; color: #374151;';
-    }
-  }}
 `;
 
 export default DashboardPage;
