@@ -622,18 +622,57 @@ const Select = styled.select`
   cursor: pointer;
   outline: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236B7280' stroke-width='1.67' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  transition: all 0.2s ease;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%234b5563' stroke-width='1.67' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
   padding-right: 40px;
+  min-width: 120px;
+
+  /* Remove all default browser focus styles */
+  &:focus {
+    outline: none !important;
+    border-color: #043F35 !important;
+    box-shadow: 0 0 0 2px rgba(4, 63, 53, 0.1) !important;
+  }
+
+  /* For modern browsers */
+  &:focus-visible {
+    outline: none !important;
+    border-color: #043F35 !important;
+    box-shadow: 0 0 0 2px rgba(4, 63, 53, 0.1) !important;
+  }
 
   &:hover {
     border-color: #043F35;
   }
 
-  &:focus {
-    border-color: #043F35;
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+  /* Remove default styling in different browsers */
+  &::-ms-expand {
+    display: none; /* Remove default arrow in IE */
+  }
+
+  /* Remove the blue highlight in Firefox */
+  &:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #4b5563;
+  }
+
+  /* Style for dropdown options */
+  option {
+    padding: 8px 12px;
+    background-color: white;
+    color: #1f2937;
+    
+    &:hover {
+      background-color: #043F35 !important;
+      color: white !important;
+    }
+    
+    &:checked, &:selected {
+      background-color: #043F35 !important;
+      color: white !important;
+    }
   }
 `;
 
