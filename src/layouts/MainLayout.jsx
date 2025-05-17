@@ -92,7 +92,7 @@ export const MainLayout = ({
 
   return (
     <AppContainer>
-      <AppHeader $applyMinHeight={isDashboardPage || isInstructionsPage || isInvoicePage || isAddInstructionPage} $shortHeader={showShortHeader}>
+      <AppHeader $applyMinHeight={isDashboardPage || isInstructionsPage || isInstructionDetailsPage || isInvoicePage || isInvoiceDetailsPage || isAddInstructionPage} $shortHeader={showShortHeader}>
         <MainHeader>
           <LogoContainer>
             <MobileMenuToggle ref={toggleRef} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>

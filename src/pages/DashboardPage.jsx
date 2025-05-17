@@ -16,7 +16,15 @@ const DashboardPage = () => {
   const barChartRef = useRef(null);
   const pieChartRef = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
+  const [activeTab, setActiveTab] = useState('new-requests');
+  // eslint-disable-next-line no-unused-vars
+  const [invoicesFilter, setInvoicesFilter] = useState({
+      is_paid: '0',
+      per_page: 10,
+      page: 1
+  });
   const [dashboardData, setDashboardData] = useState({
     total_serves_count: 0,
     current_month_serves_count: 0,
@@ -41,16 +49,23 @@ const DashboardPage = () => {
 
   const handleTabChange = async (tabId) => {
     try {
+      setActiveTab(tabId); 
       let status = '';
       switch(tabId) {
         case 'new-requests':
-          status = 'pending';
+          status = 'new';
           break;
         case 'in-progress':
           status = 'active';
           break;
         case 'completed':
           status = 'completed';
+          break;
+        case 'pending':
+          status = 'pending';
+          break;
+        case 'invoices':
+          status = 'invoices';
           break;
         default:
           status = '';
@@ -62,22 +77,76 @@ const DashboardPage = () => {
     }
   };
 
+  // Get the label for the active tab
+  const getActiveTabLabel = () => {
+    const tabs = [
+      { id: 'new-requests', label: 'New Requests' },
+      { id: 'in-progress', label: 'In Progress' },
+      { id: 'completed', label: 'Completed' },
+      { id: 'invoices', label: ' Pending Invoices' }
+    ];
+    const activeTabObj = tabs.find(tab => tab.id === activeTab);
+    return activeTabObj ? activeTabObj.label : 'Instructions';
+  };
+
   const fetchServes = async (status = '') => {
     try {
-      setLoading(true);
-      
+      setTableLoading(true);
+
       if (!user?.id) {
         console.error('User ID not found');
         return;
       }
 
+          // Handle the invoices case separately
+    if (status === 'invoices') {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const queryParams = new URLSearchParams();
+      if (invoicesFilter.is_paid !== '') queryParams.append('is_paid', invoicesFilter.is_paid);
+      queryParams.append('per_page', invoicesFilter.per_page.toString());
+      
+      const response = await axios.get(`${API_ENDPOINTS.INVOICES}?${queryParams}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      console.log("Invoice API Response:", response); // Debug log
+
+      // Check if response.data exists and has the expected structure
+      if (response.data && response.data.success) {
+        const mappedInvoices = response.data.data.map(invoice => ({
+          wpr: invoice.invoice_number,
+          owner: invoice.owner || 'N/A',
+          serve: invoice.title || 'N/A',
+          type: invoice.type || 'N/A',
+          court: invoice.issuing_court || 'N/A',
+          deadline: invoice.deadline || 'N/A',
+          status: invoice.is_paid ? 'Paid' : 'Unpaid',
+        }));
+        console.log("Mapped Invoices:", mappedInvoices); // Debug log
+        setFilteredData(mappedInvoices);
+      } else {
+        console.error('Invoice data structure unexpected:', response.data);
+        setFilteredData([]);
+      }
+      return; // Exit early, don't proceed to getServes
+    }
+
+
       const params = {
         client_id: user.id,
-        ...(status && { status: status })
+        ...(status && { status }),
       };
 
       const response = await getServes(params);
-      
+
       if (response.success) {
         const mappedData = response.serves.data.map(serve => ({
           wpr: serve.id,
@@ -94,10 +163,10 @@ const DashboardPage = () => {
         setFilteredData([]);
       }
     } catch (error) {
-      console.error('Error fetching serves:', error);
+      console.error('Error fetching data:', error);
       setFilteredData([]);
     } finally {
-      setLoading(false);
+      setTableLoading(false);
     }
   };
 
@@ -360,7 +429,7 @@ const DashboardPage = () => {
               />
               
               <StatCard 
-                title="Instructions in Progress"
+                title="Instructions In Progress"
                 subtitle="Total count of in progress instructions"
                 value={dashboardData.status_data.in_progress.toString()}
                 subtext={`${dashboardData.urgent_serves_count} urgent`}
@@ -378,44 +447,31 @@ const DashboardPage = () => {
               />
             </StatsGrid>
             
-            <TableContainer>
-              <InstructionsTable 
-                data={filteredData}
-                title="Instructions In Progress"
-                subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
-                tabs={[
-                  { id: 'new-requests', label: 'New requests' },
-                  { id: 'in-progress', label: 'In progress' },
-                  { id: 'completed', label: 'Completed' },
-                  { id: 'invoices', label: 'Invoices' }
-                ]}
-                columns={[
-                  { key: 'wpr', header: 'WPR no.' },
-                  { key: 'owner', header: 'Owner' },
-                  { key: 'serve', header: 'Serve name' },
-                  { key: 'court', header: 'Court name' },
-                  { key: 'type', header: 'Service type' },
-                  { key: 'deadline', header: 'Deadline' },
-                  { key: 'status', header: 'Process status' },
-                ]}
-                onTabChange={handleTabChange}
-                renderCell={(key, value) => {
-                  if (key === 'status') {
-                    return <StatusBadgeTable $status={value}>{value}</StatusBadgeTable>;
-                  }
-                  return value;
-                }}
-                  // renderCell={(key, value) => {
-                  //   if (key === 'status') {
-                  //     return value; // Just return the value, let table handle the badge
-                  //   }
-                  //   return value;
-                  // }}
-                minHeight={348}
-                noDataCellHeight={309}
-                onRowClick={handleRowClick}
-              />
-            </TableContainer>
+            <InstructionsTable 
+              data={filteredData}
+              title={`Instructions ${getActiveTabLabel()}`}
+              subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
+              tabs={[
+                { id: 'new-requests', label: 'New requests' },
+                { id: 'in-progress', label: 'In progress' },
+                { id: 'completed', label: 'Completed' },
+                { id: 'invoices', label: 'Invoices' }
+              ]}
+              columns={[
+                { key: 'wpr', header: 'WPR no.' },
+                { key: 'owner', header: 'Owner' },
+                { key: 'serve', header: 'Serve name' },
+                { key: 'court', header: 'Court name' },
+                { key: 'type', header: 'Service type' },
+                { key: 'deadline', header: 'Deadline' },
+                { key: 'status', header: 'Process status' },
+              ]}
+              onTabChange={handleTabChange}
+              minHeight={348}
+              noDataCellHeight={348}
+              onRowClick={handleRowClick}
+              loading={tableLoading}
+            />
           </LeftColumn>
 
           <RightColumn>
@@ -431,7 +487,7 @@ const DashboardPage = () => {
               </ChartHeader>
               <SubTitle>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</SubTitle>
               <ChartCanvasWrapper>
-                <canvas ref={barChartRef} height="200"></canvas>
+                <canvas ref={barChartRef}></canvas>
               </ChartCanvasWrapper>
             </ChartCard>
 
@@ -447,7 +503,7 @@ const DashboardPage = () => {
               </ChartHeader>
               <SubTitle>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</SubTitle>
               <ChartCanvasWrapper>
-                <canvas ref={pieChartRef} height="180"></canvas>
+                <canvas ref={pieChartRef}></canvas>
               </ChartCanvasWrapper>
             </ChartCard>
           </RightColumn>
@@ -514,32 +570,32 @@ const StatsGrid = styled.div`
   }
 `;
 
-const TableContainer = styled.div`
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  width: 100%;
-`;
-
 const ChartCanvasWrapper = styled.div`
-  height: 255px;
   position: relative;
   width: 100%;
   
   canvas {
     width: 100% !important;
     height: 100% !important;
+    min-height: 252px;
+  }
+
+  @media (min-width: 1440px) {
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 262px;
+    }
   }
 `;
 
 const ChartCard = styled.div`
   background-color: white;
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   width: 100%;
-  min-height: 373px;
+  // min-height: 373px;
 `;
 
 const ChartHeader = styled.div`
@@ -566,18 +622,57 @@ const Select = styled.select`
   cursor: pointer;
   outline: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236B7280' stroke-width='1.67' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  transition: all 0.2s ease;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%234b5563' stroke-width='1.67' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
   padding-right: 40px;
+  min-width: 120px;
+
+  /* Remove all default browser focus styles */
+  &:focus {
+    outline: none !important;
+    border-color: #043F35 !important;
+    box-shadow: 0 0 0 2px rgba(4, 63, 53, 0.1) !important;
+  }
+
+  /* For modern browsers */
+  &:focus-visible {
+    outline: none !important;
+    border-color: #043F35 !important;
+    box-shadow: 0 0 0 2px rgba(4, 63, 53, 0.1) !important;
+  }
 
   &:hover {
     border-color: #043F35;
   }
 
-  &:focus {
-    border-color: #043F35;
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+  /* Remove default styling in different browsers */
+  &::-ms-expand {
+    display: none; /* Remove default arrow in IE */
+  }
+
+  /* Remove the blue highlight in Firefox */
+  &:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #4b5563;
+  }
+
+  /* Style for dropdown options */
+  option {
+    padding: 8px 12px;
+    background-color: white;
+    color: #1f2937;
+    
+    &:hover {
+      background-color: #043F35 !important;
+      color: white !important;
+    }
+    
+    &:checked, &:selected {
+      background-color: #043F35 !important;
+      color: white !important;
+    }
   }
 `;
 
@@ -608,30 +703,5 @@ const StatusBadge = styled.span`
     }
   }}
 `;
-
-
-const StatusBadgeTable = styled.span`
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  
-  ${props => {
-    switch (props.$status) {
-      case 'new':
-        return 'background-color: #dcfce7; color: #166534;';
-      case '2nd attempt':
-        return 'background-color: #fef3c7; color: #92400e;';
-      case '3rd attempt':
-        return 'background-color: #fee2e2; color: #b91c1c;';
-      case 'In Transit':
-        return 'background-color: #dbeafe; color: #1e40af;';
-      default:
-        return 'background-color: #e5e7eb; color: #374151;';
-    }
-  }}
-`;
-
-
 
 export default DashboardPage;

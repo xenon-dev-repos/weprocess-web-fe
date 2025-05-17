@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { ROUTES } from '../constants/routes';
+import { formatDate } from '../utils/helperFunctions';
 
 const InstructionsPage = () => {
     const [timeFilter, setTimeFilter] = useState('monthly');
@@ -16,19 +17,26 @@ const InstructionsPage = () => {
     const { user, getServes } = useAuth();
     const navigation = useNavigation();
 
-    const getDeadlineDate = (filter) => {
-        const today = new Date();
-        switch(filter) {
-            case 'weekly':
-                return new Date(today.setDate(today.getDate() + 7)).toISOString().split('T')[0];
-            case 'biweekly':
-                return new Date(today.setDate(today.getDate() + 14)).toISOString().split('T')[0];
-            case 'monthly':
-                return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
-            default:
-                return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
-        }
-    };
+    // const [pagination, setPagination] = useState({
+    //     current_page: 1,
+    //     last_page: 1,
+    //     per_page: 10,
+    //     total: 0
+    // });
+
+    // const getDeadlineDate = (filter) => {
+    //     const today = new Date();
+    //     switch(filter) {
+    //         case 'weekly':
+    //             return new Date(today.setDate(today.getDate() + 7)).toISOString().split('T')[0];
+    //         case 'biweekly':
+    //             return new Date(today.setDate(today.getDate() + 14)).toISOString().split('T')[0];
+    //         case 'monthly':
+    //             return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
+    //         default:
+    //             return new Date(today.setMonth(today.getMonth() + 1)).toISOString().split('T')[0];
+    //     }
+    // };
 
     const filterButtons = [
         { id: '', label: 'All', dotColor: 'white' },
@@ -47,6 +55,29 @@ const InstructionsPage = () => {
         fetchServes(filterId);
     };
 
+    // const handleTimeFilterChange = (value) => {
+    //     setTimeFilter(value);
+    //     fetchServes(statusFilter, pagination.current_page);
+    // };
+
+    // const handleStatusFilterChange = (filterId) => {
+    //     setStatusFilter(filterId);
+    //     // Reset to first page when filter changes
+    //     setPagination(prev => ({
+    //         ...prev,
+    //         current_page: 1
+    //     }));
+    //     fetchServes(filterId, 1);
+    // };
+
+    // const handlePageChange = (page) => {
+    //     setPagination(prev => ({
+    //         ...prev,
+    //         current_page: page
+    //     }));
+    //     fetchServes(statusFilter, page);
+    // };
+
     const fetchServes = async (status = statusFilter) => {
         try {
             setLoading(true);
@@ -56,22 +87,44 @@ const InstructionsPage = () => {
                 return;
             }
 
-            // Only include status in params if it's not empty
             const params = {
                 client_id: user.id,
+                // page: page,
+                // per_page: pagination.per_page,
                 ...(status && { status: status })
             };
 
             const response = await getServes(params);
             
-            if (response.success) {
+            if (response.success && response?.serves?.data) {
                 setFilteredData(response.serves.data || []);
+                if (response.serves.pagination) {
+                    // setPagination({
+                    //     current_page: response.serves.pagination.current_page || 1,
+                    //     last_page: response.serves.pagination.last_page || 1,
+                    //     per_page: response.serves.pagination.per_page || 10,
+                    //     total: response.serves.pagination.total || 0
+                    // });
+                }
             } else {
+                setFilteredData([]);
+                // setPagination({
+                //     current_page: 1,
+                //     last_page: 1,
+                //     per_page: filters.per_page,
+                //     total: 0
+                // });
                 console.error(response.message || 'Failed to fetch serves');
             }
         } catch (error) {
             console.error('Error fetching serves:', error);
             setFilteredData([]);
+            // setPagination({
+            //     current_page: 1,
+            //     last_page: 1,
+            //     per_page: filters.per_page,
+            //     total: 0
+            // });
         } finally {
             setLoading(false);
         }
@@ -82,6 +135,12 @@ const InstructionsPage = () => {
             fetchServes(statusFilter);
         }
     }, [statusFilter, user?.id]);
+
+    // useEffect(() => {
+    //     if (user?.id) {
+    //         fetchServes(statusFilter, pagination.current_page);
+    //     }
+    // }, [user?.id, pagination.current_page]);
   
     const customFilters = (
       <select 
@@ -99,43 +158,28 @@ const InstructionsPage = () => {
       </select>
     );
 
-    const formatDate = (dateStr) => {
-        if (!dateStr) return 'N/A';
-        // Handles both "YYYY-MM-DD" and "DD/MM/YYYY"
-        if (dateStr.includes('/')) return dateStr;
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-GB');
-    };
-
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'pending': return { label: 'Pending', bg: '#dcfce7', color: '#166534' };
-            case 'completed': return { label: 'Completed', bg: '#dbeafe', color: '#1e40af' };
-            case 'active': return { label: 'In Progress', bg: '#e0e7ff', color: '#3730a3' };
-            case 'new': return { label: 'New', bg: '#e5e7eb', color: '#374151' };
-            default: return { label: status, bg: '#e5e7eb', color: '#374151' };
-        }
-    };
-
     const mapServeToTableRow = (serve) => ({
         wpr: serve.id,
         owner: serve.applicant_name || serve.client_id || 'N/A',
         serve: serve.title,
         type: serve.priority ? serve.priority.charAt(0).toUpperCase() + serve.priority.slice(1) : 'N/A',
         court: serve.issuing_court,
-        recipientName: serve.recipient_name,
-        recipientAddress: serve.recipient_address,
-        dateIssues: formatDate(serve.date_of_submission) !== 'N/A' ? formatDate(serve.date_of_submission) : formatDate(serve.created_at),
+        recipient_name: serve.recipient_name,
+        recipient_address: serve.recipient_address,
+        date_of_submission: formatDate(serve.date_of_submission) !== 'N/A' ? formatDate(serve.date_of_submission) : formatDate(serve.created_at),
         deadline: serve.deadline,
         status: serve.status,
     });
 
     const columns = [
-        { key: 'wpr', header: 'WPR no.', width: 'wpr' },
+        { key: 'wpr', header: 'WPR no.', width: 'id' },
         { key: 'owner', header: 'Owner', width: 'owner' },
-        { key: 'serve', header: 'Serve name', width: 'serve' },
-        { key: 'court', header: 'Court name', width: 'court' },
+        { key: 'serve', header: 'Serve name', width: 'title' },
         { key: 'type', header: 'Service type', width: 'type' },
+        { key: 'court', header: 'Court name', width: 'issuing_court' },
+        { key: 'recipient_name', header: "Recipient's Name", width: 'recipient_name' },
+        { key: 'recipient_address', header: "Recipient's Address", width: 'recipient_address' },
+        { key: 'date_of_submission', header: 'Date Issues', width: 'date_issued' },
         { key: 'deadline', header: 'Deadline', width: 'deadline' },
         { key: 'status', header: 'Process status', width: 'status' }
     ];
@@ -155,36 +199,30 @@ const InstructionsPage = () => {
             filterButtons={filterButtons} 
             onFilterChange={handleStatusFilterChange} 
         >
-            {loading && <LoadingOnPage />}
+            {/* {loading && <LoadingOnPage />} */}
+
             <DashboardContainer>
                 <MainContent>
-                    <TableContainer>
-                        <InstructionsTable 
-                            data={tableData}
-                            title="Instructions In Progress"
-                            subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
-                            columns={columns}
-                            customFilters={customFilters}
-                            renderCell={(key, value) => {
-                                if (key === 'status') {
-                                    const { label, bg, color } = getStatusBadge(value);
-                                    return (
-                                        <StatusBadge style={{ backgroundColor: bg, color }}>
-                                            {label}
-                                        </StatusBadge>
-                                    );
-                                }
-                                if (key === 'dateIssues' || key === 'deadline') {
-                                    return formatDate(value);
-                                }
-                                return value;
-                            }}
-                            minHeight={495}
-                            noDataCellHeight={420}
-                            itemsPerPage={10}
-                            onRowClick={handleRowClick}
-                        />
-                    </TableContainer>
+                    <InstructionsTable 
+                        data={tableData}
+                        title="Instructions In Progress"
+                        subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
+                        columns={columns}
+                        customFilters={customFilters}
+                        minHeight={495}
+                        noDataCellHeight={495}
+                        itemsPerPage={10}
+                        onRowClick={handleRowClick}
+                        loading={loading}
+
+                        // itemsPerPage={pagination.per_page}
+                        // currentPage={pagination.current_page}
+                        // totalPages={pagination.last_page}
+                        // totalItems={pagination.total}
+                        // onPageChange={handlePageChange}
+                        // onRowClick={handleRowClick}
+                        // serverSidePagination={true}
+                    />
                 </MainContent>
             </DashboardContainer>
         </MainLayout>
@@ -210,14 +248,6 @@ const MainContent = styled.div`
   @media (max-width: 1280px) {
   gap: 24px;
 }
-`;
-
-const TableContainer = styled.div`
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  width: 100%;
 `;
 
 const StatusBadge = styled.span`
