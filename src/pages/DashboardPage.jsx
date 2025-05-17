@@ -16,8 +16,10 @@ const DashboardPage = () => {
   const barChartRef = useRef(null);
   const pieChartRef = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
   const [activeTab, setActiveTab] = useState('new-requests');
+  // eslint-disable-next-line no-unused-vars
   const [invoicesFilter, setInvoicesFilter] = useState({
       is_paid: '0',
       per_page: 10,
@@ -76,59 +78,20 @@ const DashboardPage = () => {
   };
 
   // Get the label for the active tab
-const getActiveTabLabel = () => {
-  const tabs = [
-    { id: 'new-requests', label: 'New Requests' },
-    { id: 'in-progress', label: 'In Progress' },
-    { id: 'completed', label: 'Completed' },
-    { id: 'invoices', label: ' Pending Invoices' }
-  ];
-  const activeTabObj = tabs.find(tab => tab.id === activeTab);
-  return activeTabObj ? activeTabObj.label : 'Instructions';
-};
-
-  // const fetchServes = async (status = '') => {
-  //   try {
-  //     setLoading(true);
-      
-  //     if (!user?.id) {
-  //       console.error('User ID not found');
-  //       return;
-  //     }
-
-  //     const params = {
-  //       client_id: user.id,
-  //       ...(status && { status: status })
-  //     };
-
-  //     const response = await getServes(params);
-      
-  //     if (response.success) {
-  //       const mappedData = response.serves.data.map(serve => ({
-  //         wpr: serve.id,
-  //         owner: serve.applicant_name || serve.client_id || 'N/A',
-  //         serve: serve.title,
-  //         type: serve.priority ? serve.priority.charAt(0).toUpperCase() + serve.priority.slice(1) : 'N/A',
-  //         court: serve.issuing_court,
-  //         deadline: serve.deadline,
-  //         status: serve.status,
-  //       }));
-  //       setFilteredData(mappedData);
-  //     } else {
-  //       console.error(response.message || 'Failed to fetch serves');
-  //       setFilteredData([]);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching serves:', error);
-  //     setFilteredData([]);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const getActiveTabLabel = () => {
+    const tabs = [
+      { id: 'new-requests', label: 'New Requests' },
+      { id: 'in-progress', label: 'In Progress' },
+      { id: 'completed', label: 'Completed' },
+      { id: 'invoices', label: ' Pending Invoices' }
+    ];
+    const activeTabObj = tabs.find(tab => tab.id === activeTab);
+    return activeTabObj ? activeTabObj.label : 'Instructions';
+  };
 
   const fetchServes = async (status = '') => {
     try {
-      setLoading(true);
+      setTableLoading(true);
 
       if (!user?.id) {
         console.error('User ID not found');
@@ -203,7 +166,7 @@ const getActiveTabLabel = () => {
       console.error('Error fetching data:', error);
       setFilteredData([]);
     } finally {
-      setLoading(false);
+      setTableLoading(false);
     }
   };
 
@@ -504,21 +467,10 @@ const getActiveTabLabel = () => {
                 { key: 'status', header: 'Process status' },
               ]}
               onTabChange={handleTabChange}
-              renderCell={(key, value) => {
-                if (key === 'status') {
-                  return <StatusBadgeTable $status={value}>{value}</StatusBadgeTable>;
-                }
-                return value;
-              }}
-                // renderCell={(key, value) => {
-                //   if (key === 'status') {
-                //     return value; // Just return the value, let table handle the badge
-                //   }
-                //   return value;
-                // }}
               minHeight={348}
               noDataCellHeight={348}
               onRowClick={handleRowClick}
+              loading={tableLoading}
             />
           </LeftColumn>
 
@@ -618,14 +570,6 @@ const StatsGrid = styled.div`
   }
 `;
 
-// const TableContainer = styled.div`
-//   background-color: white;
-//   border-radius: 20px;
-//   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-//   overflow: hidden;
-//   width: 100%;
-// `;
-
 const ChartCanvasWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -640,7 +584,7 @@ const ChartCanvasWrapper = styled.div`
     canvas {
       width: 100% !important;
       height: 100% !important;
-      min-height: 260px;
+      min-height: 262px;
     }
   }
 `;
@@ -720,30 +664,5 @@ const StatusBadge = styled.span`
     }
   }}
 `;
-
-
-const StatusBadgeTable = styled.span`
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  
-  ${props => {
-    switch (props.$status) {
-      case 'new':
-        return 'background-color: #dcfce7; color: #166534;';
-      case '2nd attempt':
-        return 'background-color: #fef3c7; color: #92400e;';
-      case '3rd attempt':
-        return 'background-color: #fee2e2; color: #b91c1c;';
-      case 'In Transit':
-        return 'background-color: #dbeafe; color: #1e40af;';
-      default:
-        return 'background-color: #e5e7eb; color: #374151;';
-    }
-  }}
-`;
-
-
 
 export default DashboardPage;

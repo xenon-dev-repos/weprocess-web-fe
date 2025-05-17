@@ -17,6 +17,13 @@ const InstructionsPage = () => {
     const { user, getServes } = useAuth();
     const navigation = useNavigation();
 
+    // const [pagination, setPagination] = useState({
+    //     current_page: 1,
+    //     last_page: 1,
+    //     per_page: 10,
+    //     total: 0
+    // });
+
     // const getDeadlineDate = (filter) => {
     //     const today = new Date();
     //     switch(filter) {
@@ -48,6 +55,29 @@ const InstructionsPage = () => {
         fetchServes(filterId);
     };
 
+    // const handleTimeFilterChange = (value) => {
+    //     setTimeFilter(value);
+    //     fetchServes(statusFilter, pagination.current_page);
+    // };
+
+    // const handleStatusFilterChange = (filterId) => {
+    //     setStatusFilter(filterId);
+    //     // Reset to first page when filter changes
+    //     setPagination(prev => ({
+    //         ...prev,
+    //         current_page: 1
+    //     }));
+    //     fetchServes(filterId, 1);
+    // };
+
+    // const handlePageChange = (page) => {
+    //     setPagination(prev => ({
+    //         ...prev,
+    //         current_page: page
+    //     }));
+    //     fetchServes(statusFilter, page);
+    // };
+
     const fetchServes = async (status = statusFilter) => {
         try {
             setLoading(true);
@@ -57,11 +87,10 @@ const InstructionsPage = () => {
                 return;
             }
 
-            // Only include status in params if it's not empty
             const params = {
                 client_id: user.id,
                 // page: page,
-                // per_page: 10,
+                // per_page: pagination.per_page,
                 ...(status && { status: status })
             };
 
@@ -69,13 +98,33 @@ const InstructionsPage = () => {
             
             if (response.success && response?.serves?.data) {
                 setFilteredData(response.serves.data || []);
+                if (response.serves.pagination) {
+                    // setPagination({
+                    //     current_page: response.serves.pagination.current_page || 1,
+                    //     last_page: response.serves.pagination.last_page || 1,
+                    //     per_page: response.serves.pagination.per_page || 10,
+                    //     total: response.serves.pagination.total || 0
+                    // });
+                }
             } else {
                 setFilteredData([]);
+                // setPagination({
+                //     current_page: 1,
+                //     last_page: 1,
+                //     per_page: filters.per_page,
+                //     total: 0
+                // });
                 console.error(response.message || 'Failed to fetch serves');
             }
         } catch (error) {
             console.error('Error fetching serves:', error);
             setFilteredData([]);
+            // setPagination({
+            //     current_page: 1,
+            //     last_page: 1,
+            //     per_page: filters.per_page,
+            //     total: 0
+            // });
         } finally {
             setLoading(false);
         }
@@ -86,6 +135,12 @@ const InstructionsPage = () => {
             fetchServes(statusFilter);
         }
     }, [statusFilter, user?.id]);
+
+    // useEffect(() => {
+    //     if (user?.id) {
+    //         fetchServes(statusFilter, pagination.current_page);
+    //     }
+    // }, [user?.id, pagination.current_page]);
   
     const customFilters = (
       <select 
@@ -103,16 +158,6 @@ const InstructionsPage = () => {
       </select>
     );
 
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'pending': return { label: 'Pending', bg: '#dcfce7', color: '#166534' };
-            case 'completed': return { label: 'Completed', bg: '#dbeafe', color: '#1e40af' };
-            case 'active': return { label: 'In Progress', bg: '#e0e7ff', color: '#3730a3' };
-            case 'new': return { label: 'New', bg: '#e5e7eb', color: '#374151' };
-            default: return { label: status, bg: '#e5e7eb', color: '#374151' };
-        }
-    };
-
     const mapServeToTableRow = (serve) => ({
         wpr: serve.id,
         owner: serve.applicant_name || serve.client_id || 'N/A',
@@ -127,14 +172,14 @@ const InstructionsPage = () => {
     });
 
     const columns = [
-        { key: 'wpr', header: 'WPR no.', width: 'wpr' },
+        { key: 'wpr', header: 'WPR no.', width: 'id' },
         { key: 'owner', header: 'Owner', width: 'owner' },
-        { key: 'serve', header: 'Serve name', width: 'serve' },
+        { key: 'serve', header: 'Serve name', width: 'title' },
         { key: 'type', header: 'Service type', width: 'type' },
-        { key: 'court', header: 'Court name', width: 'court' },
-        { key: 'recipient_name', header: "Recipient's Name", width: 'serve' },
-        { key: 'recipient_address', header: "Recipient's Address", width: 'serve' },
-        { key: 'date_of_submission', header: 'Date Issues', width: 'deadline' },
+        { key: 'court', header: 'Court name', width: 'issuing_court' },
+        { key: 'recipient_name', header: "Recipient's Name", width: 'recipient_name' },
+        { key: 'recipient_address', header: "Recipient's Address", width: 'recipient_address' },
+        { key: 'date_of_submission', header: 'Date Issues', width: 'date_issued' },
         { key: 'deadline', header: 'Deadline', width: 'deadline' },
         { key: 'status', header: 'Process status', width: 'status' }
     ];
@@ -154,7 +199,8 @@ const InstructionsPage = () => {
             filterButtons={filterButtons} 
             onFilterChange={handleStatusFilterChange} 
         >
-            {loading && <LoadingOnPage />}
+            {/* {loading && <LoadingOnPage />} */}
+
             <DashboardContainer>
                 <MainContent>
                     <InstructionsTable 
@@ -163,24 +209,19 @@ const InstructionsPage = () => {
                         subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
                         columns={columns}
                         customFilters={customFilters}
-                        renderCell={(key, value) => {
-                            if (key === 'status') {
-                                const { label, bg, color } = getStatusBadge(value);
-                                return (
-                                    <StatusBadge style={{ backgroundColor: bg, color }}>
-                                        {label}
-                                    </StatusBadge>
-                                );
-                            }
-                            if (key === 'date_of_submission' || key === 'deadline') {
-                                return formatDate(value);
-                            }
-                            return value;
-                        }}
                         minHeight={495}
-                        noDataCellHeight={420}
+                        noDataCellHeight={495}
                         itemsPerPage={10}
                         onRowClick={handleRowClick}
+                        loading={loading}
+
+                        // itemsPerPage={pagination.per_page}
+                        // currentPage={pagination.current_page}
+                        // totalPages={pagination.last_page}
+                        // totalItems={pagination.total}
+                        // onPageChange={handlePageChange}
+                        // onRowClick={handleRowClick}
+                        // serverSidePagination={true}
                     />
                 </MainContent>
             </DashboardContainer>

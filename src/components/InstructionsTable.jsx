@@ -11,26 +11,31 @@ const InstructionsTable = ({
   columns = [],
   onTabChange = () => {},
   customFilters = null,
-  renderCell = null,
-  itemsPerPage = 5,
-  showPagination = true,
   onRowClick = null,
   minHeight = 'auto',
   noDataCellHeight,
+  loading = false,
+  error = null,
+  serverSidePagination = false,
+  itemsPerPage = 5,
+  currentPage = 1,
+  totalPages = 1,
+  totalItems = 0,
+  showPagination = true,
+  onPageChange = () => {},
 }) => {
   console.log("data of table: ", data)
   const [activeTab, setActiveTab] = useState(tabs[0]?.id || '');
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedRow, setSelectedRow] = useState(null);
   
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+ // For client-side pagination (if needed)
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentData = data.slice(startIndex, endIndex);
+  const currentData = serverSidePagination ? data : data.slice(startIndex, endIndex);
   
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+      onPageChange(page);
     }
   };
 
@@ -43,7 +48,6 @@ const InstructionsTable = ({
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
-    setCurrentPage(1);
     onTabChange(tabId);
   };
 
@@ -99,7 +103,7 @@ const InstructionsTable = ({
       <TableContentContainer style={{ minHeight: minHeight }}>
           <ScrollableTableContainer>
             <Table>
-              <TableHead>
+              <TableHead $hasData={currentData.length > 0}>
                 <HeaderRow>
                   {columns.map(column => (
                     <TableHeaderCell 
@@ -113,7 +117,19 @@ const InstructionsTable = ({
                 </HeaderRow>
               </TableHead>
               <tbody>
-                {currentData.length > 0 ? (
+                {loading ? (
+                  <EmptyStateContainerRow style={{ height: noDataCellHeight }}>
+                    <EmptyTableCell colSpan={columns.length} $align="center">
+                      Loading...
+                    </EmptyTableCell>
+                  </EmptyStateContainerRow>
+                ) : error ? (
+                  <EmptyStateContainerRow style={{ height: noDataCellHeight }}>
+                    <EmptyTableCell colSpan={columns.length} $align="center">
+                      {error}
+                    </EmptyTableCell>
+                  </EmptyStateContainerRow>
+                ) : currentData.length > 0 ? (
                   currentData.map((row, index) => (
                     <TableRow 
                       key={index}
@@ -126,10 +142,13 @@ const InstructionsTable = ({
                           key={column.key}
                           $align={column.align}
                         >
-                          {renderCell 
-                            ? renderCell(column.key, row[column.key], row, index)
-                            : row[column.key]
-                          }
+                          {(column.key === 'status' || column.key === 'is_paid') ? (
+                            <StatusBadge $status={row[column.key]}>
+                              {column.key === 'is_paid' ? (row[column.key] ? 'Paid' : 'Unpaid') : row[column.key]}
+                            </StatusBadge>
+                          ) : (
+                            row[column.key]
+                          )}
                         </TableCell>
                       ))}
                     </TableRow>
@@ -145,10 +164,15 @@ const InstructionsTable = ({
             </Table>
           </ScrollableTableContainer>
 
-          {showPagination && data.length > 0 && (
+          {showPagination && !loading && !error && totalItems > 0 && (
             <Pagination>
               <PaginationInfo>
-                Showing {data.length > 0 ? startIndex + 1 : 0} to {Math.min(endIndex, data.length)} of {data.length} {data.length === 1 ? 'entry' : 'entries'}
+                Showing {data.length > 0 ? startIndex + 1 : 0} to {Math.min(
+                  serverSidePagination 
+                    ? (currentPage - 1) * itemsPerPage + data.length 
+                    : endIndex, 
+                  totalItems
+                )} of {totalItems} {totalItems === 1 ? 'entry' : 'entries'}
               </PaginationInfo>
 
               <PaginationControls>
@@ -222,10 +246,17 @@ InstructionsTable.propTypes = {
   customFilters: PropTypes.node,
   renderCell: PropTypes.func,
   itemsPerPage: PropTypes.number,
+  currentPage: PropTypes.number,
+  totalPages: PropTypes.number,
+  totalItems: PropTypes.number,
   showPagination: PropTypes.bool,
+  onPageChange: PropTypes.func,
   onRowClick: PropTypes.func,
   minHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   noDataCellHeight: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  loading: PropTypes.bool,
+  error: PropTypes.string,
+  serverSidePagination: PropTypes.bool,
 };
 
 const TableContainer = styled.div`
@@ -438,7 +469,7 @@ const Table = styled.table`
 
 const TableHead = styled.thead`
   background-color: #F9FAFB;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: ${props => props.$hasData ? '1px solid #E5E7EB' : ''};
 `;
 
 const HeaderRow = styled.tr`
@@ -469,66 +500,137 @@ const TableHeaderCell = styled.th`
     border-bottom-right-radius: 16px;
   }
 
-  @media (min-width: 1700px) {
-    width: ${props => {
-      switch (props.$width) {
-        case 'wpr': return '150px';
-        case 'owner': return '200px';
-        case 'serve': return '250px';
-        case 'court': return '250px';
-        case 'type': return '180px';
-        case 'deadline': return '150px';
-        case 'status': return '150px';
-        case 'invoice_number': return '150px';
-        case 'title': return '300px';
-        case 'price': return '150px';
-        case 'is_paid': return '120px';
-        case 'paid_at': return '150px';
-        default: return 'auto';
-      }
-    }};
-  }
+  /* Dynamic width calculation based on viewport width */
+  width: ${props => {
+    // Base widths for different column types (now matching exactly with keys)
+    const baseWidths = {
+      // From your columns array
+      id: 100,          // WPR no.
+      owner: 120,       // Owner
+      title: 120,       // Serve name
+      type: 120,        // Service type
+      issuing_court: 160, // Court name
+      recipient_name: 160, // Recipient's Name
+      recipient_address: 160, // Recipient's Address
+      date_issued: 120,  // Date Issued
+      deadline: 120,     // Deadline
+      is_paid: 100,      // Process status
+      
+      // Additional common ones from your previous implementation
+      status: 120,
+      invoice_number: 120,
+      price: 120,
+      paid_at: 120
+    };
 
-  @media (min-width: 1440px) and (max-width: 1699px) {
-    width: ${props => {
-      switch (props.$width) {
-        case 'wpr': return '130px';
-        case 'owner': return '180px';
-        case 'serve': return '220px';
-        case 'court': return '220px';
-        case 'type': return '160px';
-        case 'deadline': return '130px';
-        case 'status': return '130px';
-        case 'invoice_number': return '130px';
-        case 'title': return '250px';
-        case 'price': return '130px';
-        case 'is_paid': return '100px';
-        case 'paid_at': return '130px';
-        default: return 'auto';
-      }
-    }};
-  }
+    // Get the appropriate width key (fallback to 'id' if not specified)
+    const widthKey = props.$width || 'id';
+    const baseWidth = baseWidths[widthKey] || baseWidths['id'];
 
-  @media (max-width: 1439px) {
-    width: ${props => {
-      switch (props.$width) {
-        case 'wpr': return '110px';
-        case 'owner': return '160px';
-        case 'serve': return '200px';
-        case 'court': return '200px';
-        case 'type': return '140px';
-        case 'deadline': return '110px';
-        case 'status': return '110px';
-        case 'invoice_number': return '110px';
-        case 'title': return '200px';
-        case 'price': return '110px';
-        case 'is_paid': return '90px';
-        case 'paid_at': return '110px';
-        default: return 'auto';
-      }
-    }};
-  }
+    // Scale factor based on viewport width
+    const viewportWidth = window.innerWidth;
+    let scaleFactor = 1;
+    
+    if (viewportWidth >= 1700) {
+      scaleFactor = 1.2;
+    } else if (viewportWidth >= 1440) {
+      scaleFactor = 1.1;
+    } else if (viewportWidth >= 1280) {
+      scaleFactor = 1;
+    } else {
+      scaleFactor = 0.9;
+    }
+
+    // Calculate the final width with minimum of 80px
+    const calculatedWidth = Math.max(baseWidth * scaleFactor, 80);
+    
+    return `${calculatedWidth}px`;
+  }};
 `;
+
+// const TableHeaderCell = styled.th`
+//   padding: 16px;
+//   text-align: ${props => props.$align || 'left'};
+//   font-family: 'Manrope', sans-serif;
+//   font-size: 14px;
+//   font-weight: 600;
+//   color: #4B5563;
+//   white-space: nowrap;
+//   overflow: hidden;
+//   text-overflow: ellipsis;
+//   position: relative;
+//   border-bottom: 1px solid #E5E7EB;
+
+//   &:first-child {
+//     border-top-left-radius: 16px;
+//     border-bottom-left-radius: 16px;
+//   }
+
+//   &:last-child {
+//     border-top-right-radius: 16px;
+//     border-bottom-right-radius: 16px;
+//   }
+
+//   @media (min-width: 1700px) {
+//     width: ${props => {
+//       switch (props.$width) {
+//         case 'wpr': return '150px';
+//         case 'owner': return '200px';
+//         case 'serve': return '250px';
+//         case 'court': return '250px';
+//         case 'type': return '180px';
+//         case 'deadline': return '150px';
+//         case 'status': return '150px';
+//         case 'invoice_number': return '150px';
+//         case 'title': return '300px';
+//         case 'price': return '150px';
+//         case 'is_paid': return '120px';
+//         case 'paid_at': return '150px';
+//         default: return 'auto';
+//       }
+//     }};
+//   }
+
+//   @media (min-width: 1440px) and (max-width: 1699px) {
+//     width: ${props => {
+//       switch (props.$width) {
+//         case 'wpr': return '130px';
+//         case 'owner': return '180px';
+//         case 'serve': return '220px';
+//         case 'court': return '220px';
+//         case 'type': return '160px';
+//         case 'deadline': return '130px';
+//         case 'status': return '130px';
+//         case 'invoice_number': return '130px';
+//         case 'title': return '250px';
+//         case 'price': return '130px';
+//         case 'is_paid': return '100px';
+//         case 'paid_at': return '130px';
+//         default: return 'auto';
+//       }
+//     }};
+//   }
+
+//   @media (max-width: 1439px) {
+//     width: ${props => {
+//       switch (props.$width) {
+//         case 'wpr': return '110px';
+//         case 'owner': return '160px';
+//         case 'serve': return '200px';
+//         case 'court': return '200px';
+//         case 'type': return '140px';
+//         case 'deadline': return '110px';
+//         case 'status': return '110px';
+//         case 'invoice_number': return '110px';
+//         case 'title': return '200px';
+//         case 'price': return '110px';
+//         case 'is_paid': return '90px';
+//         case 'paid_at': return '110px';
+//         default: return 'auto';
+//       }
+//     }};
+//   }
+// `;
 
 const TableRow = styled.tr`
   height: 63px;
@@ -658,6 +760,48 @@ const PaginationEllipsis = styled.span`
   padding: 0 8px;
   color: #6B7280;
   font-size: 14px;
+`;
+
+const StatusBadge = styled.span`
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  
+  ${props => {
+
+    // if (!props.$status) {
+    //   return 'background-color: #e5e7eb; color: #374151;';
+    // }
+
+    // Convert to string and lowercase for comparison
+    const status = String(props.$status).toLowerCase().trim();
+    
+    switch (status) {
+      case 'new':
+      case 'paid':
+      case '1': // Handle boolean true/1 for paid status
+        return 'background-color: #dcfce7; color: #166534;';
+      case '2nd attempt':
+        return 'background-color: #fef3c7; color: #92400e;';
+      case '3rd attempt':
+        return 'background-color: #fee2e2; color: #b91c1c;';
+      case 'in transit':
+        return 'background-color: #dbeafe; color: #1e40af;';
+      case 'unpaid':
+      case 'un_paid':
+      case '0':
+        return 'background-color: #fee2e2; color: #b91c1c;';
+      case 'completed':
+        return 'background-color: #8B5CF6; color: white;';
+      case 'active':
+        return 'background-color: #FF5B5B; color: white;';
+      case 'on_hold':
+        return 'background-color: #6B7280; color: white;';
+      default:
+        return 'background-color: #e5e7eb; color: #374151;';
+    }
+  }}
 `;
 
 export default InstructionsTable;
