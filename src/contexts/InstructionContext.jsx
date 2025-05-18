@@ -68,12 +68,12 @@ export const InstructionProvider = ({ children }) => {
     // recipient_name: 'Jane Smith',
     // recipient_email: 'jane.smith@example.com',
     // recipient_address: '1234 Elm Street, Los Angeles, CA 90001',
-    // recipient_phone: '+44-310-555-7890',
+    // recipient_phone: '3105557890',
     // recipient_additional_details: 'Lives in unit #5B. Best time to serve is after 6 PM.',
     // applicant_name: 'John Doe',
     // applicant_email: 'john.doe@example.com',
     // applicant_address: '5678 Oak Avenue, Pasadena, CA 91101',
-    // applicant_phone: '+44-626-555-1234',
+    // applicant_phone: '6265551234',
     // service_type: 'standard',
     // priority: 'low',
     // deadline: '2025-06-13',
@@ -106,22 +106,36 @@ export const InstructionProvider = ({ children }) => {
     const noLabelErrors = !Object.values(formData.labelErrors || {}).some(Boolean);
     return hasDocuments && allLabeled && noLabelErrors;
   },
+  // 2: (formData) => {
+  //   // Step 2: Must have title, owner, and at least one document type
+  //   const hasValidDocumentTypes = formData.document_types.some(
+  //     type => type !== 'Other (Please Specify)'
+  //   );
+
+  //   return (
+  //     formData.title.trim() !== '' && 
+  //     formData.owner.trim() !== '' && 
+  //     hasValidDocumentTypes
+  //   );
+  // },
   2: (formData) => {
-    // Step 2: Must have title, owner, and at least one document type
-    const hasValidDocumentTypes = formData.document_types.some(
-      type => type !== 'Other (Please Specify)'
-    );
+  // Step 2: Must have title, owner, and at least one document type
+  const hasOtherDocumentType = formData.document_types.includes('Other (Please Specify)');
+  const hasValidDocumentTypes = formData.document_types.some(
+    type => type !== 'Other (Please Specify)'
+  );
 
-    return (
-      formData.title.trim() !== '' && 
-      formData.owner.trim() !== '' && 
-      hasValidDocumentTypes
-    );
+  // If 'Other' is selected, we must have a reason
+  const hasValidReason = !hasOtherDocumentType || 
+    (hasOtherDocumentType && formData.reason && formData.reason.trim() !== '');
 
-    // return formData.title.trim() !== '' && 
-    //        formData.owner.trim() !== '' && 
-    //        formData.document_types.length > 0;
-  },
+  return (
+    formData.title.trim() !== '' && 
+    formData.owner.trim() !== '' && 
+    (hasValidDocumentTypes || hasOtherDocumentType) && 
+    hasValidReason
+  );
+},
   3: (formData) => {
     // Step 3: All recipient and applicant fields required
     return formData.applicant_name?.trim() !== '' &&
@@ -230,11 +244,16 @@ export const InstructionProvider = ({ children }) => {
       
       const formDataToSend = new FormData();
 
+      // Filter out 'Other (Please Specify)' from document_types
+      const filteredDocumentTypes = formData.document_types?.filter(
+        type => type !== 'Other (Please Specify)'
+      );
+
       // Append all non-file fields
       const fieldsToAppend = {
         title: formData.title,
         owner: formData.owner,
-        document_types: formData.document_types?.join(','),
+        document_types: filteredDocumentTypes?.join(','),
         reason: formData.reason,
         issuing_court: formData.issuing_court,
         court_case_number: formData.court_case_number,
@@ -377,15 +396,29 @@ export const InstructionProvider = ({ children }) => {
 
 // >>>>>>>>>>>>>>>>>>> STEP 1 Functions
   const handleDocumentUpload = useCallback((files) => {
+    const validTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/jpeg',
+      'image/jpg',
+      'image/png'
+    ];
+
     const newDocuments = Array.from(files)
-      .filter(file => file.type === 'application/pdf' && file.size <= 23 * 1024 * 1024)
-      .map(file => ({
-        id: Date.now() + Math.random().toString(36).substr(2, 9),
-        file,
-        name: file.name,
-        size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
-        type: 'document'
-      }));
+      .filter(file => validTypes.includes(file.type) && file.size <= 23 * 1024 * 1024)
+      .map(file => {
+        // Get the file extension from the name
+        const fileExt = file.name.split('.').pop().toLowerCase();
+        
+        return {
+          id: Date.now() + Math.random().toString(36).substr(2, 9),
+          file,
+          name: file.name,
+          size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
+          type: fileExt // Store the file extension instead of MIME type
+        };
+      });
 
     setFormData(prev => ({
       ...prev,
@@ -394,19 +427,29 @@ export const InstructionProvider = ({ children }) => {
   }, []);
 
   const handleReceiptUpload = useCallback((file) => {
-    if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+    if (file && (file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp')) {
       setFormData(prev => ({
         ...prev,
         receipt: {
           id: Date.now() + Math.random().toString(36).substr(2, 9),
-          file,
+          file: file,  // Make sure this is the actual File object
           name: file.name,
           size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
-          type: 'receipt'
+          type: 'receipt',
+          url: URL.createObjectURL(file)  // Create and store the URL here
         }
       }));
     }
   }, []);
+
+  useEffect(() => {
+  return () => {
+    // Clean up object URLs when component unmounts
+    if (formData.receipt?.url) {
+      URL.revokeObjectURL(formData.receipt.url);
+    }
+  };
+}, [formData.receipt]);
 
   const removeDocument = useCallback((id) => {
     setFormData(prev => {
@@ -486,9 +529,14 @@ export const InstructionProvider = ({ children }) => {
       setRecipientPhoneNumber(formattedValue);
       setRecipientCursorPosition(newCursorPosition);
 
+      let phoneValue = formattedValue.replace(/\s/g, '');
+      if (!phoneValue.startsWith('+44') && !phoneValue.startsWith('44')) {
+        phoneValue = '+44' + phoneValue.replace(/^0/, ''); // Remove leading 0 if present
+      }
+
       setFormData(prev => ({
         ...prev,
-        recipient_phone: formattedValue.replace(/\s/g, '')
+        recipient_phone: phoneValue
       }));
     } 
     else if (name === 'applicant_phone') {
@@ -499,9 +547,14 @@ export const InstructionProvider = ({ children }) => {
       setApplicantPhoneNumber(formattedValue);
       setApplicantCursorPosition(newCursorPosition);
 
+      let phoneValue = formattedValue.replace(/\s/g, '');
+      if (!phoneValue.startsWith('+44') && !phoneValue.startsWith('44')) {
+        phoneValue = '+44' + phoneValue.replace(/^0/, ''); // Remove leading 0 if present
+      }
+
       setFormData(prev => ({
         ...prev,
-        applicant_phone: formattedValue.replace(/\s/g, '')
+        applicant_phone: phoneValue
       }));
     }
     else {
@@ -516,15 +569,15 @@ export const InstructionProvider = ({ children }) => {
     setFormData(prev => {
         const wasSelected = prev.document_types.includes(type);
 
-        if (type === 'Other (Please Specify)') {
-            return {
-              ...prev,
-              document_types: wasSelected
-                ? prev.document_types.filter(t => t !== type) // Remove if already selected
-                : [...prev.document_types, type], // Add if not selected
-              reason: wasSelected ? '' : prev.reason // Clear reason if unselecting
-            };
-        }
+        // if (type === 'Other (Please Specify)') {
+        //     return {
+        //       ...prev,
+        //       document_types: wasSelected
+        //         ? prev.document_types.filter(t => t !== type) // Remove if already selected
+        //         : [...prev.document_types, type], // Add if not selected
+        //       reason: wasSelected ? '' : prev.reason // Clear reason if unselecting
+        //     };
+        // }
 
         // For regular types
         const new_document_types = wasSelected
@@ -633,6 +686,7 @@ export const InstructionProvider = ({ children }) => {
     <InstructionContext.Provider
       value={{
         formData,
+        setFormData,
         initialFormData,
         isLoading,
 

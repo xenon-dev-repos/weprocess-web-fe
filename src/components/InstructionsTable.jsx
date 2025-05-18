@@ -144,7 +144,7 @@ const InstructionsTable = ({
                         >
                           {(column.key === 'status' || column.key === 'is_paid') ? (
                             <StatusBadge $status={row[column.key]}>
-                              {column.key === 'is_paid' ? (row[column.key] ? 'Paid' : 'Unpaid') : row[column.key]}
+                              {column.key === 'is_paid' ? (row[column.key] ? 'Paid' : 'Pending') : row[column.key]}
                             </StatusBadge>
                           ) : (
                             row[column.key]
@@ -778,20 +778,21 @@ const StatusBadge = styled.span`
     const status = String(props.$status).toLowerCase().trim();
     
     switch (status) {
+      case '1st attempt':
       case 'new':
       case 'paid':
       case '1': // Handle boolean true/1 for paid status
-        return 'background-color: #dcfce7; color: #166534;';
+        return 'background-color: #D4F8D3; color: #008000;';
       case '2nd attempt':
         return 'background-color: #fef3c7; color: #92400e;';
       case '3rd attempt':
         return 'background-color: #fee2e2; color: #b91c1c;';
       case 'in transit':
         return 'background-color: #dbeafe; color: #1e40af;';
-      case 'unpaid':
+      case 'Pending':
       case 'un_paid':
       case '0':
-        return 'background-color: #fee2e2; color: #b91c1c;';
+        return 'background-color: #FFF0BB; color: #E78E00;';
       case 'completed':
         return 'background-color: #8B5CF6; color: white;';
       case 'active':

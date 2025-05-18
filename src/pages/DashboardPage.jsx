@@ -144,7 +144,7 @@ const DashboardPage = () => {
             type: invoice.type || 'N/A',
             court: invoice.issuing_court || 'N/A',
             deadline: invoice.deadline || 'N/A',
-            status: invoice.is_paid ? 'Paid' : 'Unpaid',
+            status: invoice.is_paid ? 'Paid' : 'Pending',
           }));
           setFilteredData(mappedInvoices);
         } else {

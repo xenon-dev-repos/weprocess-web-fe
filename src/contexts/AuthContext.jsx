@@ -63,7 +63,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
     }
     
     let formattedValue = '';
-    // UK mobile format: 7700 900123 (10 digits)
+    // UK mobile format: 7123 456 789 (10 digits) 
     if (digitsOnly.startsWith('7')) {
       if (digitsOnly.length <= 4) {
         formattedValue = digitsOnly;

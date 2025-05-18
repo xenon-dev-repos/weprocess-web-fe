@@ -2,7 +2,7 @@ import React from 'react';
 import { FieldRow } from '../shared/FieldRow.jsx';
 import { DisplayField } from '../shared/DisplayField.jsx';
 import { RecipientDetailsLayout } from '../../layouts/RecipientDetailsLayout.jsx';
-import { formatDateDisplay, formatPhoneDisplay } from '../../utils/helperFunctions.js';
+import { capitalizeFirstLetter, formatDate, formatDateDisplay, formatDocumentTypesForDisplay, formatPhoneDisplay } from '../../utils/helperFunctions.js';
 import styled from 'styled-components';
 import { CustomDivider } from '../../styles/Shared.js';
 
@@ -14,6 +14,7 @@ export const SharedInstructionInvoiceDetails = ({
     // isAddNewInstructionStep6 = false 
     currentInvoiceData = null,
 }) => {
+
   return (
     <>
         {(isAddNewInstructionStep5 || (isInvoiceDetails && currentInvoiceData)) &&
@@ -37,7 +38,7 @@ export const SharedInstructionInvoiceDetails = ({
                         <DetailLabel>Client contact info</DetailLabel>
                         <DetailValue>{formData.applicant_name || '-'}</DetailValue>
                         <DetailValue>{formData.applicant_email || '-'}</DetailValue>
-                        <DetailValue>{formData.applicant_phone || '-'}</DetailValue>
+                        <DetailValue>{formatPhoneDisplay(formData.applicant_phone) || '-'}</DetailValue>
                         <DetailValue>{formData.applicant_address || '-'}</DetailValue>
                     </InfoSection>
 
@@ -46,7 +47,7 @@ export const SharedInstructionInvoiceDetails = ({
                         <DetailLabel>Bill to</DetailLabel>
                         <DetailValue>WeProcess Ltd</DetailValue>
                         <DetailValue>accounts@weprocess.com</DetailValue>
-                        <DetailValue>+44 20 7946 0000</DetailValue>
+                        <DetailValue>+44-20-7946-0000</DetailValue>
                         <DetailValue>123 Business Ave, London</DetailValue>
                     </InfoSection>
 
@@ -58,88 +59,35 @@ export const SharedInstructionInvoiceDetails = ({
                         </DetailRow>
                         <DetailRow>
                             <DetailLabel>Invoice date</DetailLabel>
-                            <DetailValue>{new Date().toLocaleDateString('en-US', { 
+                            <DetailValue>{formatDate(new Date().toLocaleDateString('en-US', { 
                                 year: 'numeric', 
                                 month: 'short', 
                                 day: 'numeric' 
-                            })}</DetailValue>
+                            }))}</DetailValue>
                         </DetailRow>
                         <DetailRow>
                             <DetailLabel>Due date</DetailLabel>
                             <DetailValue>
-                                {formData.deadline ? 
-                                    new Date(formData.deadline).toLocaleDateString('en-US', { 
-                                        year: 'numeric', 
-                                        month: 'short', 
-                                        day: 'numeric' 
-                                    }) : 
-                                    '-'
-                                }
+                                {formData.deadline ? formatDate(formData.deadline) : '-'}
                             </DetailValue>
                         </DetailRow>
+
+                        <InvoiceTotalAmountColumn>
+                            <InvoiceRightColumn style={{alignItems: 'flex-end'}}>
+                                <DetailLabel>Total amount</DetailLabel>
+                                <DetailValue>{formData.price ? `£${formData.price}` : '-'}</DetailValue>
+                            </InvoiceRightColumn>
+                        </InvoiceTotalAmountColumn>
                     </ClientNameSection>
                 </ClientReceipentInfoContainer>
             </RecipientDetailsLayout>
         }
-        {/* {(isInvoiceDetails || isAddNewInstructionStep5) &&
-            <RecipientDetailsLayout title="Invoice details">
-
-            <InvoiceDetailsContainer>
-                <InvoiceLeftColumn>
-                    <DetailValue>Andrew Garfield</DetailValue>
-                    <DetailValue>ABC street 4, NY</DetailValue>
-                </InvoiceLeftColumn>
-                <InvoiceRightColumn>
-                    <DetailLabel>Invoice no.</DetailLabel>
-                    <DetailValue>51026712</DetailValue>
-                </InvoiceRightColumn>
-            </InvoiceDetailsContainer>
-
-            <CustomDivider />
-
-            <ClientReceipentInfoContainer>
-                <InfoSection>
-                    <DetailLabel>Client contact info</DetailLabel>
-                    <DetailValue>Andrew Garfield</DetailValue>
-                    <DetailValue>andrew@example.com</DetailValue>
-                    <DetailValue>+44 71 7946 0958</DetailValue>
-                    <DetailValue>ABC street 4, NY</DetailValue>
-                </InfoSection>
-
-                <InfoSection>
-                    <DetailLabel>Bill to</DetailLabel>
-                    <DetailValue>WeProcess Ltd</DetailValue>
-                    <DetailValue>accounts@weprocess.com</DetailValue>
-                    <DetailValue>+44 20 7946 0000</DetailValue>
-                    <DetailValue>123 Business Ave, London</DetailValue>
-                </InfoSection>
-
-                <ClientNameSection>
-                <DetailRow>
-                    <DetailLabel>Client name</DetailLabel>
-                    <DetailValue>Andrew Garfield</DetailValue>
-                </DetailRow>
-                <DetailRow>
-                    <DetailLabel>Invoice date</DetailLabel>
-                    <DetailValue>May 10, 2025</DetailValue>
-                </DetailRow>
-                <DetailRow>
-                    <DetailLabel>Due date</DetailLabel>
-                    <DetailValue>May 24, 2025</DetailValue>
-                </DetailRow>
-                </ClientNameSection>
-            </ClientReceipentInfoContainer>
-            </RecipientDetailsLayout>
-        }
- */}
-
-        
 
         {isInstructionDetails &&
             <RecipientDetailsLayout title="Applicant info">
             <FieldRow>
                 <DisplayField label="Full name" value={formData.recipient_name} />
-                <DisplayField label="Email address" value={formData.recipient_email} />
+                <DisplayField label="Email address (optional)" value={formData.recipient_email} />
             </FieldRow>
             <FieldRow>
                 <DisplayField label="Contact number" value={formatPhoneDisplay(formData.recipient_phone)} />
@@ -156,7 +104,7 @@ export const SharedInstructionInvoiceDetails = ({
             <RecipientDetailsLayout title="Recipient info">
             <FieldRow>
                 <DisplayField label="Full name" value={formData.recipient_name} />
-                <DisplayField label="Email address" value={formData.recipient_email} />
+                <DisplayField label="Email address (optional)" value={formData.recipient_email} />
             </FieldRow>
             <FieldRow>
                 <DisplayField label="Contact number" value={formatPhoneDisplay(formData.recipient_phone)} />
@@ -169,8 +117,11 @@ export const SharedInstructionInvoiceDetails = ({
 
             <RecipientDetailsLayout title="Serve info">
             <FieldRow>
-                <DisplayField label="Serve Type" value={formData.document_types?.join(', ')} />
-                <DisplayField label="Service type" value={formData.service_type} />
+                <DisplayField label="Serve Type" value={formatDocumentTypesForDisplay(formData.document_types, formData.reason)}  />
+                <DisplayField 
+                  label="Service type" 
+                  value={capitalizeFirstLetter(formData.service_type)} 
+                />
             </FieldRow>
             {/* <FieldRow>
                 <DisplayField label="Priority" value={formData.priority} />
@@ -270,6 +221,19 @@ const InvoiceRightColumn = styled.div`
   flex-direction: column;
   gap: 8px;
   align-items: flex-start;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+const InvoiceTotalAmountColumn = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  margin-top: 70px;
 
   @media (max-width: 768px) {
     width: 100%;
