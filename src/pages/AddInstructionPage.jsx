@@ -14,33 +14,33 @@ const stepsData = ['Upload Documents', 'Serve Type', 'Recipient Details', 'Servi
 const stepsConfig = [
   {
     component: Step1UploadDocuments,
-    title: 'Upload documents',
-    description: 'Upload all the required documents for processing'
+    title: 'Add documents that need to be served',
+    description: 'Upload each document as a standalone file. Their order will match the sequence shown in the affidavit.'
   },
   {
     component: Step2ServeType,
-    title: 'Serve type',
-    description: 'Select the type of service required'
+    title: 'Serve details',
+    description: 'Provide information on serve by defining the type and assignee.'
   },
   {
     component: Step3RecipientDetails,
     title: 'Recipient details',
-    description: 'Provide all the details relevant to recipient\'s information and case details'
+    description: 'Provide all the details relevant to recipient’s information and case details.'
   },
   {
     component: Step4ServiceType,
     title: 'Service type',
-    description: 'Select the specific service type and options'
+    description: 'Please select the type of service you would like to opt for.'
   },
   {
     component: Step5PaymentMethod,
     title: 'Payment method',
-    description: 'Choose your preferred payment method'
+    description: 'Please provide payment details.'
   },
   {
     component: Step6Confirmation,
     title: 'Confirmation',
-    description: 'Review and confirm all the details before submission'
+    description: 'Please confirm all the added information is accurate.'
   }
 ];
 

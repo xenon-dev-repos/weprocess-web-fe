@@ -29,7 +29,11 @@ import trendIcon from './instructions/trend-icon.svg';
 
 import arrowRight from './instructions/arrow-right.png';
 import arrowDown from './instructions/arrow-down.png';
-import backIcon from './instructions/back-icon.svg'
+import backIcon from './instructions/back-icon.svg';
+
+import wordIcon from './instructions/microsoft-word.svg';
+import imageIcon from './instructions/image-file.svg';
+import fileIcon from './instructions/file-icon.svg';
 
 export const Images = {
   auth: {
@@ -66,6 +70,10 @@ export const Images = {
 
     arrowRight,
     arrowDown,
+
+    wordIcon,
+    imageIcon,
+    fileIcon,
   },
   
   shared: {

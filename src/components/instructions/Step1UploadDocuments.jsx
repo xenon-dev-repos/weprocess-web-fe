@@ -1,5 +1,5 @@
 // Step1UploadDocuments.jsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { InstructionsMainContainer } from '../../styles/Shared';
 import { Images } from '../../assets/images/index.js';
@@ -9,17 +9,46 @@ import { StepValidation } from './StepValidation.jsx';
 export const Step1UploadDocuments = () => {
   const {
     formData,
+    setFormData,
     handleDocumentUpload,
     handleReceiptUpload,
     removeDocument,
     handleLabelChange
   } = useInstruction();
 
+  const [uploadError, setUploadError] = useState(null);
+
   const handleDocumentChange = useCallback((e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      handleDocumentUpload(e.target.files);
+  if (e.target.files && e.target.files.length > 0) {
+    const invalidFiles = Array.from(e.target.files).filter(
+      file => ![
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg',
+        'image/jpg',
+        'image/png'
+      ].includes(file.type)
+    );
+
+    if (invalidFiles.length > 0) {
+      setUploadError('Only PDF, DOC, DOCX, JPG, JPEG, and PNG files are allowed');
+      return;
     }
-  }, [handleDocumentUpload]);
+
+    const oversizedFiles = Array.from(e.target.files).filter(
+      file => file.size > 23 * 1024 * 1024
+    );
+
+    if (oversizedFiles.length > 0) {
+      setUploadError('File size must be less than 23MB');
+      return;
+    }
+
+    setUploadError(null);
+    handleDocumentUpload(e.target.files);
+  }
+}, [handleDocumentUpload]);
 
   const handleReceiptChange = useCallback((e) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -30,10 +59,46 @@ export const Step1UploadDocuments = () => {
   const triggerFileInput = (type) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = type === 'document' ? '.pdf' : 'image/*';
+    input.accept = type === 'document' 
+      ? '.pdf,.doc,.docx,.jpg,.jpeg,.png' 
+      : 'image/*';
     input.multiple = type === 'document';
     input.onchange = type === 'document' ? handleDocumentChange : handleReceiptChange;
     input.click();
+  };
+
+  const FileTypeIcon = ({ type }) => {
+    let iconSrc;
+    
+    // Extract the file extension from the type or name
+    const fileExtension = type.includes('/') 
+      ? type.split('/')[1]  // For MIME types like 'application/pdf'
+      : type.split('.').pop().toLowerCase(); // For file names or extensions
+
+    switch(fileExtension) {
+      case 'pdf':
+        iconSrc = Images.instructions.pdfIcon;
+        break;
+      case 'msword':
+      case 'doc':
+        iconSrc = Images.instructions.wordIcon;
+        break;
+      case 'vnd.openxmlformats-officedocument.wordprocessingml.document':
+      case 'docx':
+        iconSrc = Images.instructions.wordIcon;
+        break;
+      case 'jpeg':
+      case 'jpg':
+        iconSrc = Images.instructions.imageIcon;
+        break;
+      case 'png':
+        iconSrc = Images.instructions.imageIcon;
+        break;
+      default:
+        iconSrc = Images.instructions.fileIcon;
+    }
+
+    return <DocImage src={iconSrc} alt="Document" />;
   };
 
   return (
@@ -43,53 +108,76 @@ export const Step1UploadDocuments = () => {
           <UploadContainer>
             <UploadContent>
               <UploadIcon src={Images.instructions.uploadIcon} alt="Upload" />
-              <UploadText>Upload the PDF file here (max 23MB)</UploadText>
+              <UploadText>Upload the pdf, doc, docx, jpg, jpeg or png file here (max 23MB)</UploadText>
               <BrowseLink onClick={() => triggerFileInput('document')}>Browse</BrowseLink>
+              {uploadError && <UploadErrorText>{uploadError}</UploadErrorText>}
             </UploadContent>
           </UploadContainer>
 
           <ReceiptContainer>
             <ReceiptText>Upload receipt photo (optional)</ReceiptText>
-            <UploadButton onClick={() => triggerFileInput('receipt')}>
-              <UploadSmallIcon src={Images.instructions.uploadIcon} alt="Upload" />
-              <span>Upload</span>
-            </UploadButton>
+            {formData.receipt ? (
+              <ReceiptPreviewContainer>
+                <ReceiptPreview 
+                  src={typeof formData.receipt === 'string' 
+                    ? formData.receipt 
+                    : URL.createObjectURL(formData.receipt.file)} 
+                  alt="Receipt preview" 
+                />
+                <RemoveReceiptButton 
+                  onClick={() => {
+                    if (typeof formData.receipt !== 'string' && formData.receipt.file) {
+                      URL.revokeObjectURL(formData.receipt.url);
+                    }
+                    setFormData(prev => ({ ...prev, receipt: null }));
+                  }}
+                >
+                  {/* <CancelIconWhite src={Images.instructions.cancelIcon} alt="Remove" /> */}
+                  X
+                </RemoveReceiptButton>
+              </ReceiptPreviewContainer>
+            ) : (
+              <UploadButton onClick={() => triggerFileInput('receipt')}>
+                <UploadSmallIcon src={Images.instructions.uploadIcon} alt="Upload" />
+                <span>Upload</span>
+              </UploadButton>
+            )}
           </ReceiptContainer>
 
           <Divider />
 
           <UploadedDocsContainer>
-            <UploadedDocsTitle>Upload documents</UploadedDocsTitle>
+            <UploadedDocsTitle>Uploaded documents</UploadedDocsTitle>
             {formData.documents.length === 0 ? (
               <ReceiptText>No docs added</ReceiptText>
             ) : (
               formData.documents.map((doc) => (
-                <DocRow key={doc.id} $hasError={!!formData.labelErrors?.[doc.id]}>
-                  <DocInfoContainer>
-                    <DocLeft>
-                      <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
-                      <DocTextGroup>
-                        <DocName>{doc.name}</DocName>
-                        <DocSize>{doc.size}</DocSize>
-                      </DocTextGroup>
-                    </DocLeft>
-                    <CancelIcon 
-                      src={Images.instructions.cancelIcon} 
-                      alt="Cancel" 
-                      onClick={() => removeDocument(doc.id)}
-                    />
-                  </DocInfoContainer>
-                  <LabelInputContainer>
-                    <LabelInput 
-                      placeholder="Provide a document label"
-                      value={formData.document_labels[doc.id] || ''}
-                      onChange={(e) => handleLabelChange(doc.id, e.target.value)}
-                      $hasError={!!formData.labelErrors?.[doc.id]}
-                    />
-                    {formData.labelErrors?.[doc.id] && (
-                      <ErrorText>{formData.labelErrors[doc.id]}</ErrorText>
-                    )}
-                  </LabelInputContainer>
+                  <DocRow key={doc.id} $hasError={!!formData.labelErrors?.[doc.id]}>
+                    <DocInfoContainer>
+                      <DocLeft>
+                        <FileTypeIcon type={doc.type} />
+                        <DocTextGroup>
+                          <DocName>{doc.name}</DocName>
+                          <DocSize>{doc.size}</DocSize>
+                        </DocTextGroup>
+                      </DocLeft>
+                      <CancelIcon 
+                        src={Images.instructions.cancelIcon} 
+                        alt="Cancel" 
+                        onClick={() => removeDocument(doc.id)}
+                      />
+                    </DocInfoContainer>
+                    <LabelInputContainer>
+                      <LabelInput 
+                        placeholder="Provide a document label"
+                        value={formData.document_labels[doc.id] || ''}
+                        onChange={(e) => handleLabelChange(doc.id, e.target.value)}
+                        $hasError={!!formData.labelErrors?.[doc.id]}
+                      />
+                      {formData.labelErrors?.[doc.id] && (
+                        <ErrorText>{formData.labelErrors[doc.id]}</ErrorText>
+                      )}
+                    </LabelInputContainer>
                 </DocRow>
               ))
             )}
@@ -228,6 +316,18 @@ const BrowseLink = styled.a`
   }
 `;
 
+const UploadErrorText = styled.span`
+  color: #FF3E3E;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+  text-align: center;
+  
+  @media (max-width: 768px) {
+    font-size: 11px;
+  }
+`;
+
 const ReceiptContainer = styled.div`
   width: 100%;
   display: flex;
@@ -266,6 +366,50 @@ const ReceiptText = styled.p`
     font-size: 13px;
     line-height: 17px;
   }
+`;
+
+const ReceiptPreviewContainer = styled.div`
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+`;
+
+const ReceiptPreview = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const RemoveReceiptButton = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  color: white;
+  background: #FF3E3E; 
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #E53935; 
+    transform: scale(1.1);
+  }
+`;
+
+const CancelIconWhite = styled.img`
+  width: 12px;
+  height: 12px;
+  filter: brightness(0) invert(1); /* Makes the icon white */
 `;
 
 const UploadButton = styled.button`

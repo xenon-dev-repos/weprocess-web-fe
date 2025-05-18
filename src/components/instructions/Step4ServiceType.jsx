@@ -8,48 +8,66 @@ import { ServiceCard } from './ServiceCard';
 export const Step4ServiceType = () => {
   const { 
     formData, 
-    // setFormData,
-    handleInputChange 
+    setFormData,
+    // handleInputChange 
   } = useInstruction();
 
-  // const calculateDeadline = (serviceType) => {
-  //   const today = new Date();
-  //   const deadline = new Date(today);
+  const calculateDeadline = (serviceType) => {
+    const today = new Date();
+    const deadline = new Date(today);
     
-  //   switch(serviceType) {
-  //     case 'standard':
-  //       deadline.setDate(deadline.getDate() + 10);
-  //       break;
-  //     case 'urgent':
-  //       deadline.setDate(deadline.getDate() + 5);
-  //       break;
-  //     case 'same-day':
-  //     case 'sub-serve':
-  //       // current date for same-day and instant delivery
-  //       break;
-  //     default:
-  //       deadline.setDate(deadline.getDate() + 10);
-  //   }
+    switch(serviceType) {
+      case 'standard':
+        deadline.setDate(deadline.getDate() + 10);
+        break;
+      case 'urgent':
+        deadline.setDate(deadline.getDate() + 5);
+        break;
+      case 'same-day':
+      case 'sub-serve':
+        // current date for same-day and instant delivery
+        break;
+      default:
+        deadline.setDate(deadline.getDate() + 10);
+    }
     
-  //   return deadline.toISOString().split('T')[0]; // YYYY-MM-DD
-  // };
+    return deadline.toISOString().split('T')[0]; // YYYY-MM-DD
+  };
 
-  // useEffect(() => {
-  //   if (!formData.deadline) {
-  //     const initialDeadline = calculateDeadline('standard');
-  //     formData.deadline = initialDeadline;
-  //   }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
+useEffect(() => {
+    const serviceId = formData.service_type || serviceOptions[0].id;
+    const selectedService = serviceOptions.find(service => service.id === serviceId) || serviceOptions[0];
+    
+    const initialDeadline = calculateDeadline(selectedService.id);
+    const initialPrice = parseFloat(selectedService.price.replace(/[^0-9.]/g, ''));
+    
+    setFormData(prev => ({
+      ...prev,
+      service_type: selectedService.id,
+      deadline: initialDeadline,
+      price: initialPrice
+    }));
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [formData.service_type]);
 
   const handleServiceSelect = (serviceId) => {
-    handleInputChange('service_type', serviceId);
 
-    // const deadline = calculateDeadline(serviceId);
-    // setFormData(prev => ({
-    //   ...prev,
-    //   deadline: deadline
-    // }));
+    // handleInputChange('service_type', serviceId);
+
+    const selectedService = serviceOptions.find(service => service.id === serviceId);
+    
+    if (!selectedService) return;
+
+    const priceValue = parseFloat(selectedService.price.replace(/[^0-9.]/g, ''));
+
+    const deadline = calculateDeadline(serviceId);
+
+    setFormData(prev => ({
+      ...prev,
+      service_type: serviceId,
+      deadline: deadline,
+      price: priceValue
+    }));
   };
 
   const serviceOptions = [

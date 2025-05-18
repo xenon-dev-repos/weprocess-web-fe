@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { ROUTES } from '../constants/routes';
-import { formatDate } from '../utils/helperFunctions';
+import { formatDate, getDeadlineDate } from '../utils/helperFunctions';
 import CustomSelect from '../components/shared/CustomSelect';
 
 const FilterOptions = [
@@ -19,7 +19,7 @@ const FilterOptions = [
 ];
 
 const InstructionsPage = () => {
-    const [timeFilter, setTimeFilter] = useState('monthly');
+    const [timeFilter, setTimeFilter] = useState('weekly');
     const [deadlineDate, setDeadlineDate] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [filteredData, setFilteredData] = useState([]);
@@ -33,36 +33,10 @@ const InstructionsPage = () => {
     //     per_page: 10,
     //     total: 0
     // });
-    const getDeadlineDate = (filter) => {
-        const today = new Date();
-        const result = new Date(today); // Create a copy to avoid mutating original date
-        
-        switch(filter) {
-            case 'weekly':
-                result.setDate(result.getDate() + 7);
-                break;
-            case 'biweekly':
-                result.setDate(result.getDate() + 14);
-                break;
-            case 'monthly':
-                result.setMonth(result.getMonth() + 1);
-                break;
-            case 'quarterly':
-                result.setMonth(result.getMonth() + 3);
-                break;
-            case 'annually':
-                result.setFullYear(result.getFullYear() + 1);
-                break;
-            default: // monthly as fallback
-                result.setMonth(result.getMonth() + 1);
-        }
-        
-        return result.toISOString().split('T')[0]; // Format as yyyy-mm-dd
-    };
 
     const filterButtons = [
         { id: '', label: 'All', dotColor: 'white' },
-        { id: 'pending', label: 'Pending', dotColor: 'info' },
+        { id: 'new', label: 'New requests', dotColor: 'info' },
         { id: 'active', label: 'In Progress', dotColor: 'warning' },
         { id: 'completed', label: 'Completed', dotColor: 'success' }
     ];
@@ -177,7 +151,7 @@ const InstructionsPage = () => {
     const customFilters = (
         <CustomSelect
             options={FilterOptions}
-            defaultValue="monthly"
+            defaultValue="weekly"
             // onChange={(value) => console.log('Selected:', value)}
             onChange={(value) => handleTimeFilterChange(value)}
         />
