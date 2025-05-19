@@ -24,7 +24,7 @@ const InstructionsTable = ({
   showPagination = true,
   onPageChange = () => {},
 }) => {
-  console.log("data of table: ", data)
+  // console.log("data of table: ", data)
   const [activeTab, setActiveTab] = useState(tabs[0]?.id || '');
   const [selectedRow, setSelectedRow] = useState(null);
   
@@ -101,7 +101,7 @@ const InstructionsTable = ({
       </TableHeader>
 
       <TableContentContainer style={{ minHeight: minHeight }}>
-          <ScrollableTableContainer>
+          <ScrollableTableContainer style={{ minHeight: minHeight+18 }}>
             <Table>
               <TableHead $hasData={currentData.length > 0}>
                 <HeaderRow>
@@ -303,7 +303,7 @@ const TableHeader = styled.div`
 const HeaderText = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 
   @media (min-width: 768px) {
     gap: 8px;
@@ -331,6 +331,7 @@ const SubTitle = styled.p`
   font-size: 14px;
   color: #6b7280;
   margin: 0;
+  margin-top: -4px;
 
   @media (max-width: 480px) {
     font-size: 12px;
@@ -508,7 +509,7 @@ const TableHeaderCell = styled.th`
       id: 100,          // WPR no.
       owner: 120,       // Owner
       title: 120,       // Serve name
-      type: 120,        // Service type
+      type: 110,        // Service type
       issuing_court: 160, // Court name
       recipient_name: 160, // Recipient's Name
       recipient_address: 160, // Recipient's Address
@@ -679,14 +680,14 @@ const EmptyTableCell = styled.td`
   font-size: 14px;
   color: #6B7280;
   padding: 16px;
-  border-bottom: 1px solid #E5E7EB;
+  // border-bottom: 1px solid #E5E7EB;
 `;
 
 const Pagination = styled.div`
   display: flex;
   flex-direction: row;
   gap: 12px;
-  padding-top: 5px;
+  padding-top: 12px;
   justify-content: flex-end;
   align-items: center;
 
@@ -781,18 +782,17 @@ const StatusBadge = styled.span`
       case '1st attempt':
       case 'new':
       case 'paid':
-      case '1': // Handle boolean true/1 for paid status
+      case '1':
         return 'background-color: #D4F8D3; color: #008000;';
       case '2nd attempt':
-        return 'background-color: #fef3c7; color: #92400e;';
-      case '3rd attempt':
-        return 'background-color: #fee2e2; color: #b91c1c;';
-      case 'in transit':
-        return 'background-color: #dbeafe; color: #1e40af;';
-      case 'Pending':
+      case 'pending':
       case 'un_paid':
       case '0':
         return 'background-color: #FFF0BB; color: #E78E00;';
+      case '3rd attempt':
+        return 'background-color: #FFE5E5; color: #B71C1C;';
+      case 'in transit':
+        return 'background-color: #F2F2F2; color: #6585FE;';
       case 'completed':
         return 'background-color: #8B5CF6; color: white;';
       case 'active':

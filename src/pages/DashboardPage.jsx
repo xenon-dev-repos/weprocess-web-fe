@@ -12,13 +12,14 @@ import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import CustomSelect from '../components/shared/CustomSelect';
+import { getDateRange } from '../utils/helperFunctions';
 
 const graphFilterOptions = [
     { label: 'Weekly', value: 'weekly' },
     { label: 'Bi-weekly', value: 'biweekly' },
     { label: 'Monthly', value: 'monthly' },
-    // { label: 'Quarterly', value: 'quarterly' },
-    // { label: 'Annually', value: 'annually' }
+    { label: 'Quarterly', value: 'quarterly' },
+    { label: 'Annually', value: 'annually' }
 ];
 
 const DashboardTableFilters = [
@@ -38,6 +39,8 @@ const columns = [
       { key: 'status', header: 'Process status' },
     ]
 
+const defaultFilter = graphFilterOptions[2].value;
+
 const DashboardPage = () => {
   const barChartRef = useRef(null);
   const pieChartRef = useRef(null);
@@ -45,11 +48,21 @@ const DashboardPage = () => {
   const [tableLoading, setTableLoading] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
   const [activeTab, setActiveTab] = useState('new-requests');
+  const [statusFilter, setStatusFilter] = useState('');
   // eslint-disable-next-line no-unused-vars
   const [invoicesFilter, setInvoicesFilter] = useState({
       is_paid: '0',
-      per_page: 10,
+      per_page: 5,
       page: 1
+  });
+  const [timeFilter, setTimeFilter] = useState(defaultFilter);
+  // const [deadlineDate, setDeadlineDate] = useState('');
+  const [dateRange, setDateRange] = useState(getDateRange(timeFilter, 'DD/MM/YYYY'));
+  const [pagination, setPagination] = useState({
+      current_page: 1,
+      last_page: 1,
+      per_page: 5,
+      total: 0
   });
   const [dashboardData, setDashboardData] = useState({
     total_serves_count: 0,
@@ -65,7 +78,14 @@ const DashboardPage = () => {
       february: { totalRequests: 0 },
       march: { totalRequests: 0 },
       april: { totalRequests: 0 },
-      may: { totalRequests: 0 }
+      may: { totalRequests: 0 },
+      june: { totalRequests: 0 },
+      july: { totalRequests: 0 },
+      august: { totalRequests: 0 },
+      september: { totalRequests: 0 },
+      october: { totalRequests: 0 },
+      november: { totalRequests: 0 },
+      december: { totalRequests: 0 },
     },
     pending_invoices_count: 0
   });
@@ -73,7 +93,7 @@ const DashboardPage = () => {
   const { user, getServes } = useAuth();
   const navigation = useNavigation();
 
-  const handleTabChange = async (tabId) => {
+  const handleStatusFilterChange = async (tabId) => {
     try {
       setActiveTab(tabId); 
       let status = '';
@@ -87,16 +107,19 @@ const DashboardPage = () => {
         case 'completed':
           status = 'completed';
           break;
-        case 'pending':
-          status = 'pending';
-          break;
         case 'invoices':
           status = 'invoices';
           break;
         default:
           status = '';
       }
-      await fetchServes(status);
+
+      setStatusFilter(status);
+      setPagination(prev => ({
+          ...prev,
+          current_page: 1
+      }));
+
     } catch (error) {
       console.error('Error handling tab change:', error);
       showError('Failed to filter instructions');
@@ -109,7 +132,22 @@ const DashboardPage = () => {
     return activeTabObj ? activeTabObj.label : 'Instructions';
   };
 
-  const fetchServes = async (status = '') => {
+  const handleTimeFilterChange = (value) => {
+      // const calculatedDate = getDeadlineDate(value);
+      // setDeadlineDate(calculatedDate);
+      setTimeFilter(value);
+      setDateRange(getDateRange(value, 'DD/MM/YYYY'));
+  };
+
+  const handlePageChange = (page) => {
+      setPagination(prev => ({
+          ...prev,
+          current_page: page
+      }));
+      fetchServes(page)
+  };
+
+  const fetchServes = async (page = 1) => {
     try {
       setTableLoading(true);
 
@@ -118,25 +156,34 @@ const DashboardPage = () => {
         return;
       }
 
-      if (status === 'invoices') {
+      // FETCH INVOICES
+
+      if (statusFilter === 'invoices') {
         const token = localStorage.getItem('token');
         if (!token) {
           throw new Error('No authentication token found');
         }
 
-        const queryParams = new URLSearchParams();
-        if (invoicesFilter.is_paid !== '') queryParams.append('is_paid', invoicesFilter.is_paid);
-        queryParams.append('per_page', invoicesFilter.per_page.toString());
+        const queryParams = {
+            // client_id: user?.id,
+            page: page,
+            per_page: pagination.per_page,
+              ...(invoicesFilter.is_paid !== '' && { is_paid: String(invoicesFilter.is_paid) }),
+            // ...(deadline && { deadline: deadlineDate }),
+            // ...(dateRange.from_date && { from_date: dateRange.from_date }),
+            // ...(dateRange.to_date && { to_date: dateRange.to_date }),
+        };
         
-        const response = await axios.get(`${API_ENDPOINTS.INVOICES}?${queryParams}`, {
+        const response = await axios.get(API_ENDPOINTS.INVOICES, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-          }
+          },
+          params: queryParams
         });
 
-        if (response.data && response.data.success) {
+        if (response?.data?.data && response?.data?.success) {
           const mappedInvoices = response.data.data.map(invoice => ({
             wpr: invoice.invoice_number,
             owner: invoice.owner || 'N/A',
@@ -147,22 +194,43 @@ const DashboardPage = () => {
             status: invoice.is_paid ? 'Paid' : 'Pending',
           }));
           setFilteredData(mappedInvoices);
+          setPagination({
+              current_page: response.data.pagination.current_page,
+              last_page: response.data.pagination.last_page,
+              per_page: response.data.pagination.per_page,
+              total: response.data.pagination.total
+          });
         } else {
           console.error('Invoice data structure unexpected:', response.data);
           setFilteredData([]);
+          setPagination({
+              current_page: 1,
+              last_page: 1,
+              per_page: pagination.per_page,
+              total: 0
+          });
         }
         return;
       }
 
-      const params = {
-        client_id: user.id,
-        ...(status && { status }),
+      // FETCH SERVES
+
+      const queryParams = {
+          client_id: user?.id,
+          page: page,
+          per_page: pagination.per_page,
+          ...(statusFilter && { status: statusFilter }),
+          // ...(deadline && { deadline: deadlineDate }),
+          // ...(dateRange.from_date && { from_date: dateRange.from_date }),
+          // ...(dateRange.to_date && { to_date: dateRange.to_date }),
       };
 
-      const response = await getServes(params);
+      const response = await getServes(queryParams);
 
-      if (response.success) {
-        const mappedData = response.serves.data.map(serve => ({
+      console.log(response)
+
+      if (response?.success && response?.data) {
+        const mappedData = response.data.map(serve => ({
           wpr: serve.id,
           owner: serve.applicant_name || serve.client_id || 'N/A',
           serve: serve.title,
@@ -172,13 +240,33 @@ const DashboardPage = () => {
           status: serve.status,
         }));
         setFilteredData(mappedData);
+        if (response?.pagination) {
+          setPagination({
+              current_page: response.pagination.current_page,
+              last_page: response.pagination.last_page,
+              per_page: response.pagination.per_page,
+              total: response.pagination.total
+          });
+        }
       } else {
         console.error(response.message || 'Failed to fetch serves');
         setFilteredData([]);
+        setPagination({
+            current_page: 1,
+            last_page: 1,
+            per_page: pagination.per_page,
+            total: 0
+        });
       }
     } catch (error) {
       console.error('Error fetching data:', error);
       setFilteredData([]);
+      setPagination({
+          current_page: 1,
+          last_page: 1,
+          per_page: pagination.per_page,
+          total: 0
+      });
     } finally {
       setTableLoading(false);
     }
@@ -194,12 +282,23 @@ const DashboardPage = () => {
           throw new Error('No authentication token found');
         }
 
+        const queryParams = {
+            // client_id: user?.id,
+            // page: page,
+            // per_page: pagination.per_page,
+            // ...(statusFilter && { status: statusFilter }),
+            // ...(deadline && { deadline: deadlineDate }),
+            ...(dateRange.from_date && { from_date: dateRange.from_date }),
+            ...(dateRange.to_date && { to_date: dateRange.to_date }),
+        };
+
         const response = await axios.get(API_ENDPOINTS.DASHBOARD, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-          }
+          },
+          params: queryParams
         });
 
         if (response.data.success) {
@@ -214,8 +313,13 @@ const DashboardPage = () => {
     };
 
     fetchDashboardData();
-    fetchServes(); // Fetch initial serves data
-  }, [user?.id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, dateRange]);
+
+  useEffect(() => {
+    fetchServes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter]);
 
   useEffect(() => {
     let pieChartInstance = null;
@@ -252,7 +356,8 @@ const DashboardPage = () => {
         pieCtx.clearRect(0, 0, pieCtx.canvas.width, pieCtx.canvas.height);
         
         // Draw the text
-        pieCtx.font = '14px Manrope';
+        pieCtx.font = '16px Manrope';
+        pieCtx.fontWeight = 500;
         pieCtx.fillStyle = '#1F2937';
         pieCtx.textAlign = 'center';
         pieCtx.textBaseline = 'middle';
@@ -264,18 +369,22 @@ const DashboardPage = () => {
             labels: ['On Hold', 'In Progress', 'Completed'],
             datasets: [{
               data: pieData,
-              backgroundColor: ['#6B7280', '#FF5B5B', '#8B5CF6'],
+              backgroundColor: ['#7987FF', '#F765A3', '#A155B9'],
             }],
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            cutout: '70%', 
             plugins: { 
               legend: { 
                 position: 'right',
                 labels: {
-                  boxWidth: 12,
-                  padding: 10
+                  boxWidth: 8,
+                  boxHeight: 8, // Add this to make the box square before rounding
+                  padding: 10,
+                  usePointStyle: true, // This makes the boxes round
+                  pointStyle: 'circle' // Explicitly set to circle
                 }
               } 
             },
@@ -315,7 +424,7 @@ const DashboardPage = () => {
       });
 
       // 4. Calculate dynamic bar thickness based on available months
-      const barThickness = Math.min(70, Math.max(20, 400 / monthLabels.length));
+      const barThickness = Math.min(80, Math.max(20, 400 / monthLabels.length));
       
       // Check if there's any data
       const hasBarData = barData.some(value => value > 0);
@@ -413,7 +522,7 @@ const DashboardPage = () => {
           plugins: [{
             id: 'customLabels',
             afterDraw(chart) {
-              const {ctx, data, chartArea, scales: {x, y}} = chart;
+              const {ctx, data, scales: {x, y}} = chart;
               
               ctx.save();
               ctx.font = '700 24px Manrope';
@@ -494,11 +603,18 @@ const DashboardPage = () => {
               subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
               tabs={DashboardTableFilters}
               columns={columns}
-              onTabChange={handleTabChange}
-              minHeight={348}
-              noDataCellHeight={348}
-              onRowClick={handleRowClick}
+              onTabChange={handleStatusFilterChange}
+              minHeight={352}
+              noDataCellHeight={362}
               loading={tableLoading}
+
+              itemsPerPage={pagination.per_page}
+              currentPage={pagination.current_page}
+              totalPages={pagination.last_page}
+              totalItems={pagination.total}
+              onPageChange={handlePageChange}
+              onRowClick={handleRowClick}
+              serverSidePagination={true}
             />
           </LeftColumn>
 
@@ -508,8 +624,9 @@ const DashboardPage = () => {
                 <ChartTitle>Instructions requested</ChartTitle>
                 <CustomSelect
                   options={graphFilterOptions}
-                  defaultValue="Monthly"
-                  onChange={(value) => console.log('Selected:', value)}
+                  defaultValue={defaultFilter}
+                  // onChange={(value) => console.log('Selected:', value)}
+                  onChange={(value) => handleTimeFilterChange(value)}
                 />
               </ChartHeader>
               <SubTitle>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</SubTitle>
@@ -523,8 +640,9 @@ const DashboardPage = () => {
                 <ChartTitle>Instructions status</ChartTitle>
                 <CustomSelect
                   options={graphFilterOptions}
-                  defaultValue="Monthly"
-                  onChange={(value) => console.log('Selected:', value)}
+                  defaultValue={defaultFilter}
+                  // onChange={(value) => console.log('Selected:', value)}
+                  onChange={(value) => handleTimeFilterChange(value)}
                 />
               </ChartHeader>
               <SubTitle>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</SubTitle>
@@ -575,8 +693,8 @@ const RightColumn = styled.div`
   gap: 24px;
 
   @media (min-width: 1280px) {
-    width: 400px;
-    min-width: 400px;
+    width: 500px;
+    min-width: 500px;
     margin-left: 24px;
   }
 `;
@@ -599,18 +717,20 @@ const StatsGrid = styled.div`
 const ChartCanvasWrapper = styled.div`
   position: relative;
   width: 100%;
+  min-height: 272px;
+  max-height: 272px;
   
   canvas {
     width: 100% !important;
     height: 100% !important;
-    min-height: 252px;
+      // min-height: 262px;
   }
 
   @media (min-width: 1440px) {
     canvas {
       width: 100% !important;
       height: 100% !important;
-      min-height: 262px;
+      // min-height: 262px;
     }
   }
 `;
@@ -640,7 +760,7 @@ const ChartTitle = styled.h3`
 const SubTitle = styled.p`
   font-size: 14px;
   color: #6b7280;
-  margin: 0 0 16px 0;
+  margin: -11px 0 20px 0;
 `;
 
 export default DashboardPage;

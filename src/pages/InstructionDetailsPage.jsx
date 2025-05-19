@@ -57,7 +57,7 @@ const InstructionDetailsPage = () => {
           <InstructionsDetailMainContainer>
             {currentServeData ? (
               <>
-                <UploadedDocsContainer>
+                {/* <UploadedDocsContainer>
                 {formData.documents.length !== 0 && (
                   formData.documents.map((doc) => (
                     <DocRow key={doc.id}>
@@ -73,7 +73,24 @@ const InstructionDetailsPage = () => {
                     </DocRow>
                   ))
                 )}
-              </UploadedDocsContainer>
+              </UploadedDocsContainer> */}
+              <UploadedDocsContainer>
+              {formData.documents.length !== 0 && (
+                formData.documents.map((doc) => (
+                  <DocRow key={doc.id}>
+                    <DocInfoContainer>
+                      <DocLeft>
+                        <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
+                        <DocTextGroup>
+                          <DocName>{doc.name || 'Document'}</DocName>
+                          <DocSize>{doc.size || '1mb'}</DocSize>
+                        </DocTextGroup>
+                      </DocLeft>
+                    </DocInfoContainer>
+                  </DocRow>
+                ))
+              )}
+            </UploadedDocsContainer>
               <SharedInstructionInvoiceDetails formData={ formData } isInstructionDetails={true} />
               </>
 
@@ -279,76 +296,58 @@ export const LayoutContainer = styled.div`
 const UploadedDocsContainer = styled.div`
   width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 24px;
 
   @media (max-width: 768px) {
-    gap: 14px;
+    gap: 20px;
   }
 
   @media (max-width: 480px) {
-    gap: 12px;
+    gap: 16px;
   }
 `;
 
 const DocRow = styled.div`
   display: flex;
-  gap: 24px;
-  align-items: center;
-
-  @media (max-width: 1024px) {
-    gap: 20px;
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
-  }
-
-  @media (max-width: 480px) {
-    gap: 12px;
-  }
 `;
 
 const DocInfoContainer = styled.div`
-  width: 50%;
-  height: 62px;
-  border: 1.5px solid #ccc;
-  border-radius: 8px;
-  padding: 16px;
+  width: 150px;
+  height: 150px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  padding: 24px 8px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  min-width: 0;
-
-  @media (max-width: 1440px) {
-    height: 58px;
-    padding: 14px;
-  }
-
-  @media (max-width: 1024px) {
-    height: 56px;
-    padding: 12px;
-  }
+  justify-content: center;
+  gap: 16px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Added box shadow */
 
   @media (max-width: 768px) {
-    width: 100%;
-    height: auto;
-    padding: 12px;
+    width: 140px;
+    height: 140px;
+    padding: 20px 8px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1); /* Adjusted for smaller screens */
   }
 
   @media (max-width: 480px) {
-    padding: 10px;
+    width: 130px;
+    height: 130px;
+    padding: 16px 8px;
+    gap: 12px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Adjusted for mobile */
   }
 `;
 
 const DocLeft = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 16px;
-  flex: 1; /* allow this section to grow but also shrink if needed */
-  min-width: 0;
+  width: 100%;
 
   @media (max-width: 480px) {
     gap: 12px;
@@ -356,31 +355,27 @@ const DocLeft = styled.div`
 `;
 
 const DocImage = styled.img`
-  width: 40px;
-  height: 40px;
-
-  @media (max-width: 1440px) {
-    width: 38px;
-    height: 38px;
-  }
+  width: 67px;
+  height: 67px;
 
   @media (max-width: 768px) {
-    width: 36px;
-    height: 36px;
+    width: 60px;
+    height: 60px;
   }
 
   @media (max-width: 480px) {
-    width: 32px;
-    height: 32px;
+    width: 55px;
+    height: 55px;
   }
 `;
 
 const DocTextGroup = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
-  min-width: 0; /* critical to allow flex children to truncate */
-  flex: 1;
+  width: 100%;
+  text-align: center;
 
   @media (max-width: 480px) {
     gap: 6px;
@@ -389,42 +384,36 @@ const DocTextGroup = styled.div`
 
 const DocName = styled.span`
   font-weight: 700;
-  font-size: 16px;
-  line-height: 100%;
+  font-size: 14px;
+  line-height: 120%;
   color: #242331;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  @media (max-width: 1440px) {
-    font-size: 15px;
-  }
+  max-width: 100%;
+  padding: 0 4px;
 
   @media (max-width: 768px) {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   @media (max-width: 480px) {
-    font-size: 13px;
+    font-size: 12px;
   }
 `;
 
 const DocSize = styled.span`
   font-weight: 400;
-  font-size: 14px;
-  line-height: 100%;
+  font-size: 12px;
+  line-height: 120%;
   color: #656565;
 
-  @media (max-width: 1440px) {
-    font-size: 13px;
-  }
-
   @media (max-width: 768px) {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   @media (max-width: 480px) {
-    font-size: 11px;
+    font-size: 10px;
   }
 `;
 

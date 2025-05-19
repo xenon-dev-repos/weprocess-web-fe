@@ -8,7 +8,7 @@ import { useToast } from '../services/ToastService';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { useNavigation } from '../hooks/useNavigation';
 import { useAuth } from '../contexts/AuthContext';
-import { formatDate, getDeadlineDate } from '../utils/helperFunctions';
+import { formatDate, getDateRange } from '../utils/helperFunctions';
 import CustomSelect from '../components/shared/CustomSelect';
 
 const FilterOptions = [
@@ -19,17 +19,16 @@ const FilterOptions = [
     { label: 'Annually', value: 'annually' }
 ];
 
+const defaultFilter = FilterOptions[2].value;
+
 const InvoicesPage = () => {
-    const [timeFilter, setTimeFilter] = useState('weekly');
-    const [deadlineDate, setDeadlineDate] = useState(getDeadlineDate(timeFilter));
+    const [timeFilter, setTimeFilter] = useState(defaultFilter);
+    // const [deadlineDate, setDeadlineDate] = useState(getDeadlineDate(timeFilter));
+    const [dateRange, setDateRange] = useState(getDateRange(timeFilter, 'DD/MM/YYYY'));
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filteredData, setFilteredData] = useState([]);
-    const [filters, setFilters] = useState({
-        is_paid: '',
-        per_page: 10,
-        page: 1
-    });
+    const [filters, setFilters] = useState({is_paid: ''});
     const { showError } = useToast();
     const navigation = useNavigation();
     const { user } = useAuth();
@@ -41,9 +40,10 @@ const InvoicesPage = () => {
     });
 
     const handleTimeFilterChange = (value) => {
-        const calculatedDate = getDeadlineDate(value);
         setTimeFilter(value);
-        setDeadlineDate(calculatedDate);
+        // const calculatedDate = getDeadlineDate(value);
+        // setDeadlineDate(calculatedDate);
+        setDateRange(getDateRange(value, 'DD/MM/YYYY'));
     };
 
     const mapServeToTableRow = (invoice) => ({
@@ -74,28 +74,36 @@ const InvoicesPage = () => {
 
     const tableData = filteredData.map(mapServeToTableRow);
 
-    const fetchInvoices = async () => {
+    const fetchInvoices = async (page = 1) => {
         try {
             setLoading(true);
+            setFilteredData([]);
             
             const token = localStorage.getItem('token');
             if (!token) {
                 throw new Error('No authentication token found');
             }
 
-            // Build query parameters
-            const queryParams = new URLSearchParams();
-            if (filters.is_paid !== '') queryParams.append('is_paid', filters.is_paid);
-            queryParams.append('per_page', filters.per_page.toString());
-            queryParams.append('page', filters.page.toString());
-            queryParams.append('deadline', deadlineDate)
+            const queryParams = {
+                // client_id: user?.id,
+                page: page,
+                per_page: pagination.per_page,
+                  ...(filters.is_paid !== '' && { is_paid: String(filters.is_paid) }),
+                // ...(deadline && { deadline: deadlineDate }),
+                ...(dateRange.from_date && { from_date: dateRange.from_date }),
+                ...(dateRange.to_date && { to_date: dateRange.to_date }),
+            };
+
+            console.table(queryParams);
+
             
-            const response = await axios.get(`${API_ENDPOINTS.INVOICES}?${queryParams}`, {
+            const response = await axios.get(API_ENDPOINTS.INVOICES, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
-                }
+                },
+                params: queryParams,
             });
 
             if (response?.data?.data) {
@@ -111,7 +119,7 @@ const InvoicesPage = () => {
                 setPagination({
                     current_page: 1,
                     last_page: 1,
-                    per_page: filters.per_page,
+                    per_page: pagination.per_page,
                     total: 0
                 });
             }
@@ -123,7 +131,7 @@ const InvoicesPage = () => {
             setPagination({
                 current_page: 1,
                 last_page: 1,
-                per_page: filters.per_page,
+                per_page: pagination.per_page,
                 total: 0
             });
         } finally {
@@ -133,27 +141,28 @@ const InvoicesPage = () => {
 
     useEffect(() => {
         fetchInvoices();
-    }, [filters, deadlineDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filters, dateRange]);
 
     const handleFilterChange = (filterId) => {
         setFilters(prev => ({
             ...prev,
             is_paid: filterId === 'completed' ? '1' : filterId === 'pending' ? '0' : '',
-            page: 1
         }));
     };
 
     const handlePageChange = (page) => {
-        setFilters(prev => ({
+        setPagination(prev => ({
             ...prev,
             page: page
         }));
+         fetchInvoices(page);
     };
 
     const customFilters = (
         <CustomSelect
             options={FilterOptions}
-            defaultValue="weekly"
+            defaultValue={defaultFilter}
             // onChange={(value) => console.log('Selected:', value)}
             onChange={(value) => handleTimeFilterChange(value)}
         />

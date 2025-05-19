@@ -11,6 +11,7 @@ import { theme } from './styles/theme';
 import { ROUTE_CONFIG } from './config/routes.config';
 import { ROUTES } from './constants/routes';
 import { NotificationProvider } from './components/NotificationBadge';
+import { NavigationHandler } from './hooks/NavigationHandler';
 
 function App() {
   const router = createBrowserRouter(
@@ -20,16 +21,18 @@ function App() {
         <ToastProvider>
           <AuthWithToast>
             <InstructionProviderWithToast>
-              <ThemeProvider theme={theme}>
-                <NotificationProvider>
-                  <GlobalStyles />
-                  <Toaster />
-                  <ScrollRestoration />
-                  <Suspense>
-                    {route.element}
-                  </Suspense>
-                </NotificationProvider>
-              </ThemeProvider>
+              <NavigationHandler>
+                <ThemeProvider theme={theme}>
+                  <NotificationProvider>
+                    <GlobalStyles />
+                    <Toaster />
+                    <ScrollRestoration />
+                    <Suspense>
+                      {route.element}
+                    </Suspense>
+                  </NotificationProvider>
+                </ThemeProvider>
+              </NavigationHandler>
             </InstructionProviderWithToast>
           </AuthWithToast>
         </ToastProvider>
