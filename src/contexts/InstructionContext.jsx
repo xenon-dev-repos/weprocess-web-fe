@@ -106,18 +106,6 @@ export const InstructionProvider = ({ children }) => {
     const noLabelErrors = !Object.values(formData.labelErrors || {}).some(Boolean);
     return hasDocuments && allLabeled && noLabelErrors;
   },
-  // 2: (formData) => {
-  //   // Step 2: Must have title, owner, and at least one document type
-  //   const hasValidDocumentTypes = formData.document_types.some(
-  //     type => type !== 'Other (Please Specify)'
-  //   );
-
-  //   return (
-  //     formData.title.trim() !== '' && 
-  //     formData.owner.trim() !== '' && 
-  //     hasValidDocumentTypes
-  //   );
-  // },
   2: (formData) => {
   // Step 2: Must have title, owner, and at least one document type
   const hasOtherDocumentType = formData.document_types.includes('Other (Please Specify)');
@@ -311,11 +299,9 @@ export const InstructionProvider = ({ children }) => {
           'Content-Type': 'multipart/form-data'
         }
       });
-      
-      console.log('Serve created successfully:', response);
+
       navigation.navigateToInstructions();
       resetFormData()
-      console.log('Form reset successfully');
       return response;
       
     } catch (error) {
@@ -614,7 +600,7 @@ export const InstructionProvider = ({ children }) => {
     }));
   }, []);
 
-// >>>>>>>>>>>>>>>>>>> Final Step: Submission
+  // TODO: Add serve id in page route.
   const fetchServeById = useCallback(async (id) => {
     try {
       setIsLoading(true);
@@ -651,6 +637,7 @@ export const InstructionProvider = ({ children }) => {
     }
   }, [api, mapServeToFormData, formatPhoneNumber]);
 
+  // TODO: Add invoice id in page route.
   const fetchInvoiceById = useCallback(async (id) => {
     try {
       setIsLoading(true);

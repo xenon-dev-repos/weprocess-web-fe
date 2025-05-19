@@ -25,8 +25,9 @@ export const SharedInstructionInvoiceDetails = ({
                         <DetailValue>{formData.applicant_address || '-'}</DetailValue>
                     </InvoiceLeftColumn>
                     <InvoiceRightColumn>
-                        <DetailLabel>Invoice no.</DetailLabel>
-                        <DetailValue>{isAddNewInstructionStep5 ? "TEST-9876" : currentInvoiceData?.invoice_number}</DetailValue>
+                        {/* TODO: Invoice number approach to be finalized later. */}
+                        {/* <DetailLabel>Invoice no.</DetailLabel>
+                        <DetailValue>{isAddNewInstructionStep5 ? "TEST-9876" : currentInvoiceData?.invoice_number}</DetailValue> */}
                     </InvoiceRightColumn>
                 </InvoiceDetailsContainer>
 

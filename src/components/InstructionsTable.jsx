@@ -24,7 +24,6 @@ const InstructionsTable = ({
   showPagination = true,
   onPageChange = () => {},
 }) => {
-  // console.log("data of table: ", data)
   const [activeTab, setActiveTab] = useState(tabs[0]?.id || '');
   const [selectedRow, setSelectedRow] = useState(null);
   

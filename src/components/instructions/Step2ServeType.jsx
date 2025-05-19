@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { InstructionsMainContainer } from '../../styles/Shared';
 import { FormGroup2, Input, Label } from '../shared/FormElements';
 import { useInstruction } from '../../contexts/InstructionContext';
-import { StepValidation } from './StepValidation';
 
 export const Step2ServeType = () => {
   const { 
@@ -33,7 +32,6 @@ export const Step2ServeType = () => {
   const showReasonInput = formData.document_types.includes('Other (Please Specify)');
 
   return (
-    <StepValidation step={2}>
       <InstructionsMainContainer>
 
           <CaseNameAndOwner>
@@ -88,7 +86,6 @@ export const Step2ServeType = () => {
           )}
 
       </InstructionsMainContainer>
-    </StepValidation>
   );
 };
 

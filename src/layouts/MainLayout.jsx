@@ -234,7 +234,7 @@ export const MainLayout = ({
           <DashboardHeader>
           {instructionData && (
             <Title>
-              #{instructionData.id} | {instructionData.recipient_name}
+              #{instructionData.id} | {instructionData.title}
             </Title>
           )}
               
@@ -244,14 +244,10 @@ export const MainLayout = ({
 
         {isInvoiceDetailsPage && (
           <DashboardHeader>
-            {/* <Title>#5103 | Serve to Aamir</Title> */}
             {invoiceData && (
-            // <Title>
-            //   #{invoiceData.id} | {invoiceData.recipient_name}
-            // </Title>
               <Title>
-              #{invoiceData.id}
-            </Title>
+                #{invoiceData.id} | {invoiceData.title}
+              </Title>
             )}
           </DashboardHeader>
         )}

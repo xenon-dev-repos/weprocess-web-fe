@@ -24,9 +24,9 @@ const navigateToIndividualSetup = () => navigateTo(ROUTES.INDIVIDUAL_SETUP);
 // App routes
 const navigateToDashboard = () => navigateTo(ROUTES.DASHBOARD);
 const navigateToInstructions = () => navigateTo(ROUTES.INSTRUCTIONS);
-const navigateToInstructionsDetails = (options) => {navigateTo(ROUTES.INSTRUCTION_DETAILS, options);};
+const navigateToInstructionsDetails = (options) => {navigateTo(`${ROUTES.INSTRUCTION_DETAILS}/${options.state['WPR no.']}`, options);};
 const navigateToInvoices = () => navigateTo(ROUTES.INVOICES);
-const navigateToInvoicesDetails = (options) => {navigateTo(ROUTES.INVOICE_DETAILS, options);};
+const navigateToInvoicesDetails = (options) => {navigateTo(`${ROUTES.INVOICE_DETAILS}/${options.state['WPR no.']}`, options);};
 const navigateToAddInstruction = () => navigateTo(ROUTES.ADD_INSTRUCTION);
 const navigateToChat = () => navigateTo(ROUTES.CHAT);
 
@@ -50,7 +50,7 @@ const navigateToVerifyOtp = (email) => navigateTo(`${ROUTES.VERIFY_OTP}?email=${
     } else {
       navigateToInvoicesDetails({
           state: {
-              'WPR no.': rowData.wpr,
+              'WPR no.': rowData.id,
               "Recipient's name": rowData.recipientName,
               "Service type": rowData.type
           }

@@ -7,16 +7,20 @@ import { ContentSectionHeader, ContentSectionTitle } from '../layouts/AddInstruc
 import { useInstruction } from '../contexts/InstructionContext.jsx';
 import { SharedInstructionInvoiceDetails } from '../components/instructions/SharedInstructionInvoiceDetails.jsx';
 import LoadingOnPage from '../components/shared/LoadingOnPage.jsx';
+import { useParams } from 'react-router-dom';
 
 
 const InstructionDetailsPage = () => {
   const { formData, fetchInvoiceById, currentInvoiceData, isLoading } = useInstruction();
   const [layoutData, setLayoutData] = useState(null);
+  const { id } = useParams();
 
   useEffect(() => {
     const loadInvoice = async () => {
       try {
-        await fetchInvoiceById('5');
+        if (id) {
+          await fetchInvoiceById(id);
+        }
       } catch (error) {
         console.error(error, 'Error accured while geting invoice data.')
       }
@@ -24,14 +28,13 @@ const InstructionDetailsPage = () => {
     
     loadInvoice();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [id]);
 
     useEffect(() => {
       if (currentInvoiceData) {
-        console.log("currentInvoiceData", currentInvoiceData)
         setLayoutData({
           id: currentInvoiceData?.id,
-          recipient_name: currentInvoiceData?.recipient_name,
+          title: currentInvoiceData?.serve?.title,
           priority: currentInvoiceData?.priority
         });
       }

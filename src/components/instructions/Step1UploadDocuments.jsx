@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { InstructionsMainContainer } from '../../styles/Shared';
 import { Images } from '../../assets/images/index.js';
 import { useInstruction } from '../../contexts/InstructionContext.jsx';
-import { StepValidation } from './StepValidation.jsx';
 
 export const Step1UploadDocuments = () => {
   const {
@@ -102,13 +101,12 @@ export const Step1UploadDocuments = () => {
   };
 
   return (
-    <StepValidation step={1}>
       <InstructionsMainContainer>
 
           <UploadContainer>
             <UploadContent>
               <UploadIcon src={Images.instructions.uploadIcon} alt="Upload" />
-              <UploadText>Upload the pdf, doc, docx, jpg, jpeg or png file here (max 23MB)</UploadText>
+              <UploadText>Upload your files here (max 23MB)</UploadText>
               <BrowseLink onClick={() => triggerFileInput('document')}>Browse</BrowseLink>
               {uploadError && <UploadErrorText>{uploadError}</UploadErrorText>}
             </UploadContent>
@@ -184,7 +182,6 @@ export const Step1UploadDocuments = () => {
           </UploadedDocsContainer>
 
       </InstructionsMainContainer>
-    </StepValidation>
   );
 };
 

@@ -9,21 +9,32 @@ import { Images } from '../assets/images/index.js';
 import { ProfileSidebar } from '../components/instructions/RiderDetailsProfile.jsx';
 import AttemptDetails from '../components/instructions/AttemptDetails.jsx';
 import LoadingOnPage from '../components/shared/LoadingOnPage.jsx';
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+import Modal from 'react-modal';
 
 const InstructionDetailsPage = () => {
-  const location = useLocation();
-  const { state } = location;
-  const wprNo = state?.['WPR no.'];
+  const { id } = useParams();
   const { formData, fetchServeById, currentServeData, isLoading, } = useInstruction();
   const [layoutData, setLayoutData] = useState(null);
+  const [selectedDoc, setSelectedDoc] = useState(null);
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+  pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+  // Set app element for react-modal (for accessibility)
+  Modal.setAppElement('#root'); // Make sure this matches your root element ID
+}, []);
 
   useEffect(() => {
     const loadServe = async () => {
       try {
-        if (wprNo) {
-           console.log(wprNo, ' This is wprNo.');
-          await fetchServeById(wprNo);
+        if (id) {
+          await fetchServeById(id);
         }
       } catch (error) {
         console.error(error, 'Error occurred while getting serve data.');
@@ -32,13 +43,13 @@ const InstructionDetailsPage = () => {
     
     loadServe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wprNo]);
+  }, [id]);
 
   useEffect(() => {
     if (currentServeData) {
       setLayoutData({
         id: currentServeData?.id,
-        recipient_name: currentServeData?.recipient_name,
+        title: currentServeData?.title,
         priority: currentServeData?.priority
       });
     }
@@ -74,23 +85,40 @@ const InstructionDetailsPage = () => {
                   ))
                 )}
               </UploadedDocsContainer> */}
+
               <UploadedDocsContainer>
-              {formData.documents.length !== 0 && (
-                formData.documents.map((doc) => (
-                  <DocRow key={doc.id}>
-                    <DocInfoContainer>
-                      <DocLeft>
-                        <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
-                        <DocTextGroup>
-                          <DocName>{doc.name || 'Document'}</DocName>
-                          <DocSize>{doc.size || '1mb'}</DocSize>
-                        </DocTextGroup>
-                      </DocLeft>
-                    </DocInfoContainer>
-                  </DocRow>
-                ))
-              )}
-            </UploadedDocsContainer>
+                {formData.documents.length !== 0 && (
+                  formData.documents.map((doc, index) => (
+                    <DocRow key={doc.id}>
+                      <DocInfoContainer 
+                        onClick={() => {
+                          if (formData.document_urls && formData.document_urls[index]) {
+                            setSelectedDoc({
+                              name: doc.name,
+                              url: formData.document_urls[index]
+                            });
+                            setPageNumber(1);
+                            setIsModalOpen(true);
+                          }
+                        }}
+                        style={{ 
+                          cursor: formData.document_urls && formData.document_urls[index] ? 'pointer' : 'default',
+                          opacity: formData.document_urls && formData.document_urls[index] ? 1 : 0.7
+                        }}
+                      >
+                        <DocLeft>
+                          <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
+                          <DocTextGroup>
+                            <DocName>{doc.name || 'Document'}</DocName>
+                            <DocSize>{doc.size || '1mb'}</DocSize>
+                          </DocTextGroup>
+                        </DocLeft>
+                      </DocInfoContainer>
+                    </DocRow>
+                  ))
+                )}
+              </UploadedDocsContainer>
+
               <SharedInstructionInvoiceDetails formData={ formData } isInstructionDetails={true} />
               </>
 
@@ -123,6 +151,49 @@ const InstructionDetailsPage = () => {
         }
 
       </LayoutContainer>
+
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        style={customModalStyles}
+        contentLabel="Document Viewer"
+      >
+        {selectedDoc && (
+          <DocumentViewerContainer>
+            <Document
+              file={selectedDoc.url}
+              onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+              loading={<div>Loading PDF...</div>}
+              error={<div>Failed to load PDF.</div>}
+            >
+              <Page 
+                pageNumber={pageNumber} 
+                width={Math.min(window.innerWidth * 0.8, 800)}
+                loading={<div>Loading page...</div>}
+              />
+            </Document>
+            <DocumentControls>
+              <NavButton 
+                onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
+                disabled={pageNumber <= 1}
+              >
+                Previous
+              </NavButton>
+              <PageInfo>
+                Page {pageNumber} of {numPages || '--'}
+              </PageInfo>
+              <NavButton 
+                onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages))}
+                disabled={pageNumber >= numPages}
+              >
+                Next
+              </NavButton>
+            </DocumentControls>
+            <CloseButton onClick={() => setIsModalOpen(false)}>Close</CloseButton>
+          </DocumentViewerContainer>
+        )}
+      </Modal>
+
     </MainLayout>
   );
 };
@@ -414,6 +485,91 @@ const DocSize = styled.span`
 
   @media (max-width: 480px) {
     font-size: 10px;
+  }
+`;
+
+// Modal styles
+const customModalStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    maxWidth: '90vw',
+    maxHeight: '90vh',
+    padding: '20px',
+    borderRadius: '8px',
+    border: 'none',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: '#fff',
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 1000,
+  },
+};
+
+const DocumentViewerContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+`;
+
+const DocumentControls = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin: 15px 0;
+  width: 100%;
+`;
+
+const NavButton = styled.button`
+  padding: 8px 16px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  &:hover:not(:disabled) {
+    background: #e0e0e0;
+  }
+`;
+
+const PageInfo = styled.span`
+  font-size: 14px;
+  color: #333;
+  min-width: 100px;
+  text-align: center;
+`;
+
+const CloseButton = styled.button`
+  padding: 10px 20px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 14px;
+  align-self: flex-end;
+  
+  &:hover {
+    background: #d32f2f;
   }
 `;
 
