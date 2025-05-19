@@ -6,7 +6,6 @@ import { InputFieldsContainer } from '../shared/InputFieldsContainer';
 import { Images } from '../../assets/images';
 import { useInstruction } from '../../contexts/InstructionContext';
 import { FormGroup, Input, Label, TextArea } from '../shared/FormElements';
-import { StepValidation } from './StepValidation';
 
 export const Step3RecipientDetails = () => {
   const { 
@@ -120,7 +119,6 @@ export const Step3RecipientDetails = () => {
   ];
 
   return (
-    <StepValidation step={3}>
       <InstructionsMainContainerStyledForm 
       id="step3-form" 
       noValidate
@@ -185,6 +183,5 @@ export const Step3RecipientDetails = () => {
           />
         </RecipientDetailsLayout>
       </InstructionsMainContainerStyledForm>
-    </StepValidation>
   );
 };

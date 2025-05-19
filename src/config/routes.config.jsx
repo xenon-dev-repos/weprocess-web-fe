@@ -79,17 +79,17 @@ export const ROUTE_CONFIG = [
     isPublic: false
   },
   {
-    path: ROUTES.INSTRUCTION_DETAILS,
+    path: ROUTES.INSTRUCTION_DETAILS + '/:id',
     element: <ProtectedRoute> <InstructionDetailsPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
     path: ROUTES.CHAT,
-    element: <ChatPage />,
+    element: <ProtectedRoute> <ChatPage /> </ProtectedRoute>,
     isPublic: false
   },
   {
-    path: ROUTES.INVOICE_DETAILS,
+    path: ROUTES.INVOICE_DETAILS + '/:id',
     element: <ProtectedRoute> <InvoiceDetailsPage /> </ProtectedRoute>,
     isPublic: false
   },

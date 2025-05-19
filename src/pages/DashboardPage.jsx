@@ -12,7 +12,7 @@ import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import CustomSelect from '../components/shared/CustomSelect';
-import { getDateRange } from '../utils/helperFunctions';
+import { capitalizeFirstLetter, getDateRange } from '../utils/helperFunctions';
 
 const graphFilterOptions = [
     { label: 'Weekly', value: 'weekly' },
@@ -227,8 +227,6 @@ const DashboardPage = () => {
 
       const response = await getServes(queryParams);
 
-      console.log(response)
-
       if (response?.success && response?.data) {
         const mappedData = response.data.map(serve => ({
           wpr: serve.id,
@@ -237,7 +235,7 @@ const DashboardPage = () => {
           type: serve.priority ? serve.priority.charAt(0).toUpperCase() + serve.priority.slice(1) : 'N/A',
           court: serve.issuing_court,
           deadline: serve.deadline,
-          status: serve.status,
+          status: capitalizeFirstLetter(serve.status),
         }));
         setFilteredData(mappedData);
         if (response?.pagination) {
@@ -625,7 +623,6 @@ const DashboardPage = () => {
                 <CustomSelect
                   options={graphFilterOptions}
                   defaultValue={defaultFilter}
-                  // onChange={(value) => console.log('Selected:', value)}
                   onChange={(value) => handleTimeFilterChange(value)}
                 />
               </ChartHeader>
@@ -641,7 +638,6 @@ const DashboardPage = () => {
                 <CustomSelect
                   options={graphFilterOptions}
                   defaultValue={defaultFilter}
-                  // onChange={(value) => console.log('Selected:', value)}
                   onChange={(value) => handleTimeFilterChange(value)}
                 />
               </ChartHeader>

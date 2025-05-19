@@ -203,3 +203,14 @@ export const getDateRange = (filter, format = 'DD/MM/YYYY') => {
         to_date: formatDate(toDate) // Today (or adjust if needed)
     };
 };
+
+/**
+ * Finds the label of a filter option by its value
+ * @param {Array} options - Array of filter options (must have `value` and `label` properties)
+ * @param {string|number} value - Value to search for
+ * @returns {string} The matching label or empty string if not found
+ */
+export const getFilterLabel = (options, value) => {
+  const foundOption = options.find(op => op.value === value);
+  return foundOption?.label || '';
+};

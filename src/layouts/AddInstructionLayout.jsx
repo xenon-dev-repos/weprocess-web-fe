@@ -16,6 +16,7 @@ export const AddInstructionLayout = ({
   stepsData,
   // handleInstructionServeSubmit,
   isNextDisabled,
+  isLoading,
   }) => {
 
   return (
@@ -46,9 +47,8 @@ export const AddInstructionLayout = ({
             )}
 
             <FormButton 
-              // onClick={currentStep === stepsConfig.length ? handleInstructionServeSubmit : handleNextStep }
-                onClick={handleNextStep}
-              disabled={isNextDisabled}
+              onClick={handleNextStep}
+              disabled={isNextDisabled || isLoading}
               $isNext={true}
             >
               <ButtonContent>

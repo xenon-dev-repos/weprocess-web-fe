@@ -7,10 +7,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { ROUTES } from '../constants/routes';
-import { formatDate, getDateRange } from '../utils/helperFunctions';
+import { capitalizeFirstLetter, formatDate, getDateRange, getFilterLabel } from '../utils/helperFunctions';
 import CustomSelect from '../components/shared/CustomSelect';
 
-const FilterOptions = [
+const filterOptions = [
     { label: 'Weekly', value: 'weekly' },
     { label: 'Bi-weekly', value: 'biweekly' },
     { label: 'Monthly', value: 'monthly' },
@@ -31,7 +31,7 @@ const columns = [
     { key: 'status', header: 'Process status', width: 'status' }
 ];
 
-const defaultFilter = FilterOptions[2].value;
+const defaultFilter = filterOptions[2].value;
 
 const InstructionsPage = () => {
     const [timeFilter, setTimeFilter] = useState(defaultFilter);
@@ -145,9 +145,8 @@ const InstructionsPage = () => {
   
     const customFilters = (
         <CustomSelect
-            options={FilterOptions}
+            options={filterOptions}
             defaultValue={defaultFilter}
-            // onChange={(value) => console.log('Selected:', value)}
             onChange={(value) => handleTimeFilterChange(value)}
         />
     );
@@ -162,7 +161,7 @@ const InstructionsPage = () => {
         recipient_address: serve.recipient_address,
         date_of_submission: formatDate(serve.date_of_submission) !== 'N/A' ? formatDate(serve.date_of_submission) : formatDate(serve.created_at),
         deadline: serve.deadline,
-        status: serve.status,
+        status: capitalizeFirstLetter(serve.status)
     });
 
     const tableData = filteredData.map(mapServeToTableRow);
@@ -187,7 +186,7 @@ const InstructionsPage = () => {
                     <InstructionsTable 
                         data={tableData}
                         title="Instructions In Progress"
-                        subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
+                        subtitle={`${getFilterLabel(filterOptions, timeFilter)} instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
                         columns={columns}
                         customFilters={customFilters}
                         minHeight={495}

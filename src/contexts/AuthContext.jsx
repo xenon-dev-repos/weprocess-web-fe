@@ -148,7 +148,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       setRegistrationData(null);
       navigate('/dashboard'); 
       
-      console.log('Registration successful:', data);
       toast.showSuccess(data.message || 'Registration successful!');
       return true;
     } catch (err) {
@@ -202,7 +201,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
 
       setUser(userData);
       
-      console.log('Login successful:', data);
       toast.showSuccess(data.message || 'Login successful!');
       return true;
     } catch (err) {
@@ -252,7 +250,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
         throw new Error(errorMessage);
       }
       
-      console.log('Password reset email sent');
       toast.showSuccess(data.message || 'Password reset email sent. Please check your inbox.');
       return true;
     } catch (err) {
@@ -275,8 +272,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       formData.append('email', email);
       formData.append('otp', otp);
       
-      console.log('Verifying OTP for:', email);
-      
       const response = await fetch(API_ENDPOINTS.VERIFY_OTP, {
         method: 'POST',
         body: formData
@@ -297,7 +292,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
         throw new Error(errorMessage);
       }
       
-      console.log('OTP verification successful');
       setOtpVerified(true);
       toast.showSuccess(data.message || 'OTP verified successfully');
       return true;
@@ -338,7 +332,6 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
         throw new Error(errorMessage);
       }
       
-      console.log('Password changed successfully');
       setOtpVerified(false);
       toast.showSuccess(data.message || 'Password changed successfully');
       return true;
@@ -358,9 +351,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
       const formData = new FormData();
       formData.append('email', email);
       formData.append('password', password);
-      
-      console.log('Resetting password for:', email);
-      
+
       const response = await fetch(API_ENDPOINTS.CHANGE_PASSWORD, {
         method: 'POST',
         body: formData
@@ -380,8 +371,7 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
         
         throw new Error(errorMessage);
       }
-      
-      console.log('Password reset successfully');
+
       setOtpVerified(false);
       toast.showSuccess(data.message || 'Password reset successfully');
       return true;
