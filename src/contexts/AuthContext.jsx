@@ -409,28 +409,21 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
         throw new Error('No authentication token found');
       }
 
-      // Build query parameters
-      const queryParams = new URLSearchParams();
-      if (params.status) queryParams.append('status', params.status);
-      if (params.deadline) queryParams.append('deadline', params.deadline);
-      if (params.client_id) queryParams.append('client_id', params.client_id);
-      queryParams.append('sort_by', 'deadline,price');
-      queryParams.append('sort_order', 'desc,asc');
-      queryParams.append('per_page', '10');
-
-      const response = await axios.get(`${API_ENDPOINTS.SERVES}?${queryParams.toString()}`, {
+      const response = await axios.get(API_ENDPOINTS.SERVES, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
-        }
+        },
+        params: params 
       });
 
       if (!response.data) {
         throw new Error('No data received from server');
       }
-      console.log('Serves fetched successfully:', response.data);
+
       return response.data;
+      
     } catch (error) {
       console.error('Error fetching serves:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch serves';

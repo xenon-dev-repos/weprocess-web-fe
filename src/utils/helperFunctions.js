@@ -81,11 +81,19 @@ export const formatDocumentTypesForDisplay = (types, reason) => {
 };
 
 
-export const getDeadlineDate = (filter) => {
+/**
+ * Get deadline date based on filter and format
+ * @param {string} filter - time period filter (weekly, monthly, etc.)
+ * @param {string} format - desired output format 
+ *        (YYYY-MM-DD, DD-MM-YYYY, YYYY/MM/DD, DD/MM/YYYY)
+ * @returns {string} - formatted deadline date
+ */
+export const getDeadlineDate = (filter, format = 'YYYY-MM-DD') => {
     const today = new Date();
     const result = new Date(today); // Create a copy to avoid mutating original date
     
-    switch(filter) {
+    // Calculate deadline date based on filter
+    switch(filter.toLowerCase()) {
         case 'weekly':
             result.setDate(result.getDate() + 7);
             break;
@@ -101,9 +109,97 @@ export const getDeadlineDate = (filter) => {
         case 'annually':
             result.setFullYear(result.getFullYear() + 1);
             break;
+        case 'custom':
+            return null; // Handle custom dates separately
         default: // monthly as fallback
             result.setMonth(result.getMonth() + 1);
     }
     
-    return result.toISOString().split('T')[0]; // Format as yyyy-mm-dd
+    // Format date according to requested format
+    const pad = num => String(num).padStart(2, '0');
+    const day = pad(result.getDate());
+    const month = pad(result.getMonth() + 1);
+    const year = result.getFullYear();
+    
+    switch(format.toUpperCase()) {
+        case 'DD-MM-YYYY':
+            return `${day}-${month}-${year}`;
+        case 'YYYY/MM/DD':
+            return `${year}/${month}/${day}`;
+        case 'DD/MM/YYYY':
+            return `${day}/${month}/${year}`;
+        case 'YYYY-MM-DD':
+        default:
+            return `${year}-${month}-${day}`;
+    }
+};
+
+
+/**
+ * Get date range based on filter and format
+ * @param {string} filter - time period filter (weekly, monthly, etc.)
+ * @param {string} format - desired output format 
+ *        (YYYY-MM-DD, DD-MM-YYYY, YYYY/MM/DD, DD/MM/YYYY)
+ * @returns {object} - { from_date, to_date } in requested format
+ */
+export const getDateRange = (filter, format = 'DD/MM/YYYY') => {
+    const today = new Date();
+    const toDate = new Date(today);
+    const fromDate = new Date(today);
+
+    // Reset time to avoid timezone issues
+    toDate.setHours(0, 0, 0, 0);
+    fromDate.setHours(0, 0, 0, 0);
+
+    // Calculate past date range
+    switch(filter.toLowerCase()) {
+        case 'today':
+            // No change needed (from = to = today)
+            break;
+        case 'weekly':
+            fromDate.setDate(fromDate.getDate() - 7); // Last 7 days
+            break;
+        case 'biweekly':
+            fromDate.setDate(fromDate.getDate() - 14); // Last 14 days
+            break;
+        case 'monthly':
+            fromDate.setMonth(fromDate.getMonth() - 1); // Last month
+            break;
+        case 'quarterly':
+            fromDate.setMonth(fromDate.getMonth() - 3); // Last 3 months
+            break;
+        case 'annually':
+            fromDate.setFullYear(fromDate.getFullYear() - 1); // Last year
+            break;
+        default:
+            console.warn(`Unknown filter "${filter}". Defaulting to "monthly".`);
+            fromDate.setMonth(fromDate.getMonth() - 1);
+    }
+
+    // Format dates (supports DD/MM/YYYY, YYYY-MM-DD, etc.)
+    const formatDate = (date) => {
+        const pad = num => String(num).padStart(2, '0');
+        const day = pad(date.getDate());
+        const month = pad(date.getMonth() + 1);
+        const year = date.getFullYear();
+        
+        switch(format.toLowerCase()) {
+            case 'dd-mm-yyyy':
+                return `${day}-${month}-${year}`;
+            case 'yyyy/mm/dd':
+                return `${year}/${month}/${day}`;
+            case 'dd/mm/yyyy':
+                return `${day}/${month}/${year}`;
+            case 'yyyy-mm-dd':
+                return `${year}-${month}-${day}`;
+            default:
+                console.warn(`Unknown format "${format}". Using "DD/MM/YYYY".`);
+                return `${day}/${month}/${year}`;
+        }
+    };
+
+    return {
+        from_date: formatDate(fromDate),
+        to_date: formatDate(toDate) // Today (or adjust if needed)
+    };
 };

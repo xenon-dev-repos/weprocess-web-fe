@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { ROUTES } from '../constants/routes';
-import { formatDate, getDeadlineDate } from '../utils/helperFunctions';
+import { formatDate, getDateRange } from '../utils/helperFunctions';
 import CustomSelect from '../components/shared/CustomSelect';
 
 const FilterOptions = [
@@ -18,21 +18,37 @@ const FilterOptions = [
     { label: 'Annually', value: 'annually' }
 ];
 
+const columns = [
+    { key: 'wpr', header: 'WPR no.', width: 'id' },
+    { key: 'owner', header: 'Owner', width: 'owner' },
+    { key: 'serve', header: 'Serve name', width: 'title' },
+    { key: 'type', header: 'Service type', width: 'type' },
+    { key: 'court', header: 'Court name', width: 'issuing_court' },
+    { key: 'recipient_name', header: "Recipient's Name", width: 'recipient_name' },
+    { key: 'recipient_address', header: "Recipient's Address", width: 'recipient_address' },
+    { key: 'date_of_submission', header: 'Date Issues', width: 'date_issued' },
+    { key: 'deadline', header: 'Deadline', width: 'deadline' },
+    { key: 'status', header: 'Process status', width: 'status' }
+];
+
+const defaultFilter = FilterOptions[2].value;
+
 const InstructionsPage = () => {
-    const [timeFilter, setTimeFilter] = useState('weekly');
-    const [deadlineDate, setDeadlineDate] = useState('');
+    const [timeFilter, setTimeFilter] = useState(defaultFilter);
+    // const [deadlineDate, setDeadlineDate] = useState('');
+    const [dateRange, setDateRange] = useState(getDateRange(timeFilter, 'DD/MM/YYYY'));
     const [statusFilter, setStatusFilter] = useState('');
     const [filteredData, setFilteredData] = useState([]);
     const [loading, setLoading] = useState(true);
     const { user, getServes } = useAuth();
     const navigation = useNavigation();
 
-    // const [pagination, setPagination] = useState({
-    //     current_page: 1,
-    //     last_page: 1,
-    //     per_page: 10,
-    //     total: 0
-    // });
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        per_page: 10,
+        total: 0
+    });
 
     const filterButtons = [
         { id: '', label: 'All', dotColor: 'white' },
@@ -42,116 +58,95 @@ const InstructionsPage = () => {
     ];
   
     const handleTimeFilterChange = (value) => {
-        const calculatedDate = getDeadlineDate(value);
+        // const calculatedDate = getDeadlineDate(value);
+        // setDeadlineDate(calculatedDate);
         setTimeFilter(value);
-        setDeadlineDate(calculatedDate);
-        fetchServes(statusFilter, calculatedDate);
+        setDateRange(getDateRange(value, 'DD/MM/YYYY'));
     };
 
     const handleStatusFilterChange = (filterId) => {
         setStatusFilter(filterId);
-        fetchServes(filterId, deadlineDate);
+        setPagination(prev => ({
+            ...prev,
+            current_page: 1
+        }));
     };
 
-    // const handleTimeFilterChange = (value) => {
-    //     const calculatedDate = getDeadlineDate(value);
-    //     setTimeFilter(value);
-    //     setDeadlineDate(calculatedDate);
-    //     fetchServes(statusFilter, calculatedDate, pagination.current_page);
-    // };
+    const handlePageChange = (page) => {
+        setPagination(prev => ({
+            ...prev,
+            current_page: page
+        }));
+        fetchServes(page)
+    };
 
-    // const handleStatusFilterChange = (filterId) => {
-    //     setStatusFilter(filterId);
-    //     // Reset to first page when filter changes
-    //     setPagination(prev => ({
-    //         ...prev,
-    //         current_page: 1
-    //     }));
-    //     fetchServes(filterId, 1, deadlineDate);
-    // };
-
-    // const handlePageChange = (page) => {
-    //     setPagination(prev => ({
-    //         ...prev,
-    //         current_page: page
-    //     }));
-    //     fetchServes(statusFilter, page, deadlineDate);
-    // };
-
-    const fetchServes = async (status = statusFilter, deadline = deadlineDate) => {
+    const fetchServes = async (page = 1) => {
         try {
             setLoading(true);
+            setFilteredData([]);
             
             if (!user?.id) {
                 console.error('User ID not found');
                 return;
             }
 
-            const params = {
-                client_id: user.id,
-                // page: page,
-                // per_page: pagination.per_page,
-                ...(status && { status: status }),
-                ...(deadline && { deadline: deadline })
+            const queryParams = {
+                client_id: user?.id,
+                page: page,
+                per_page: pagination.per_page,
+                ...(statusFilter && { status: statusFilter }),
+                // ...(deadline && { deadline: deadlineDate }),
+                ...(dateRange.from_date && { from_date: dateRange.from_date }),
+                ...(dateRange.to_date && { to_date: dateRange.to_date }),
             };
 
-            const response = await getServes(params);
+            const response = await getServes(queryParams);
             
-            if (response.success && response?.serves?.data) {
-                setFilteredData(response.serves.data || []);
-                if (response.serves.pagination) {
-                    // setPagination({
-                    //     current_page: response.serves.pagination.current_page || 1,
-                    //     last_page: response.serves.pagination.last_page || 1,
-                    //     per_page: response.serves.pagination.per_page || 10,
-                    //     total: response.serves.pagination.total || 0
-                    // });
+            if (response?.success && response?.data) {
+                setFilteredData(response?.data || []);
+                if (response?.pagination) {
+                    setPagination({
+                        current_page: response.pagination.current_page,
+                        last_page: response.pagination.last_page,
+                        per_page: response.pagination.per_page,
+                        total: response.pagination.total
+                    });
                 }
             } else {
                 setFilteredData([]);
-                // setPagination({
-                //     current_page: 1,
-                //     last_page: 1,
-                //     per_page: filters.per_page,
-                //     total: 0
-                // });
+                setPagination({
+                    current_page: 1,
+                    last_page: 1,
+                    per_page: pagination.per_page,
+                    total: 0
+                });
                 console.error(response.message || 'Failed to fetch serves');
             }
         } catch (error) {
             console.error('Error fetching serves:', error);
             setFilteredData([]);
-            // setPagination({
-            //     current_page: 1,
-            //     last_page: 1,
-            //     per_page: filters.per_page,
-            //     total: 0
-            // });
+            setPagination({
+                current_page: 1,
+                last_page: 1,
+                per_page: pagination.per_page,
+                total: 0
+            });
         } finally {
             setLoading(false);
         }
     };
   
     useEffect(() => {
-        const initialDeadline = getDeadlineDate(timeFilter);
-        setDeadlineDate(initialDeadline);
-        
         if (user?.id) {
-            fetchServes(statusFilter, initialDeadline);
+            fetchServes();
         }
-    }, [user?.id]);
-
-    // useEffect(() => {
-    //     if (user?.id) {
-    //         fetchServes(statusFilter, pagination.current_page);
-    //     }
-    // }, [user?.id, pagination.current_page]);
-
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.id, statusFilter, dateRange]);
   
     const customFilters = (
         <CustomSelect
             options={FilterOptions}
-            defaultValue="weekly"
+            defaultValue={defaultFilter}
             // onChange={(value) => console.log('Selected:', value)}
             onChange={(value) => handleTimeFilterChange(value)}
         />
@@ -169,19 +164,6 @@ const InstructionsPage = () => {
         deadline: serve.deadline,
         status: serve.status,
     });
-
-    const columns = [
-        { key: 'wpr', header: 'WPR no.', width: 'id' },
-        { key: 'owner', header: 'Owner', width: 'owner' },
-        { key: 'serve', header: 'Serve name', width: 'title' },
-        { key: 'type', header: 'Service type', width: 'type' },
-        { key: 'court', header: 'Court name', width: 'issuing_court' },
-        { key: 'recipient_name', header: "Recipient's Name", width: 'recipient_name' },
-        { key: 'recipient_address', header: "Recipient's Address", width: 'recipient_address' },
-        { key: 'date_of_submission', header: 'Date Issues', width: 'date_issued' },
-        { key: 'deadline', header: 'Deadline', width: 'deadline' },
-        { key: 'status', header: 'Process status', width: 'status' }
-    ];
 
     const tableData = filteredData.map(mapServeToTableRow);
     
@@ -210,17 +192,15 @@ const InstructionsPage = () => {
                         customFilters={customFilters}
                         minHeight={495}
                         noDataCellHeight={495}
-                        itemsPerPage={10}
-                        onRowClick={handleRowClick}
                         loading={loading}
 
-                        // itemsPerPage={pagination.per_page}
-                        // currentPage={pagination.current_page}
-                        // totalPages={pagination.last_page}
-                        // totalItems={pagination.total}
-                        // onPageChange={handlePageChange}
-                        // onRowClick={handleRowClick}
-                        // serverSidePagination={true}
+                        itemsPerPage={pagination.per_page}
+                        currentPage={pagination.current_page}
+                        totalPages={pagination.last_page}
+                        totalItems={pagination.total}
+                        onPageChange={handlePageChange}
+                        onRowClick={handleRowClick}
+                        serverSidePagination={true}
                     />
                 </MainContent>
             </DashboardContainer>
