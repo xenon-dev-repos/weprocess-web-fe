@@ -9,14 +9,7 @@ import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { ROUTES } from '../constants/routes';
 import { capitalizeFirstLetter, formatDate, getDateRange, getFilterLabel } from '../utils/helperFunctions';
 import CustomSelect from '../components/shared/CustomSelect';
-
-const filterOptions = [
-    { label: 'Weekly', value: 'weekly' },
-    { label: 'Bi-weekly', value: 'biweekly' },
-    { label: 'Monthly', value: 'monthly' },
-    { label: 'Quarterly', value: 'quarterly' },
-    { label: 'Annually', value: 'annually' }
-];
+import { defaultIntervalFilter, IntervalFilters } from '../constants/filters';
 
 const columns = [
     { key: 'wpr', header: 'WPR no.', width: 'id' },
@@ -31,10 +24,8 @@ const columns = [
     { key: 'status', header: 'Process status', width: 'status' }
 ];
 
-const defaultFilter = filterOptions[2].value;
-
 const InstructionsPage = () => {
-    const [timeFilter, setTimeFilter] = useState(defaultFilter);
+    const [timeFilter, setTimeFilter] = useState(defaultIntervalFilter);
     // const [deadlineDate, setDeadlineDate] = useState('');
     const [dateRange, setDateRange] = useState(getDateRange(timeFilter, 'DD/MM/YYYY'));
     const [statusFilter, setStatusFilter] = useState('');
@@ -145,8 +136,8 @@ const InstructionsPage = () => {
   
     const customFilters = (
         <CustomSelect
-            options={filterOptions}
-            defaultValue={defaultFilter}
+            options={IntervalFilters}
+            defaultValue={defaultIntervalFilter}
             onChange={(value) => handleTimeFilterChange(value)}
         />
     );
@@ -186,7 +177,7 @@ const InstructionsPage = () => {
                     <InstructionsTable 
                         data={tableData}
                         title="Instructions In Progress"
-                        subtitle={`${getFilterLabel(filterOptions, timeFilter)} instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
+                        subtitle={`${getFilterLabel(IntervalFilters, timeFilter)} instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
                         columns={columns}
                         customFilters={customFilters}
                         minHeight={495}

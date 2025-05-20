@@ -30,7 +30,9 @@ export const API_ENDPOINTS = {
   INVOICES: `${API_BASE_URL}/invoices`,
 
   // Dashboard endpoint
-  DASHBOARD: `${API_BASE_URL}/clients/dashboard`,
+  DASHBOARD_SUMMARY: `${API_BASE_URL}/clients/dashboard/summary`,
+  DASHBOARD_SERVES_STATUS_DOUGHNUT_GRAPH: `${API_BASE_URL}/clients/dashboard/serves-status`,
+  DASHBOARD_SERVES_REQUESTED_BAR_GRAPH: `${API_BASE_URL}/clients/dashboard/serves-requested`,
 
   // Notifications endpoint
   NOTIFICATIONS: `${API_BASE_URL}/notifications`,

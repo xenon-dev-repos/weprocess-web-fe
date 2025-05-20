@@ -71,17 +71,16 @@ const TitleWrapper = styled.div`
   }
 `;
 
-const StatTitle = styled.h3`
-  font-family: 'Manrope', sans-serif;
-  font-weight: 600;
-  font-size: 18px;
+export const StatTitle = styled.div`
+  font-weight: 700;
+  font-size: 20px;
   line-height: 100%;
   letter-spacing: 0%;
   color: #111827;
   margin: 0;
 
   @media (max-width: 1440px) {
-    font-size: 17px;
+    font-size: 18px;
   }
 
   @media (max-width: 1024px) {
@@ -97,14 +96,15 @@ const StatTitle = styled.h3`
   }
 `;
 
-const StatSubtitle = styled.p`
-  font-family: 'Manrope', sans-serif;
+export const StatSubtitle = styled.p`
   font-weight: 400;
   font-size: 16px;
   line-height: 100%;
   letter-spacing: 0%;
   color: #6B7280;
   margin: 0;
+  letter-spacing: 0%;
+  vertical-align: middle;
 
   @media (max-width: 1440px) {
     font-size: 15px;
