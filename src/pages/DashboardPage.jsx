@@ -1,7 +1,6 @@
 import React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Chart } from 'chart.js/auto';
 import { MainLayout } from '../layouts/MainLayout';
 import { StatCard, StatSubtitle, StatTitle } from '../components/dashboard/StatCard';
 import InstructionsTable from '../components/InstructionsTable';
@@ -14,6 +13,7 @@ import { useNavigation } from '../hooks/useNavigation';
 import CustomSelect from '../components/shared/CustomSelect';
 import { capitalizeFirstLetter, getDateRange } from '../utils/helperFunctions';
 import { defaultIntervalFilter, InstructionsTableStatusFilters, IntervalFilters } from '../constants/filters';
+import { BarChart, DoughnutChart } from '../components/dashboard/DashboardCharts';
 
 const columns = [
     { key: 'wpr', header: 'WPR no.' },
@@ -26,8 +26,8 @@ const columns = [
 ];
 
 const DashboardPage = () => {
-    const barChartRef = useRef(null);
-    const pieChartRef = useRef(null);
+    // const barChartRef = useRef(null);
+    // const pieChartRef = useRef(null);
     
     // Loading states
     const [summaryLoading, setSummaryLoading] = useState(false);
@@ -353,231 +353,6 @@ const DashboardPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [statusFilter]);
 
-    useEffect(() => {
-        let pieChartInstance = null;
-        let barChartInstance = null;
-
-        if (pieChartRef.current) {
-            const pieCtx = pieChartRef.current.getContext('2d');
-            const pieData = [
-                doughnutData.on_hold,
-                doughnutData.in_progress,
-                doughnutData.completed
-            ];
-
-            // Check if there's any data
-            const hasPieData = pieData.some(value => value > 0);
-
-            if (!hasPieData) {
-                // Handle high DPI displays
-                const dpr = window.devicePixelRatio || 1;
-                const rect = pieCtx.canvas.getBoundingClientRect();
-
-                // Set the canvas size accounting for device pixel ratio
-                pieCtx.canvas.width = rect.width * dpr;
-                pieCtx.canvas.height = rect.height * dpr;
-
-                // Scale the context to ensure correct drawing
-                pieCtx.scale(dpr, dpr);
-
-                // Set canvas CSS size
-                pieCtx.canvas.style.width = `${rect.width}px`;
-                pieCtx.canvas.style.height = `${rect.height}px`;
-
-                // Clear the canvas
-                pieCtx.clearRect(0, 0, pieCtx.canvas.width, pieCtx.canvas.height);
-
-                // Draw the text
-                pieCtx.font = '16px Manrope';
-                pieCtx.fontWeight = 500;
-                pieCtx.fillStyle = '#1F2937';
-                pieCtx.textAlign = 'center';
-                pieCtx.textBaseline = 'middle';
-                // pieCtx.fillText('No data available', rect.width / 2, rect.height / 2);
-            } else {
-                pieChartInstance = new Chart(pieCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['On Hold', 'In Progress', 'Completed'],
-                        datasets: [{
-                            data: pieData,
-                            backgroundColor: ['#7987FF', '#F765A3', '#A155B9'],
-                        }],
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '70%',
-                        plugins: {
-                            legend: {
-                                position: 'right',
-                                labels: {
-                                    boxWidth: 8,
-                                    boxHeight: 8,
-                                    padding: 10,
-                                    usePointStyle: true,
-                                    pointStyle: 'circle'
-                                }
-                            }
-                        },
-                    },
-                });
-            }
-        }
-
-        if (barChartRef.current) {
-            const barCtx = barChartRef.current.getContext('2d');
-
-            // Prepare data for bar chart
-            const labels = barGraphData.map(item => item.title);
-            const data = barGraphData.map(item => item.count);
-            const tooltips = barGraphData.map(item => item.tooltip);
-
-            // Generate colors for bars
-            const backgroundColors = labels.map((_, index) => {
-                const colors = ['#FF5B5B', '#8B5CF6', '#3B82F6', '#10B981', '#F59E0B',
-                    '#EC4899', '#6366F1', '#14B8A6', '#F97316', '#06B6D4',
-                    '#A855F7', '#EF4444'];
-                return colors[index % colors.length];
-            });
-
-            // Calculate dynamic bar thickness based on available data points
-            const barThickness = Math.min(80, Math.max(20, 400 / labels.length));
-
-            // Check if there's any data
-            const hasBarData = data.some(value => value > 0);
-
-            if (!hasBarData) {
-                // Handle high DPI displays
-                const dpr = window.devicePixelRatio || 1;
-                const rect = barCtx.canvas.getBoundingClientRect();
-
-                // Set the canvas size accounting for device pixel ratio
-                barCtx.canvas.width = rect.width * dpr;
-                barCtx.canvas.height = rect.height * dpr;
-
-                // Scale the context to ensure correct drawing
-                barCtx.scale(dpr, dpr);
-
-                // Set canvas CSS size
-                barCtx.canvas.style.width = `${rect.width}px`;
-                barCtx.canvas.style.height = `${rect.height}px`;
-
-                // Clear the canvas
-                barCtx.clearRect(0, 0, barCtx.canvas.width, barCtx.canvas.height);
-
-                // Draw the text
-                barCtx.font = '14px Manrope';
-                barCtx.fillStyle = '#1F2937';
-                barCtx.textAlign = 'center';
-                barCtx.textBaseline = 'middle';
-                // barCtx.fillText('No data available', rect.width / 2, rect.height / 2);
-            } else {
-                barChartInstance = new Chart(barCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Total Requests',
-                                data: data,
-                                backgroundColor: backgroundColors,
-                                borderRadius: {
-                                    topLeft: 20,
-                                    topRight: 20,
-                                    bottomLeft: 0,
-                                    bottomRight: 0
-                                },
-                                borderSkipped: false,
-                                barThickness: barThickness,
-                            }
-                        ],
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        layout: {
-                            padding: {
-                                top: 30
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    display: false,
-                                    drawBorder: false
-                                },
-                                ticks: {
-                                    display: false
-                                },
-                                border: {
-                                    display: false
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    drawOnChartArea: true,
-                                    lineWidth: 0.5,
-                                    color: '#E5E7EB',
-                                    drawTicks: false
-                                },
-                                border: {
-                                    display: false
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const index = context.dataIndex;
-                                        return tooltips[index];
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    plugins: [{
-                        id: 'customLabels',
-                        afterDraw(chart) {
-                            const {ctx, data, scales: {x, y}} = chart;
-
-                            ctx.save();
-                            ctx.font = '700 24px Manrope';
-                            ctx.fillStyle = '#1F2937';
-                            ctx.textAlign = 'center';
-
-                            data.datasets[0].data.forEach((value, index) => {
-                                if (value > 0) {
-                                    const xPos = x.getPixelForValue(index);
-                                    const yPos = y.getPixelForValue(value);
-                                    const text = value.toString();
-
-                                    // Draw the value above the bar
-                                    ctx.fillText(text, xPos, yPos - 10);
-                                }
-                            });
-                            ctx.restore();
-                        }
-                    }]
-                });
-            }
-        }
-
-        return () => {
-            if (pieChartInstance) {
-                pieChartInstance.destroy();
-            }
-            if (barChartInstance) {
-                barChartInstance.destroy();
-            }
-        };
-    }, [doughnutData, barGraphData]);
-
     return (
         <MainLayout isDashboardPage={true}>
             {summaryLoading && <LoadingOnPage />}
@@ -645,14 +420,13 @@ const DashboardPage = () => {
                             </ChartHeader>
                             <StatSubtitle style={{marginTop: -6.5}}>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</StatSubtitle>
                             <ChartCanvasWrapper>
-                                {(barGraphData.length === 0) ? (
-                                    <LoadingOverlay>No data available</LoadingOverlay>
-                                ) : (
-                                  <>
-                                    {barGraphLoading && <LoadingOverlay>Loading...</LoadingOverlay>}
-                                    <canvas ref={barChartRef}></canvas>
-                                  </>
-                                )}
+                            {barGraphLoading ? (
+                                <LoadingOverlay>Loading...</LoadingOverlay>
+                            ) : barGraphData.length === 0 ? (
+                                <LoadingOverlay>No data available</LoadingOverlay>
+                            ) : (
+                                <BarChart data={barGraphData} />
+                            )}
                             </ChartCanvasWrapper>
                         </ChartCard>
 
@@ -667,14 +441,13 @@ const DashboardPage = () => {
                             </ChartHeader>
                             <StatSubtitle style={{marginTop: -6.5}}>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</StatSubtitle>
                             <ChartCanvasWrapper>
-                              {(doughnutData.on_hold === 0 && doughnutData.in_progress === 0 && doughnutData.completed === 0 ) ? (
+                            {doughnutLoading ? (
+                                <LoadingOverlay>Loading...</LoadingOverlay>
+                            ) : (doughnutData.on_hold === 0 && doughnutData.in_progress === 0 && doughnutData.completed === 0) ? (
                                 <LoadingOverlay>No data available</LoadingOverlay>
-                              ) : (
-                                <>
-                                  {doughnutLoading && <LoadingOverlay>Loading...</LoadingOverlay>}
-                                  <canvas ref={pieChartRef}></canvas>
-                                </>
-                              )}
+                            ) : (
+                                <DoughnutChart data={doughnutData} />
+                            )}
                             </ChartCanvasWrapper>
                         </ChartCard>
                     </RightColumn>
