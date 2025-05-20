@@ -9,8 +9,11 @@ export const NavigationHandler = ({ children }) => {
   const navigationType = useNavigationType();
 
   useEffect(() => {
-    console.log("resetFormData functions called.")
-    resetFormData();
+    if (resetFormData && typeof resetFormData === 'function') {
+      // TODO: Used for debugging, remove console.log later
+      // console.log("resetFormData functions called.")
+      resetFormData();
+    }
   }, [location.pathname, navigationType, resetFormData]);
 
   return children;
