@@ -10,6 +10,7 @@ export const DoughnutChart = ({ data }) => {
     if (chartRef.current) {
       const ctx = chartRef.current.getContext('2d');
       const chartData = [data.on_hold, data.in_progress, data.completed];
+      const total = chartData.reduce((a, b) => a + b, 0);
 
       // Clear previous chart if it exists
       if (chartInstance) {
@@ -29,6 +30,12 @@ export const DoughnutChart = ({ data }) => {
           responsive: true,
           maintainAspectRatio: false,
           cutout: '70%',
+          layout: {
+            padding: {
+              top: 50,
+              right: 10,
+            }
+          },
           plugins: {
             legend: {
               position: 'right',
@@ -39,9 +46,47 @@ export const DoughnutChart = ({ data }) => {
                 usePointStyle: true,
                 pointStyle: 'circle'
               }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const value = context.raw;
+                  const percentage = ((value / total) * 100).toFixed(1);
+                  return `${context.label}: ${value} (${percentage}%)`;
+                }
+              }
             }
           },
         },
+        plugins: [{
+          id: 'doughnutLabels',
+          afterDraw(chart) {
+            const { ctx } = chart;
+            const meta = chart.getDatasetMeta(0);
+            const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+            
+            if (total > 0) {
+              meta.data.forEach((element, index) => {
+                const value = chart.data.datasets[0].data[index];
+                const percentage = Math.round((value / total) * 100);
+                
+                // Position the percentage text at 60% of the radius (closer to center)
+                const halfAngle = (element.startAngle + element.endAngle) / 2;
+                const radius = element.outerRadius * 0.85; // Adjusted from 0.7 to 0.6
+                const x = Math.cos(halfAngle) * radius + element.x;
+                const y = Math.sin(halfAngle) * radius + element.y;
+                
+                ctx.save();
+                ctx.font = 'bold 12px Manrope';
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`${percentage}%`, x, y);
+                ctx.restore();
+              });
+            }
+          }
+        }]
       });
     }
 
