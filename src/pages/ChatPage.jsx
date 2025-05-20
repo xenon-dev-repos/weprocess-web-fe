@@ -1,11 +1,14 @@
-import React, { useRef, useEffect } from 'react';
-import styled from 'styled-components';
-import { MainLayout } from '../layouts/MainLayout';
-import { useAuth } from '../contexts/AuthContext';
-import { FallbackChatSidebar, FallbackChatWindow } from '../components/chat/FallbackComponents';
-import { useChat } from '../hooks/useChat';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../constants/routes';
+import React, { useRef, useEffect } from "react";
+import styled from "styled-components";
+import { MainLayout } from "../layouts/MainLayout";
+import { useAuth } from "../contexts/AuthContext";
+import {
+  FallbackChatSidebar,
+  FallbackChatWindow,
+} from "../components/chat/FallbackComponents";
+import { useChat } from "../hooks/useChat";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../constants/routes";
 
 // Define a basic error boundary component
 class ErrorBoundary extends React.Component {
@@ -29,8 +32,8 @@ class ErrorBoundary extends React.Component {
           <h3>Something went wrong with the chat component.</h3>
           <p>Please try again later or contact support.</p>
           <button onClick={() => window.location.reload()}>Reload page</button>
-          <p style={{ color: '#777', fontSize: '12px' }}>
-            Error: {this.state.error?.message || 'Unknown error'}
+          <p style={{ color: "#777", fontSize: "12px" }}>
+            Error: {this.state.error?.message || "Unknown error"}
           </p>
         </ErrorContainer>
       );
@@ -41,15 +44,15 @@ class ErrorBoundary extends React.Component {
 }
 
 // Lazy load the chat components to handle any import errors
-const ChatSidebar = React.lazy(() => 
-  import('../components/chat/ChatSidebar').catch(err => {
+const ChatSidebar = React.lazy(() =>
+  import("../components/chat/ChatSidebar").catch((err) => {
     console.error("Failed to load ChatSidebar:", err);
     return { default: FallbackChatSidebar };
   })
 );
 
-const ChatWindow = React.lazy(() => 
-  import('../components/chat/ChatWindow').catch(err => {
+const ChatWindow = React.lazy(() =>
+  import("../components/chat/ChatWindow").catch((err) => {
     console.error("Failed to load ChatWindow:", err);
     return { default: FallbackChatWindow };
   })
@@ -57,12 +60,13 @@ const ChatWindow = React.lazy(() =>
 
 const RateLimitBanner = ({ visible }) => {
   if (!visible) return null;
-  
+
   return (
     <RateLimitWarning>
       <WarningIcon>⚠️</WarningIcon>
       <WarningText>
-        The server is experiencing high traffic. Chat updates will be less frequent.
+        The server is experiencing high traffic. Chat updates will be less
+        frequent.
       </WarningText>
     </RateLimitWarning>
   );
@@ -70,40 +74,35 @@ const RateLimitBanner = ({ visible }) => {
 
 const AuthErrorBanner = ({ visible, onLogin }) => {
   if (!visible) return null;
-  
+
   return (
     <AuthErrorContainer>
       <WarningIcon>🔑</WarningIcon>
-      <WarningText>
-        Your session has expired. Please sign in again.
-      </WarningText>
-      <LoginButton onClick={onLogin}>
-        Sign In
-      </LoginButton>
+      <WarningText>Your session has expired. Please sign in again.</WarningText>
+      <LoginButton onClick={onLogin}>Sign In</LoginButton>
     </AuthErrorContainer>
   );
 };
 
 const StoppedRequestsBanner = ({ visible, onRefresh }) => {
   if (!visible) return null;
-  
+
   const handleRefresh = () => {
-    console.log('Manual refresh requested');
+    console.log("Manual refresh requested");
     // Clear any incorrect flags that might be persisting
-    localStorage.removeItem('requestsStopped');
+    localStorage.removeItem("requestsStopped");
     // Call the provided refresh handler
     onRefresh();
   };
-  
+
   return (
     <StoppedContainer>
       <WarningIcon>🛑</WarningIcon>
       <WarningText>
-        The chat service appears unavailable. This might be a temporary connection issue.
+        The chat service appears unavailable. This might be a temporary
+        connection issue.
       </WarningText>
-      <RefreshButton onClick={handleRefresh}>
-        Refresh
-      </RefreshButton>
+      <RefreshButton onClick={handleRefresh}>Refresh</RefreshButton>
     </StoppedContainer>
   );
 };
@@ -122,10 +121,10 @@ const NoChatsMessage = () => (
 const ChatPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
+
   // Flag to prevent duplicate renders on navigation
   const hasRendered = useRef(false);
-  
+
   // Use the optimized useChat hook once, preventing multiple initializations
   const {
     loading,
@@ -139,7 +138,8 @@ const ChatPage = () => {
     rateLimited,
     authError,
     requestsStopped,
-    manualRefresh
+    manualRefresh,
+    initialLoad
   } = useChat();
 
   // Handle login redirect
@@ -152,18 +152,18 @@ const ChatPage = () => {
   useEffect(() => {
     if (!hasRendered.current) {
       // Set a flag in localStorage to indicate the chat page is loaded
-      localStorage.setItem('chatPageLoaded', 'true');
-      
+      localStorage.setItem("chatPageLoaded", "true");
+
       // Add a timestamp to track when the chat page was loaded
-      localStorage.setItem('chatPageLoadTime', Date.now().toString());
-      
+      localStorage.setItem("chatPageLoadTime", Date.now().toString());
+
       hasRendered.current = true;
     }
-    
+
     // Clean up flag when component unmounts
     return () => {
-      localStorage.removeItem('chatPageLoaded');
-      localStorage.removeItem('chatPageLoadTime');
+      localStorage.removeItem("chatPageLoaded");
+      localStorage.removeItem("chatPageLoadTime");
     };
   }, []);
 
@@ -172,7 +172,9 @@ const ChatPage = () => {
     // If we have sessions data but requestsStopped is still true,
     // something might be wrong with our state management
     if (requestsStopped && chatSessions.length > 0) {
-      console.log('Found sessions data while requestsStopped is true, triggering reset');
+      console.log(
+        "Found sessions data while requestsStopped is true, triggering reset"
+      );
       // Wait a little before attempting to reset
       setTimeout(() => {
         manualRefresh();
@@ -184,27 +186,32 @@ const ChatPage = () => {
   const isBannerVisible = rateLimited || authError || requestsStopped;
 
   return (
-    <MainLayout> 
+    <MainLayout>
       <ErrorBoundary>
         <AuthErrorBanner visible={authError} onLogin={handleLogin} />
-        <RateLimitBanner visible={rateLimited && !requestsStopped && !authError} />
-        <StoppedRequestsBanner visible={requestsStopped} onRefresh={manualRefresh} />
-        
+        <RateLimitBanner
+          visible={rateLimited && !requestsStopped && !authError}
+        />
+        <StoppedRequestsBanner
+          visible={requestsStopped}
+          onRefresh={manualRefresh}
+        />
+
         <ChatContainer bannerVisible={isBannerVisible}>
-          {chatSessions.length === 0 && !loading ? (
+          {chatSessions.length === 0 && (!loading || initialLoad.current) ? (
             <NoChatsMessage />
           ) : (
             <>
               <React.Suspense fallback={<div>Loading sidebar...</div>}>
-                <ChatSidebar 
-                  sessions={chatSessions} 
+                <ChatSidebar
+                  sessions={chatSessions}
                   currentSession={currentSession}
                   onSelectSession={selectSession}
                   loading={loading}
                 />
               </React.Suspense>
               <React.Suspense fallback={<div>Loading chat window...</div>}>
-                <ChatWindow 
+                <ChatWindow
                   session={currentSession}
                   messages={messages}
                   currentUser={user}
@@ -217,10 +224,10 @@ const ChatPage = () => {
             </>
           )}
         </ChatContainer>
-        
+
         {pagination.totalPages > 1 && !authError && !requestsStopped && (
           <PaginationContainer>
-            <PaginationButton 
+            <PaginationButton
               onClick={() => loadMoreSessions(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1 || loading}
             >
@@ -229,9 +236,11 @@ const ChatPage = () => {
             <PaginationInfo>
               Page {pagination.currentPage} of {pagination.totalPages}
             </PaginationInfo>
-            <PaginationButton 
+            <PaginationButton
               onClick={() => loadMoreSessions(pagination.currentPage + 1)}
-              disabled={pagination.currentPage === pagination.totalPages || loading}
+              disabled={
+                pagination.currentPage === pagination.totalPages || loading
+              }
             >
               Next
             </PaginationButton>
@@ -244,16 +253,18 @@ const ChatPage = () => {
 
 const ChatContainer = styled.div`
   display: flex;
-  height: ${props => props.bannerVisible ? 'calc(100vh - 120px)' : 'calc(100vh - 80px)'};
+  height: ${(props) =>
+    props.bannerVisible ? "calc(100vh - 120px)" : "calc(100vh - 80px)"};
   width: 100%;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   overflow: hidden;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
-    height: ${props => props.bannerVisible ? 'calc(100vh - 110px)' : 'calc(100vh - 70px)'};
+    height: ${(props) =>
+      props.bannerVisible ? "calc(100vh - 110px)" : "calc(100vh - 70px)"};
   }
 `;
 
@@ -291,7 +302,7 @@ const StoppedContainer = styled.div`
 `;
 
 const LoginButton = styled.button`
-  background-color: #1E473C;
+  background-color: #1e473c;
   color: white;
   border: none;
   border-radius: 4px;
@@ -299,7 +310,7 @@ const LoginButton = styled.button`
   margin-left: auto;
   cursor: pointer;
   font-size: 14px;
-  
+
   &:hover {
     background-color: #2e6a5b;
   }
@@ -314,7 +325,7 @@ const RefreshButton = styled.button`
   margin-left: auto;
   cursor: pointer;
   font-size: 14px;
-  
+
   &:hover {
     background-color: #138496;
   }
@@ -338,21 +349,21 @@ const ErrorContainer = styled.div`
   height: calc(100vh - 200px);
   text-align: center;
   padding: 20px;
-  
+
   h3 {
     color: #e74c3c;
     margin-bottom: 10px;
   }
-  
+
   button {
     margin-top: 20px;
     padding: 8px 16px;
-    background-color: #1E473C;
+    background-color: #1e473c;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    
+
     &:hover {
       background-color: #2e6a5b;
     }
@@ -371,14 +382,14 @@ const PaginationContainer = styled.div`
 
 const PaginationButton = styled.button`
   padding: 8px 16px;
-  background-color: ${props => props.disabled ? '#f2f2f2' : '#1E473C'};
-  color: ${props => props.disabled ? '#888' : 'white'};
+  background-color: ${(props) => (props.disabled ? "#f2f2f2" : "#1E473C")};
+  color: ${(props) => (props.disabled ? "#888" : "white")};
   border: none;
   border-radius: 4px;
-  cursor: ${props => props.disabled ? 'default' : 'pointer'};
-  
+  cursor: ${(props) => (props.disabled ? "default" : "pointer")};
+
   &:hover {
-    background-color: ${props => props.disabled ? '#f2f2f2' : '#2e6a5b'};
+    background-color: ${(props) => (props.disabled ? "#f2f2f2" : "#2e6a5b")};
   }
 `;
 
@@ -417,4 +428,4 @@ const NoChatsText = styled.p`
   max-width: 400px;
 `;
 
-export default ChatPage; 
+export default ChatPage;

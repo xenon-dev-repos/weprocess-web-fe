@@ -772,6 +772,7 @@ export const useChat = () => {
     rateLimited: requestsStopped,
     authError,
     requestsStopped,
-    manualRefresh
+    manualRefresh,
+    initialLoad: initialLoad,
   };
 }; 
