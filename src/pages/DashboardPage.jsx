@@ -770,7 +770,6 @@ const LoadingOverlay = styled.div`
   align-items: center;
   justify-content: center;
   background-color: rgba(255, 255, 255, 1);
-  z-index: 10;
 
   color: #6B7280;
   padding: 16px;
