@@ -2,6 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { StatSubtitle, StatTitle } from './dashboard/StatCard';
 
 const InstructionsTable = ({
   data = [],
@@ -74,8 +75,8 @@ const InstructionsTable = ({
     <TableContainer>
       <TableHeader>
         <HeaderText>
-          <TableTitle>{title}</TableTitle>
-          {subtitle && <SubTitle>{subtitle}</SubTitle>}
+          <StatTitle>{title}</StatTitle>
+          {subtitle && <StatSubtitle>{subtitle}</StatSubtitle>}
         </HeaderText>
         
         <FiltersContainer>
@@ -675,11 +676,44 @@ const EmptyStateContainerRow = styled.tr`
 
 const EmptyTableCell = styled.td`
   text-align: ${props => props.$align || 'center'};
-  font-family: 'Manrope', sans-serif;
-  font-size: 14px;
   color: #6B7280;
   padding: 16px;
-  // border-bottom: 1px solid #E5E7EB;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 16px;
+  
+  @media (max-width: 1440px) {
+    font-size: 15px;
+  }
+  
+  @media (max-width: 1280px) {
+    font-size: 14px;
+  }
+  
+  @media (max-width: 1024px) {
+    font-size: 13px;
+    padding: 12px;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 12px;
+    padding: 10px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  &:empty::after {
+    content: "No data available";
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover:empty::after {
+    opacity: 0.9;
+  }
 `;
 
 const Pagination = styled.div`

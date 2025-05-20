@@ -106,7 +106,7 @@ export const getDeadlineDate = (filter, format = 'YYYY-MM-DD') => {
         case 'quarterly':
             result.setMonth(result.getMonth() + 3);
             break;
-        case 'annually':
+        case 'yearly':
             result.setFullYear(result.getFullYear() + 1);
             break;
         case 'custom':
@@ -168,7 +168,7 @@ export const getDateRange = (filter, format = 'DD/MM/YYYY') => {
         case 'quarterly':
             fromDate.setMonth(fromDate.getMonth() - 3); // Last 3 months
             break;
-        case 'annually':
+        case 'yearly':
             fromDate.setFullYear(fromDate.getFullYear() - 1); // Last year
             break;
         default:

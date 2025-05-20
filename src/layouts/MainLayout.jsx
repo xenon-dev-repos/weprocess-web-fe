@@ -643,10 +643,47 @@ const UserActions = styled.div`
   }
 `;
 
+// const IconButton = styled.button`
+//   background: none;
+//   border: none;
+//   padding: 8px;
+//   cursor: pointer;
+//   position: relative;
+//   width: 40px;
+//   height: 40px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   border-radius: 50%;
+//   transition: background-color 0.2s;
+  
+
+//   &:hover {
+//     background-color: rgba(255, 255, 255, 0.1);
+//   }
+
+//   @media (max-width: 768px) {
+//     width: 36px;
+//     height: 36px;
+//     padding: 6px;
+    
+//     /* Increase touch target size while keeping visual size */
+//     &::after {
+//       content: '';
+//       position: absolute;
+//       top: -8px;
+//       left: -8px;
+//       right: -8px;
+//       bottom: -8px;
+//       z-index: 1;
+//     }
+//   }
+// `;
+
 const IconButton = styled.button`
   background: none;
-  border: none;
-  padding: 8px;
+  border: 1px solid #656565;
+  padding: 25px;
   cursor: pointer;
   position: relative;
   width: 40px;
@@ -655,10 +692,12 @@ const IconButton = styled.button`
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, border-color 0.2s;
+  
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
+    border-color: #858585; /* Optional: slightly lighter border on hover */
   }
 
   @media (max-width: 768px) {
