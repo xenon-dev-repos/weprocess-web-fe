@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { MainLayout } from '../layouts/MainLayout';
 import { useNotifications } from '../hooks/useNotifications';
 import NotificationIcon from '../assets/images/dashboard/notification-icon.svg';
-import SearchIcon from '../assets/images/dashboard/search-icon.svg';
+import SearchIcon from '../assets/images/dashboard/search-icon-black.svg';
 import { NotificationUpdateContext } from '../components/NotificationBadge';
 
 const NotificationsPage = () => {
@@ -61,16 +61,17 @@ const NotificationsPage = () => {
     }
   }, [markAllAsRead, triggerRefresh, loading, isMarkingAll]);
 
-  const handleFilterChange = function() {
-    // Not used anymore but kept for interface compatibility
-  } 
+  // TODO: I may use this function in the future
+  // const handleFilterChange = function() {
+  //   // Not used anymore but kept for interface compatibility
+  // } 
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
   return (
-    <MainLayout showShortHeader>
+    <MainLayout>
       <Container>
         <HeaderSection>
           <TitleContainer>
@@ -89,6 +90,10 @@ const NotificationsPage = () => {
               onChange={handleSearchChange}
             />
           </SearchContainer>
+
+          <AllNotificationsText>
+            All Notifications
+          </AllNotificationsText>
         </HeaderSection>
 
         <ActionHeader>
@@ -170,28 +175,65 @@ function formatTimeAgo(dateString) {
 }
 
 const Container = styled.div`
-  max-width: 1600px;
+  width: 100%;
   margin: 0 auto;
   padding: 24px;
   width: 100%;
+  background: #FFFFFF;
+  border-radius: 24px;
+  border-left-width: 1px;
+
+  @media (max-width: 1440px) {
+    padding: 22px;
+  }
+  
+  @media (max-width: 1280px) {
+    padding: 20px;
+  }
   
   @media (max-width: 1024px) {
-    padding: 20px;
+    padding: 18px;
   }
   
   @media (max-width: 768px) {
     padding: 16px;
+    border-radius: 20px;
   }
   
   @media (max-width: 480px) {
     padding: 12px;
+    border-radius: 16px;
   }
 `;
 
 const HeaderSection = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 24px;
+
+  /* Specific spacing for each child */
+  & > *:not(:last-child) {
+    margin-bottom: 24px;
+    
+    @media (max-width: 1440px) {
+      margin-bottom: 22px;
+    }
+    
+    @media (max-width: 1280px) {
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 1024px) {
+      margin-bottom: 18px;
+    }
+    
+    @media (max-width: 768px) {
+      margin-bottom: 16px;
+    }
+    
+    @media (max-width: 480px) {
+      margin-bottom: 14px;
+    }
+  }
 `;
 
 const TitleContainer = styled.div`
@@ -199,6 +241,16 @@ const TitleContainer = styled.div`
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
+  
+  @media (max-width: 768px) {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
 `;
 
 const Title = styled.h1`
@@ -206,12 +258,24 @@ const Title = styled.h1`
   font-weight: 600;
   margin: 0;
   
-  @media (max-width: 768px) {
+  @media (max-width: 1440px) {
+    font-size: 26px;
+  }
+  
+  @media (max-width: 1280px) {
+    font-size: 25px;
+  }
+  
+  @media (max-width: 1024px) {
     font-size: 24px;
   }
   
-  @media (max-width: 480px) {
+  @media (max-width: 768px) {
     font-size: 22px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 20px;
   }
 `;
 
@@ -223,14 +287,54 @@ const NotificationCount = styled.div`
   font-size: 16px;
   font-weight: 500;
   
-  @media (max-width: 768px) {
+  @media (max-width: 1440px) {
+    font-size: 15px;
+  }
+  
+  @media (max-width: 1280px) {
+    font-size: 15px;
+  }
+  
+  @media (max-width: 1024px) {
     font-size: 14px;
+    padding: 4px 10px;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 13px;
+    padding: 3px 9px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 12px;
+    padding: 2px 8px;
   }
 `;
 
 const SearchContainer = styled.div`
   width: 100%;
   position: relative;
+  height: 56px;
+  
+  @media (max-width: 1440px) {
+    height: 52px;
+  }
+  
+  @media (max-width: 1280px) {
+    height: 48px;
+  }
+  
+  @media (max-width: 1024px) {
+    height: 44px;
+  }
+  
+  @media (max-width: 768px) {
+    height: 40px;
+  }
+  
+  @media (max-width: 480px) {
+    height: 36px;
+  }
 `;
 
 const SearchIconWrapper = styled.div`
@@ -246,35 +350,98 @@ const SearchIconWrapper = styled.div`
     width: 20px;
     height: 20px;
     opacity: 0.5;
+    
+    @media (max-width: 768px) {
+      width: 18px;
+      height: 18px;
+    }
+    
+    @media (max-width: 480px) {
+      width: 16px;
+      height: 16px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    left: 14px;
+  }
+  
+  @media (max-width: 480px) {
+    left: 12px;
   }
 `;
 
 const SearchInput = styled.input`
   width: 100%;
-  height: 44px;
+  height: 100%;
   background-color: #f0f0f0;
-  border: none;
   border-radius: 100px;
   padding: 0 20px 0 46px;
   font-size: 16px;
+  border: 1px solid transparent; 
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(30, 71, 60, 0.2);
   }
   
   &::placeholder {
     color: #999;
+    transition: color 0.3s ease;
   }
   
-  @media (max-width: 768px) {
-    height: 40px;
+  @media (max-width: 1440px) {
+    font-size: 15px;
+    padding: 0 18px 0 44px;
+  }
+  
+  @media (max-width: 1280px) {
     font-size: 15px;
   }
   
-  @media (max-width: 480px) {
-    height: 36px;
+  @media (max-width: 1024px) {
     font-size: 14px;
+    padding: 0 16px 0 42px;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 13px;
+    padding: 0 14px 0 38px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 12px;
+    padding: 0 12px 0 34px;
+  }
+`;
+
+const AllNotificationsText = styled.div`
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #121F24;
+  margin-bottom: 5px;
+  
+  @media (max-width: 1440px) {
+    font-size: 17px;
+  }
+  
+  @media (max-width: 1280px) {
+    font-size: 16px;
+  }
+  
+  @media (max-width: 1024px) {
+    font-size: 15px;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 13px;
+    margin-bottom: 4px;
   }
 `;
 
@@ -284,27 +451,33 @@ const ActionHeader = styled.div`
   align-items: center;
   margin-bottom: 16px;
   
-  @media (max-width: 480px) {
+  @media (max-width: 1440px) {
+    margin-bottom: 15px;
+  }
+  
+  @media (max-width: 1280px) {
+    margin-bottom: 14px;
+  }
+  
+  @media (max-width: 1024px) {
+    margin-bottom: 13px;
+  }
+  
+  @media (max-width: 768px) {
     margin-bottom: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    margin-bottom: 10px;
   }
 `;
 
 const NotificationsContainer = styled.div`
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
-  min-height: 70vh;
-  
-  @media (max-width: 768px) {
-    border-radius: 12px;
-    min-height: 60vh;
-  }
-  
-  @media (max-width: 480px) {
-    border-radius: 10px;
-    min-height: 50vh;
-  }
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
 `;
 
 const NotificationItem = styled.div`
@@ -320,12 +493,24 @@ const NotificationItem = styled.div`
     background: ${({ $read }) => ($read ? '#f9f9f9' : '#f0f8f6')};
   }
   
-  @media (max-width: 768px) {
+  @media (max-width: 1440px) {
+    padding: 22px;
+  }
+  
+  @media (max-width: 1280px) {
     padding: 20px;
   }
   
-  @media (max-width: 480px) {
+  @media (max-width: 1024px) {
+    padding: 18px;
+  }
+  
+  @media (max-width: 768px) {
     padding: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 14px;
   }
 `;
 
@@ -337,10 +522,36 @@ const StatusIndicator = styled.div`
   margin-right: 16px;
   margin-top: 8px;
   
-  @media (max-width: 480px) {
+  @media (max-width: 1440px) {
+    width: 11px;
+    height: 11px;
+    margin-right: 15px;
+  }
+  
+  @media (max-width: 1280px) {
+    width: 11px;
+    height: 11px;
+    margin-right: 14px;
+  }
+  
+  @media (max-width: 1024px) {
+    width: 10px;
+    height: 10px;
+    margin-right: 13px;
+  }
+  
+  @media (max-width: 768px) {
     width: 10px;
     height: 10px;
     margin-right: 12px;
+    margin-top: 6px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 8px;
+    height: 8px;
+    margin-right: 10px;
+    margin-top: 5px;
   }
 `;
 
@@ -354,16 +565,34 @@ const IconContainer = styled.div`
   justify-content: center;
   margin-right: 16px;
   
+  @media (max-width: 1440px) {
+    width: 46px;
+    height: 46px;
+    margin-right: 15px;
+  }
+  
+  @media (max-width: 1280px) {
+    width: 44px;
+    height: 44px;
+    margin-right: 14px;
+  }
+  
+  @media (max-width: 1024px) {
+    width: 42px;
+    height: 42px;
+    margin-right: 13px;
+  }
+  
   @media (max-width: 768px) {
     width: 40px;
     height: 40px;
-    margin-right: 14px;
+    margin-right: 12px;
   }
   
   @media (max-width: 480px) {
     width: 36px;
     height: 36px;
-    margin-right: 12px;
+    margin-right: 10px;
   }
 `;
 
@@ -371,9 +600,24 @@ const NotifIcon = styled.img`
   width: 28px;
   height: 28px;
   
-  @media (max-width: 768px) {
+  @media (max-width: 1440px) {
+    width: 26px;
+    height: 26px;
+  }
+  
+  @media (max-width: 1280px) {
+    width: 25px;
+    height: 25px;
+  }
+  
+  @media (max-width: 1024px) {
     width: 24px;
     height: 24px;
+  }
+  
+  @media (max-width: 768px) {
+    width: 22px;
+    height: 22px;
   }
   
   @media (max-width: 480px) {
@@ -392,12 +636,26 @@ const NotifTitle = styled.div`
   font-size: 1.1rem;
   margin-bottom: 4px;
   
-  @media (max-width: 768px) {
+  @media (max-width: 1440px) {
+    font-size: 1.05rem;
+  }
+  
+  @media (max-width: 1280px) {
+    font-size: 1.03rem;
+  }
+  
+  @media (max-width: 1024px) {
     font-size: 1rem;
   }
   
-  @media (max-width: 480px) {
+  @media (max-width: 768px) {
     font-size: 0.95rem;
+    margin-bottom: 3px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+    margin-bottom: 2px;
   }
 `;
 
@@ -405,13 +663,26 @@ const NotifMessage = styled.div`
   color: #333;
   margin-bottom: 8px;
   
+  @media (max-width: 1440px) {
+    font-size: 0.98rem;
+  }
+  
+  @media (max-width: 1280px) {
+    font-size: 0.96rem;
+  }
+  
+  @media (max-width: 1024px) {
+    font-size: 0.94rem;
+  }
+  
   @media (max-width: 768px) {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
   }
   
   @media (max-width: 480px) {
-    font-size: 0.9rem;
-    margin-bottom: 6px;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
   }
 `;
 
@@ -419,75 +690,67 @@ const NotifTimestamp = styled.div`
   color: #999;
   font-size: 0.9rem;
   
-  @media (max-width: 480px) {
-    font-size: 0.8rem;
+  @media (max-width: 1440px) {
+    font-size: 0.88rem;
   }
-`;
-
-const LoadingMessage = styled.div`
-  padding: 48px;
-  text-align: center;
-  color: #777;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 50vh;
+  
+  @media (max-width: 1280px) {
+    font-size: 0.86rem;
+  }
+  
+  @media (max-width: 1024px) {
+    font-size: 0.84rem;
+  }
   
   @media (max-width: 768px) {
-    padding: 36px;
-    height: 40vh;
+    font-size: 0.82rem;
   }
   
   @media (max-width: 480px) {
-    padding: 24px;
-    font-size: 0.95rem;
-    height: 30vh;
-  }
-`;
-
-const ErrorMessage = styled.div`
-  padding: 48px;
-  text-align: center;
-  color: var(--color-error-500);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 50vh;
-  
-  @media (max-width: 768px) {
-    padding: 36px;
-    height: 40vh;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 24px;
-    font-size: 0.95rem;
-    height: 30vh;
+    font-size: 0.78rem;
   }
 `;
 
 const EmptyMessage = styled.div`
-  padding: 48px;
+  padding: 24px;
   text-align: center;
   color: #777;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 50vh;
+  flex: 1;
+  min-height: 50vh;
+  
+  @media (max-width: 1440px) {
+    padding: 22px;
+  }
+  
+  @media (max-width: 1280px) {
+    padding: 20px;
+  }
+  
+  @media (max-width: 1024px) {
+    padding: 18px;
+  }
   
   @media (max-width: 768px) {
-    padding: 36px;
-    height: 40vh;
+    padding: 16px;
+    font-size: 0.95rem;
   }
   
   @media (max-width: 480px) {
-    padding: 24px;
-    font-size: 0.95rem;
-    height: 30vh;
+    padding: 14px;
+    font-size: 0.9rem;
   }
+`;
+
+const LoadingMessage = styled(EmptyMessage)`
+  /* Inherits all styles from EmptyMessage */
+`;
+
+const ErrorMessage = styled(EmptyMessage)`
+  color: var(--color-error-500);
 `;
 
 const Pagination = styled.div`
@@ -497,13 +760,28 @@ const Pagination = styled.div`
   padding: 24px;
   flex-wrap: wrap;
   
-  @media (max-width: 768px) {
+  @media (max-width: 1440px) {
+    padding: 22px;
+    gap: 7px;
+  }
+  
+  @media (max-width: 1280px) {
     padding: 20px;
+    gap: 7px;
+  }
+  
+  @media (max-width: 1024px) {
+    padding: 18px;
+    gap: 6px;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 16px;
     gap: 6px;
   }
   
   @media (max-width: 480px) {
-    padding: 16px;
+    padding: 14px;
     gap: 4px;
   }
 `;
@@ -525,16 +803,34 @@ const PageButton = styled.button`
     cursor: default;
   }
   
-  @media (max-width: 768px) {
+  @media (max-width: 1440px) {
+    min-width: 34px;
+    height: 34px;
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 1280px) {
+    min-width: 33px;
+    height: 33px;
+  }
+  
+  @media (max-width: 1024px) {
     min-width: 32px;
     height: 32px;
-    font-size: 0.95rem;
+    font-size: 0.93rem;
+  }
+  
+  @media (max-width: 768px) {
+    min-width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+    border-radius: 7px;
   }
   
   @media (max-width: 480px) {
     min-width: 28px;
     height: 28px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     border-radius: 6px;
   }
 `;
@@ -544,9 +840,27 @@ const LoadingMore = styled.div`
   text-align: center;
   color: #777;
   
-  @media (max-width: 480px) {
+  @media (max-width: 1440px) {
+    padding: 15px;
+  }
+  
+  @media (max-width: 1280px) {
+    padding: 14px;
+  }
+  
+  @media (max-width: 1024px) {
+    padding: 13px;
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 768px) {
     padding: 12px;
     font-size: 0.9rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 10px;
+    font-size: 0.85rem;
   }
 `;
 
@@ -569,15 +883,30 @@ const MarkAllButton = styled.button`
     cursor: not-allowed;
   }
   
-  @media (max-width: 768px) {
-    padding: 7px 14px;
+  @media (max-width: 1440px) {
+    padding: 7px 15px;
     font-size: 0.95rem;
-    align-self: flex-end;
+  }
+  
+  @media (max-width: 1280px) {
+    padding: 7px 14px;
+  }
+  
+  @media (max-width: 1024px) {
+    padding: 6px 13px;
+    font-size: 0.93rem;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    border-radius: 7px;
   }
   
   @media (max-width: 480px) {
-    padding: 6px 12px;
-    font-size: 0.9rem;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    border-radius: 6px;
     width: 100%;
     text-align: center;
   }

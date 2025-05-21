@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { MainLayout } from '../layouts/MainLayout';
 import { StatCard, StatSubtitle, StatTitle } from '../components/dashboard/StatCard';
-import InstructionsTable from '../components/InstructionsTable';
+import CustomDataTable from '../components/CustomDataTable';
 import { API_ENDPOINTS } from '../constants/api';
 import axios from 'axios';
 import { useToast } from '../services/ToastService';
@@ -26,9 +26,6 @@ const columns = [
 ];
 
 const DashboardPage = () => {
-    // const barChartRef = useRef(null);
-    // const pieChartRef = useRef(null);
-    
     // Loading states
     const [summaryLoading, setSummaryLoading] = useState(false);
     const [doughnutLoading, setDoughnutLoading] = useState(false);
@@ -388,7 +385,7 @@ const DashboardPage = () => {
                             />
                         </StatsGrid>
 
-                        <InstructionsTable
+                        <CustomDataTable
                             data={filteredData}
                             title={`Instructions ${getActiveTabLabel()}`}
                             subtitle={`Monthly instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}

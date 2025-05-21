@@ -2,7 +2,7 @@
 
 This directory contains reusable components for the WeProcess application.
 
-## InstructionsTable
+## CustomDataTable
 
 A reusable table component for displaying instruction data with filtering, pagination, and status badges.
 
@@ -33,13 +33,13 @@ Each object in the data array should have the following structure:
 ### Example Usage
 
 ```jsx
-import InstructionsTable from '../components/InstructionsTable';
+import CustomDataTable from '../components/CustomDataTable';
 import { instructionsTableData } from '../constants/mockData';
 
 const YourComponent = () => {
   return (
     <div>
-      <InstructionsTable 
+      <CustomDataTable 
         data={instructionsTableData} 
         title="Custom Title"
         subtitle="Custom subtitle text"

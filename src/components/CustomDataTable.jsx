@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { StatSubtitle, StatTitle } from './dashboard/StatCard';
 
-const InstructionsTable = ({
+const CustomDataTable = ({
   data = [],
   title = "Instructions",
   subtitle = "",
@@ -224,7 +224,7 @@ const InstructionsTable = ({
   );
 };
 
-InstructionsTable.propTypes = {
+CustomDataTable.propTypes = {
   data: PropTypes.array.isRequired,
   title: PropTypes.string,
   subtitle: PropTypes.string,
@@ -506,7 +506,7 @@ const TableHeaderCell = styled.th`
     // Base widths for different column types (now matching exactly with keys)
     const baseWidths = {
       // From your columns array
-      id: 100,          // WPR no.
+      id: 80,          // WPR no.
       owner: 120,       // Owner
       title: 120,       // Serve name
       type: 110,        // Service type
@@ -838,4 +838,4 @@ const StatusBadge = styled.span`
   }}
 `;
 
-export default InstructionsTable;
+export default CustomDataTable;

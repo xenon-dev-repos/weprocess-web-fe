@@ -42,6 +42,7 @@ export const MainLayout = ({
   const notificationIconRef = useRef(null);
   const firstLetter = user?.name?.charAt(0).toUpperCase() || 'U';
   const [notificationModalOpen, setNotificationModalOpen] = useState(false);
+  const [selectedButton, setSelectedButton] = useState(null);
 
   const {
     navigateToDashboard,
@@ -56,10 +57,46 @@ export const MainLayout = ({
     path();
     setMobileMenuOpen(false);
   };
+
+  const handleSearchClick = () => {
+    handleButtonSelect('search');
+    // Add any search-specific logic here if needed
+  };
+
+  const handleNotificationClick = (e) => {
+    e.stopPropagation();
+    handleButtonSelect('notification');
+    setNotificationModalOpen(true);
+  };
+
+  const handleChatClick = (e) => {
+    e.stopPropagation();
+    handleButtonSelect('message');
+    localStorage.setItem('navigatingToChat', 'true');
+    
+    // Clear notification intervals and timeouts
+    const existingIntervals = window.notificationIntervals || [];
+    existingIntervals.forEach(intervalId => clearInterval(intervalId));
+    
+    if (window.notificationTimeouts) {
+      window.notificationTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    }
+    
+    handleNavigation(navigateToChat, 'Chat');
+  };
+
+  const handleAvatarClick = (e) => {
+    e.stopPropagation();
+    toggleProfileDropdown(e);
+  };
   
   const toggleProfileDropdown = (e) => {
     e.stopPropagation();
     setShowProfileDropdown(prev => !prev);
+  };
+
+  const handleButtonSelect = (buttonName) => {
+    setSelectedButton(prev => prev === buttonName ? null : buttonName);
   };
 
   useEffect(() => {
@@ -71,7 +108,11 @@ export const MainLayout = ({
     } else if (path.includes('/invoices')) {
       setActiveLink('Invoices');
     } else if (path.includes('/chat')) {
-      setActiveLink('Chat');
+      setSelectedButton('message');
+    } else if (path.includes('/notifications')) {
+      setSelectedButton('notification');
+    } else if (path.includes('/search')) {
+      setSelectedButton('search');
     }
   }, [location]);
 
@@ -114,8 +155,8 @@ export const MainLayout = ({
               <LogoName>WeProcess</LogoName>
               </Logo>
             }
-
           </LogoContainer>
+
           <Navigation ref={navRef} $mobileMenuOpen={mobileMenuOpen}>
             <NavLink 
               $active={activeLink === 'Dashboard'} 
@@ -136,47 +177,39 @@ export const MainLayout = ({
               Invoices
             </NavLink>
           </Navigation>
+
           <UserActions>
-            <IconButton>
+            <IconButton
+              className={selectedButton === 'search' ? 'selected' : ''}
+              onClick={handleSearchClick}
+            >
               <IconImg src={SearchIcon} alt="Search" />
             </IconButton>
             <IconButton 
               ref={notificationIconRef} 
-              onClick={(e) => {
-                e.stopPropagation();
-                setNotificationModalOpen(true);
-              }}
+              className={selectedButton === 'notification' ? 'selected' : ''}
+              onClick={handleNotificationClick}
             >
               <IconImg src={NotificationIcon} alt="Notifications" />
               <NotificationBadge />
             </IconButton>
-            <IconButton onClick={(e) => {
-              e.stopPropagation();
-              localStorage.setItem('navigatingToChat', 'true');
-              
-              const existingIntervals = window.notificationIntervals || [];
-              existingIntervals.forEach(intervalId => clearInterval(intervalId));
-              
-              if (window.notificationTimeouts) {
-                window.notificationTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
-              }
-              
-              handleNavigation(navigateToChat, 'Chat');
-            }}>
+            <IconButton 
+              className={selectedButton === 'message' ? 'selected' : ''}
+              onClick={handleChatClick}
+            >
               <IconImg src={MessageIcon} alt="Messages" />
             </IconButton>
             <AvatarCircle 
-              ref={avatarRef} 
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleProfileDropdown(e);
-              }}
+              ref={avatarRef}
+              onClick={handleAvatarClick}
             >
               {firstLetter}
             </AvatarCircle>
-
             {showProfileDropdown && (
-              <ProfileDropdown avatarRef={avatarRef} onClose={() => setShowProfileDropdown(false)} />
+              <ProfileDropdown 
+                avatarRef={avatarRef} 
+                onClose={() => setShowProfileDropdown(false)} 
+              />
             )}
           </UserActions>
         </MainHeader>
@@ -288,9 +321,43 @@ const AppHeader = styled.header`
   justify-content: space-between;
   padding: ${props => props.$shortHeader ? '20px 40px' : '40px'};
   
+  @media (max-width: 1440px) {
+    width: calc(100% - 40px);
+    margin: 22px auto 0;
+    border-radius: 18px;
+    padding: ${props => props.$shortHeader ? '18px 36px' : '36px'};
+    min-height: ${props => props.$shortHeader ? 'auto' : props.$applyMinHeight ? '300px' : 'auto'};
+  }
+  
+  @media (max-width: 1280px) {
+    width: calc(100% - 36px);
+    margin: 20px auto 0;
+    border-radius: 16px;
+    padding: ${props => props.$shortHeader ? '16px 32px' : '32px'};
+    min-height: ${props => props.$shortHeader ? 'auto' : props.$applyMinHeight ? '280px' : 'auto'};
+  }
+  
   @media (max-width: 1024px) {
     width: calc(100% - 32px);
+    margin: 18px auto 0;
     padding: ${props => props.$shortHeader ? '15px 30px' : '30px'};
+    min-height: ${props => props.$shortHeader ? 'auto' : props.$applyMinHeight ? '260px' : 'auto'};
+  }
+  
+  @media (max-width: 768px) {
+    width: calc(100% - 28px);
+    margin: 16px auto 0;
+    border-radius: 14px;
+    padding: ${props => props.$shortHeader ? '14px 24px' : '24px'};
+    min-height: ${props => props.$shortHeader ? 'auto' : props.$applyMinHeight ? '240px' : 'auto'};
+  }
+  
+  @media (max-width: 480px) {
+    width: calc(100% - 24px);
+    margin: 14px auto 0;
+    border-radius: 12px;
+    padding: ${props => props.$shortHeader ? '12px 16px' : '16px'};
+    min-height: ${props => props.$shortHeader ? 'auto' : props.$applyMinHeight ? '220px' : 'auto'};
   }
 `;
 
@@ -299,10 +366,26 @@ const MainHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   
+  @media (max-width: 1440px) {
+    gap: 12px;
+  }
+  
+  @media (max-width: 1280px) {
+    gap: 10px;
+  }
+  
   @media (max-width: 1024px) {
     flex-wrap: wrap;
     height: auto;
     gap: 16px;
+  }
+  
+  @media (max-width: 768px) {
+    gap: 14px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 12px;
   }
 `;
 
@@ -313,10 +396,26 @@ const DashboardHeader = styled.div`
   align-items: center;
   background-color: var(--color-primary-500);
   
+  @media (max-width: 1440px) {
+    gap: 20px;
+  }
+  
+  @media (max-width: 1280px) {
+    gap: 18px;
+  }
+  
+  @media (max-width: 1024px) {
+    gap: 16px;
+  }
+  
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 20px;
   }
 `;
 
@@ -327,10 +426,26 @@ const DashboardHeaderInstructions = styled.div`
   align-items: center;
   background-color: var(--color-primary-500);
   
+  @media (max-width: 1440px) {
+    gap: 20px;
+  }
+  
+  @media (max-width: 1280px) {
+    gap: 18px;
+  }
+  
   @media (max-width: 1024px) {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
+  }
+  
+  @media (max-width: 768px) {
+    gap: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 16px;
   }
 `;
 
@@ -341,22 +456,7 @@ const Logo = styled.div`
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
-  
-  // @media (max-width: 768px) {
-  // }
 `;
-
-const GoBack = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 18px;
-  font-weight: 600;
-  
-  // @media (max-width: 768px) {
-  // }
-`;
-
 
 const LogoCircle = styled.div`
   width: 60px;
@@ -643,61 +743,47 @@ const UserActions = styled.div`
   }
 `;
 
-// const IconButton = styled.button`
-//   background: none;
-//   border: none;
-//   padding: 8px;
-//   cursor: pointer;
-//   position: relative;
-//   width: 40px;
-//   height: 40px;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   border-radius: 50%;
-//   transition: background-color 0.2s;
-  
+const IconImg = styled.img`
+  width: 24px;
+  height: 24px;
+  position: relative;
+  z-index: 2;
+  transition: filter 0.2s;
+  filter: brightness(0) invert(1);
 
-//   &:hover {
-//     background-color: rgba(255, 255, 255, 0.1);
-//   }
-
-//   @media (max-width: 768px) {
-//     width: 36px;
-//     height: 36px;
-//     padding: 6px;
-    
-//     /* Increase touch target size while keeping visual size */
-//     &::after {
-//       content: '';
-//       position: absolute;
-//       top: -8px;
-//       left: -8px;
-//       right: -8px;
-//       bottom: -8px;
-//       z-index: 1;
-//     }
-//   }
-// `;
+  @media (max-width: 768px) {
+    width: 20px;
+    height: 20px;
+  }
+`;
 
 const IconButton = styled.button`
   background: none;
   border: 1px solid #656565;
-  padding: 25px;
+  padding: 8px;
   cursor: pointer;
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   transition: background-color 0.2s, border-color 0.2s;
   
-
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    border-color: #858585; /* Optional: slightly lighter border on hover */
+    border-color: #858585;
+  }
+
+  &:active,
+  &.selected {
+    background-color: white;
+    border-color: white;
+    
+    ${IconImg} {
+      filter: brightness(0) saturate(100%);
+    }
   }
 
   @media (max-width: 768px) {
@@ -705,7 +791,6 @@ const IconButton = styled.button`
     height: 36px;
     padding: 6px;
     
-    /* Increase touch target size while keeping visual size */
     &::after {
       content: '';
       position: absolute;
@@ -718,17 +803,17 @@ const IconButton = styled.button`
   }
 `;
 
-const IconImg = styled.img`
-  width: 24px;
-  height: 24px;
-  position: relative;
-  z-index: 2;
+// const IconImg = styled.img`
+//   width: 24px;
+//   height: 24px;
+//   position: relative;
+//   z-index: 2;
 
-  @media (max-width: 768px) {
-    width: 20px;
-    height: 20px;
-  }
-`;
+//   @media (max-width: 768px) {
+//     width: 20px;
+//     height: 20px;
+//   }
+// `;
 
 const UserAvatar = styled.img`
   width: 60px;
@@ -815,10 +900,35 @@ const PageContent = styled.main`
   width: calc(100% - 48px);
   margin: 0 auto;
   padding: 24px 0;
-  
+
+  /* 1440px - Large desktop */
+  @media (max-width: 1440px) {
+    width: calc(100% - 44px);
+    padding: 22px 0;
+  }
+
+  /* 1280px - Medium desktop */
+  @media (max-width: 1280px) {
+    width: calc(100% - 40px);
+    padding: 20px 0;
+  }
+
+  /* 1024px - Small desktop/tablet landscape */
+  @media (max-width: 1024px) {
+    width: calc(100% - 36px);
+    padding: 18px 0;
+  }
+
+  /* 768px - Tablet portrait */
   @media (max-width: 768px) {
-    width: calc(100% - 16px);
+    width: calc(100% - 32px);
     padding: 16px 0;
+  }
+
+  /* 480px - Mobile */
+  @media (max-width: 480px) {
+    width: calc(100% - 24px);
+    padding: 12px 0;
   }
 `;
 

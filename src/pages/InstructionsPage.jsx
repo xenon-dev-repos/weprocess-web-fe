@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { MainLayout } from '../layouts/MainLayout';
-import InstructionsTable from '../components/InstructionsTable';
+import CustomDataTable from '../components/CustomDataTable';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
@@ -174,7 +174,7 @@ const InstructionsPage = () => {
 
             <DashboardContainer>
                 <MainContent>
-                    <InstructionsTable 
+                    <CustomDataTable 
                         data={tableData}
                         title="Instructions In Progress"
                         subtitle={`${getFilterLabel(IntervalFilters, timeFilter)} instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}

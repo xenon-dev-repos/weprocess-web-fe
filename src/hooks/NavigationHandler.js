@@ -10,8 +10,7 @@ export const NavigationHandler = ({ children }) => {
 
   useEffect(() => {
     if (resetFormData && typeof resetFormData === 'function') {
-      // TODO: Used for debugging, remove console.log later
-      // console.log("resetFormData functions called.")
+      // This will reset the form data when the user navigates to a different page, necessary for the form to be reset
       resetFormData();
     }
   }, [location.pathname, navigationType, resetFormData]);

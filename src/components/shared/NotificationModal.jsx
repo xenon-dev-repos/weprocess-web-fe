@@ -204,9 +204,9 @@ const NotificationModal = ({ open, onClose, anchorEl }) => {
             </>
           )}
         </Content>
-        <Footer>
+        {/* <Footer>
           <DismissButton onClick={onClose}>Dismiss</DismissButton>
-        </Footer>
+        </Footer> */}
       </ModalContent>
     </ModalContainer>
   );
@@ -270,20 +270,20 @@ const ModalContent = styled.div`
   flex-direction: column;
   position: relative;
   
-  ${props => !props.$isMobile && `
-    /* Add a subtle arrow at the top for desktop */
-    &::before {
-      content: '';
-      position: absolute;
-      top: -8px;
-      right: 20px;
-      width: 16px;
-      height: 16px;
-      background: white;
-      transform: rotate(45deg);
-      box-shadow: -3px -3px 5px rgba(0,0,0,0.04);
-    }
-  `}
+  // ${props => !props.$isMobile && `
+  //   /* Add a subtle arrow at the top for desktop */
+  //   &::before {
+  //     content: '';
+  //     position: absolute;
+  //     top: -8px;
+  //     right: 20px;
+  //     width: 16px;
+  //     height: 16px;
+  //     background: white;
+  //     transform: rotate(45deg);
+  //     box-shadow: -3px -3px 5px rgba(0,0,0,0.04);
+  //   }
+  // `}
 
   @media (max-width: 480px) {
     width: 95%;
