@@ -71,7 +71,10 @@ const NotificationsPage = () => {
   };
 
   return (
-    <MainLayout>
+    <MainLayout
+      isNotificationPage={true}
+      title="notifications" 
+    >
       <Container>
         <HeaderSection>
           <TitleContainer>

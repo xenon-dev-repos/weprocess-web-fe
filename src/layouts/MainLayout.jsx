@@ -23,6 +23,9 @@ export const MainLayout = ({
   isAddInstructionPage = false,
   isInstructionDetailsPage = false,
   isInvoiceDetailsPage = false,
+  isSearchPage = false,
+  isNotificationPage = false,
+  isChatPage = false,
   showShortHeader = false,
   filterButtons,
   onFilterChange,
@@ -65,9 +68,17 @@ export const MainLayout = ({
 
   const handleNotificationClick = (e) => {
     e.stopPropagation();
+    if (isNotificationPage) return;
     handleButtonSelect('notification');
     setNotificationModalOpen(true);
   };
+
+  // This effect will reset the selected button when the notification modal is closed
+  useEffect(() => {
+    if (!notificationModalOpen && !isNotificationPage) {
+      setSelectedButton(null);
+    }
+  }, [notificationModalOpen, isNotificationPage]);
 
   const handleChatClick = (e) => {
     e.stopPropagation();
@@ -180,21 +191,21 @@ export const MainLayout = ({
 
           <UserActions>
             <IconButton
-              className={selectedButton === 'search' ? 'selected' : ''}
+              className={ isSearchPage || selectedButton === 'search' ? 'selected' : ''}
               onClick={handleSearchClick}
             >
               <IconImg src={SearchIcon} alt="Search" />
             </IconButton>
             <IconButton 
               ref={notificationIconRef} 
-              className={selectedButton === 'notification' ? 'selected' : ''}
+              className={isNotificationPage || selectedButton === 'notification' ? 'selected' : ''}
               onClick={handleNotificationClick}
             >
               <IconImg src={NotificationIcon} alt="Notifications" />
               <NotificationBadge />
             </IconButton>
             <IconButton 
-              className={selectedButton === 'message' ? 'selected' : ''}
+              className={isChatPage || selectedButton === 'message' ? 'selected' : ''}
               onClick={handleChatClick}
             >
               <IconImg src={MessageIcon} alt="Messages" />

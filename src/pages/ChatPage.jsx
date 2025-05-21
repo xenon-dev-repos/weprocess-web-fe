@@ -184,7 +184,7 @@ const ChatPage = () => {
   const isBannerVisible = rateLimited || authError || requestsStopped;
 
   return (
-    <MainLayout> 
+    <MainLayout isChatPage={true}> 
       <ErrorBoundary>
         <AuthErrorBanner visible={authError} onLogin={handleLogin} />
         <RateLimitBanner visible={rateLimited && !requestsStopped && !authError} />
