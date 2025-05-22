@@ -419,7 +419,7 @@ const DashboardPage = () => {
                             <ChartCanvasWrapper>
                             {barGraphLoading ? (
                                 <LoadingOverlay>Loading...</LoadingOverlay>
-                            ) : barGraphData.length === 0 ? (
+                            ) : barGraphData.length === 0 || barGraphData.every(item => item.count === 0) ? (
                                 <LoadingOverlay>No data available</LoadingOverlay>
                             ) : (
                                 <BarChart data={barGraphData} />
