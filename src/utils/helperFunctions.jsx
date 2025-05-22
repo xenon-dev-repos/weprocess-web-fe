@@ -214,3 +214,36 @@ export const getFilterLabel = (options, value) => {
   const foundOption = options.find(op => op.value === value);
   return foundOption?.label || '';
 };
+
+export function formatNotificationText(title, message) {
+  // Simple implementation - it may need to be adjusted based on your actual data structure
+  const importantParts = [...title.split(' '), ...message.split(' ').filter(word => 
+    word.startsWith('#') || word === 'accepted' || word === 'rejected'
+  )];
+  
+  return (
+    <>
+      {`${title} ${message}`.split(' ').map((word, i) => (
+        <span key={i} style={{ 
+          fontFamily: importantParts.includes(word) ? 'Inter' : 'Manrope',
+          fontWeight: importantParts.includes(word) ? 500 : 400 
+        }}>
+          {word}{' '}
+        </span>
+      ))}
+    </>
+  );
+}
+
+export function formatTimeAgo(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return `${diff} seconds ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)} mins ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+  if (diff < 2592000) return `${Math.floor(diff / 86400)} days ago`;
+  
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${date.getDate()} ${monthNames[date.getMonth()]}${date.getFullYear() !== now.getFullYear() ? ' ' + date.getFullYear() : ''}`;
+}

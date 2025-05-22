@@ -66,11 +66,11 @@ export const MainLayout = ({
     // Add any search-specific logic here if needed
   };
 
-  const handleNotificationClick = (e) => {
+  const toggleNotificationDropdown = (e) => {
     e.stopPropagation();
     if (isNotificationPage) return;
     handleButtonSelect('notification');
-    setNotificationModalOpen(true);
+    setNotificationModalOpen(prev => !prev);
   };
 
   // This effect will reset the selected button when the notification modal is closed
@@ -196,14 +196,22 @@ export const MainLayout = ({
             >
               <IconImg src={SearchIcon} alt="Search" />
             </IconButton>
+
             <IconButton 
               ref={notificationIconRef} 
               className={isNotificationPage || selectedButton === 'notification' ? 'selected' : ''}
-              onClick={handleNotificationClick}
+              onClick={toggleNotificationDropdown}
+              style={{ position: 'relative' }}
             >
               <IconImg src={NotificationIcon} alt="Notifications" />
               <NotificationBadge />
             </IconButton>
+            <NotificationModal 
+              open={notificationModalOpen}
+              onClose={() => setNotificationModalOpen(false)}
+              anchorEl={notificationIconRef}
+            />
+
             <IconButton 
               className={isChatPage || selectedButton === 'message' ? 'selected' : ''}
               onClick={handleChatClick}
@@ -302,14 +310,27 @@ export const MainLayout = ({
         {children}
       </PageContent>
 
+      {/* <ModalContainer>
       <NotificationModal 
         open={notificationModalOpen} 
         onClose={() => setNotificationModalOpen(false)}
         anchorEl={notificationIconRef}
       />
+      </ModalContainer> */}
     </AppContainer>
   );
 };
+
+const ModalContainer = styled.div`
+    position: absolute;
+    right: 35px;
+    top: 75px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 1001;
+`;
+
 
 const AppContainer = styled.div`
   display: flex;
