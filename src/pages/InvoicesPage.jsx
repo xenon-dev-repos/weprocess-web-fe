@@ -8,7 +8,7 @@ import { useToast } from '../services/ToastService';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { useNavigation } from '../hooks/useNavigation';
 import { useAuth } from '../contexts/AuthContext';
-import { formatDate, getDateRange, getFilterLabel } from '../utils/helperFunctions';
+import { formatDate, getDateRange, getFilterLabel } from '../utils/helperFunctions.jsx';
 import CustomSelect from '../components/shared/CustomSelect';
 import { defaultIntervalFilter, IntervalFilters } from '../constants/filters';
 

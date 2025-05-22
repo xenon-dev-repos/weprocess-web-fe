@@ -11,7 +11,7 @@ import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import CustomSelect from '../components/shared/CustomSelect';
-import { capitalizeFirstLetter, getDateRange } from '../utils/helperFunctions';
+import { capitalizeFirstLetter, getDateRange } from '../utils/helperFunctions.jsx';
 import { defaultIntervalFilter, InstructionsTableStatusFilters, IntervalFilters } from '../constants/filters';
 import { BarChart, DoughnutChart } from '../components/dashboard/DashboardCharts';
 

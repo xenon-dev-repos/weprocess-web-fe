@@ -2,7 +2,7 @@ import React from 'react';
 import { FieldRow } from '../shared/FieldRow.jsx';
 import { DisplayField } from '../shared/DisplayField.jsx';
 import { RecipientDetailsLayout } from '../../layouts/RecipientDetailsLayout.jsx';
-import { capitalizeFirstLetter, formatDate, formatDateDisplay, formatDocumentTypesForDisplay, formatPhoneDisplay } from '../../utils/helperFunctions.js';
+import { capitalizeFirstLetter, formatDate, formatDateDisplay, formatDocumentTypesForDisplay, formatPhoneDisplay } from '../../utils/helperFunctions.jsx';
 import styled from 'styled-components';
 import { CustomDivider } from '../../styles/Shared.js';
 

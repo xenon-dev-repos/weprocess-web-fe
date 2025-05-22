@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { ROUTES } from '../constants/routes';
-import { capitalizeFirstLetter, formatDate, getDateRange, getFilterLabel } from '../utils/helperFunctions';
+import { capitalizeFirstLetter, formatDate, getDateRange, getFilterLabel } from '../utils/helperFunctions.jsx';
 import CustomSelect from '../components/shared/CustomSelect';
 import { defaultIntervalFilter, IntervalFilters } from '../constants/filters';
 
