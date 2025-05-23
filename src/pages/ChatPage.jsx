@@ -9,6 +9,7 @@ import {
 import { useChat } from "../hooks/useChat";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../constants/routes";
+import { SubLayout } from "../layouts/SubLayout";
 
 // Define a basic error boundary component
 class ErrorBoundary extends React.Component {
@@ -187,43 +188,53 @@ const ChatPage = () => {
 
   return (
     <MainLayout isChatPage={true}> 
-      <ErrorBoundary>
-        <AuthErrorBanner visible={authError} onLogin={handleLogin} />
-        <RateLimitBanner
-          visible={rateLimited && !requestsStopped && !authError}
-        />
-        <StoppedRequestsBanner
-          visible={requestsStopped}
-          onRefresh={manualRefresh}
-        />
+      <SubLayout
+        pageTitle={'Chats'}
+        title={currentSession?.participant?.name || 'title'}
+        chatSessionsCount={chatSessions.length}
+      >
+        {/* Left Section Content */}
+        <>
+          <React.Suspense fallback={<div>Loading sidebar...</div>}>
+            <ChatSidebar
+              sessions={chatSessions}
+              currentSession={currentSession}
+              onSelectSession={selectSession}
+              loading={loading}
+            />
+          </React.Suspense>
+        </>
 
-        <ChatContainer bannerVisible={isBannerVisible}>
-          {chatSessions.length === 0 && (!loading || initialLoad.current) ? (
-            <NoChatsMessage />
-          ) : (
-            <>
-              <React.Suspense fallback={<div>Loading sidebar...</div>}>
-                <ChatSidebar
-                  sessions={chatSessions}
-                  currentSession={currentSession}
-                  onSelectSession={selectSession}
-                  loading={loading}
-                />
-              </React.Suspense>
+        {/* Right Section Content */}
+        <>
+          <ChatContainer bannerVisible={isBannerVisible}>
+            <ErrorBoundary>
+            <AuthErrorBanner visible={authError} onLogin={handleLogin} />
+            <RateLimitBanner
+              visible={rateLimited && !requestsStopped && !authError}
+            />
+            <StoppedRequestsBanner
+              visible={requestsStopped}
+              onRefresh={manualRefresh}
+            />
               <React.Suspense fallback={<div>Loading chat window...</div>}>
-                <ChatWindow
-                  session={currentSession}
-                  messages={messages}
-                  currentUser={user}
-                  onSendMessage={sendMessage}
-                  loading={loading}
-                  disabled={authError || requestsStopped}
-                  authError={authError}
-                />
+                {chatSessions.length === 0 && (!loading || initialLoad.current) ? (
+                  <NoChatsMessage />
+                ) : (
+                  <ChatWindow
+                    session={currentSession}
+                    messages={messages}
+                    currentUser={user}
+                    onSendMessage={sendMessage}
+                    loading={loading}
+                    disabled={authError || requestsStopped}
+                    authError={authError}
+                  />
+                )}
               </React.Suspense>
-            </>
-          )}
-        </ChatContainer>
+            </ErrorBoundary>
+          </ChatContainer>
+        </>
 
         {pagination.totalPages > 1 && !authError && !requestsStopped && (
           <PaginationContainer>
@@ -246,25 +257,23 @@ const ChatPage = () => {
             </PaginationButton>
           </PaginationContainer>
         )}
-      </ErrorBoundary>
+      </SubLayout>
     </MainLayout>
   );
 };
 
 const ChatContainer = styled.div`
   display: flex;
-  height: ${(props) =>
-    props.bannerVisible ? "calc(100vh - 120px)" : "calc(100vh - 80px)"};
+  height: ${(props) => props.bannerVisible ? "calc(100vh - 120px)" : "calc(100vh - 80px)"};
   width: 100%;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  // background-color: #fff;
+  // border-radius: 8px;
+  // box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 
   @media (max-width: 768px) {
     flex-direction: column;
-    height: ${(props) =>
-      props.bannerVisible ? "calc(100vh - 110px)" : "calc(100vh - 70px)"};
+    height: ${(props) => props.bannerVisible ? "calc(100vh - 110px)" : "calc(100vh - 70px)"};
   }
 `;
 
