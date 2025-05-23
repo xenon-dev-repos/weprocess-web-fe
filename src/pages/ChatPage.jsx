@@ -140,7 +140,7 @@ const ChatPage = () => {
     authError,
     requestsStopped,
     manualRefresh,
-    initialLoad
+    initialLoad,
   } = useChat();
 
   // Handle login redirect
@@ -187,11 +187,14 @@ const ChatPage = () => {
   const isBannerVisible = rateLimited || authError || requestsStopped;
 
   return (
-    <MainLayout isChatPage={true}> 
+    <MainLayout isChatPage={true}>
       <SubLayout
-        pageTitle={'Chats'}
-        title={currentSession?.participant?.name || 'title'}
+        pageTitle={"Chats"}
+        title={currentSession?.participant?.name || "title"}
         chatSessionsCount={chatSessions.length}
+        showTitle={
+          !(chatSessions.length === 0 && (!loading || initialLoad.current))
+        }
       >
         {/* Left Section Content */}
         <>
@@ -209,16 +212,17 @@ const ChatPage = () => {
         <>
           <ChatContainer bannerVisible={isBannerVisible}>
             <ErrorBoundary>
-            <AuthErrorBanner visible={authError} onLogin={handleLogin} />
-            <RateLimitBanner
-              visible={rateLimited && !requestsStopped && !authError}
-            />
-            <StoppedRequestsBanner
-              visible={requestsStopped}
-              onRefresh={manualRefresh}
-            />
+              <AuthErrorBanner visible={authError} onLogin={handleLogin} />
+              <RateLimitBanner
+                visible={rateLimited && !requestsStopped && !authError}
+              />
+              <StoppedRequestsBanner
+                visible={requestsStopped}
+                onRefresh={manualRefresh}
+              />
               <React.Suspense fallback={<div>Loading chat window...</div>}>
-                {chatSessions.length === 0 && (!loading || initialLoad.current) ? (
+                {chatSessions.length === 0 &&
+                (!loading || initialLoad.current) ? (
                   <NoChatsMessage />
                 ) : (
                   <ChatWindow
@@ -264,7 +268,8 @@ const ChatPage = () => {
 
 const ChatContainer = styled.div`
   display: flex;
-  height: ${(props) => props.bannerVisible ? "calc(100vh - 120px)" : "calc(100vh - 80px)"};
+  height: ${(props) =>
+    props.bannerVisible ? "calc(100vh - 120px)" : "calc(100vh - 80px)"};
   width: 100%;
   // background-color: #fff;
   // border-radius: 8px;
@@ -273,7 +278,8 @@ const ChatContainer = styled.div`
 
   @media (max-width: 768px) {
     flex-direction: column;
-    height: ${(props) => props.bannerVisible ? "calc(100vh - 110px)" : "calc(100vh - 70px)"};
+    height: ${(props) =>
+      props.bannerVisible ? "calc(100vh - 110px)" : "calc(100vh - 70px)"};
   }
 `;
 
