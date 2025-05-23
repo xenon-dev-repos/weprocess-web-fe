@@ -27,20 +27,17 @@ const ChatSidebar = ({ sessions, currentSession, onSelectSession, loading }) => 
   };
 
   return (
-    <SidebarContainer>
-      <SidebarHeader>
-        <Title>Chats <Badge>{sessions.length}</Badge></Title>
-        <SearchContainer>
-          <SearchInput 
-            placeholder="Search here..." 
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
-          <SearchIconWrapper>
-            <img src={SearchIcon} alt="Search" />
-          </SearchIconWrapper>
-        </SearchContainer>
-      </SidebarHeader>
+    <>
+      <SearchContainer>
+        <SearchInput 
+          placeholder="Search here..." 
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
+        <SearchIconWrapper>
+          <img src={SearchIcon} alt="Search" />
+        </SearchIconWrapper>
+      </SearchContainer>
       
       <ChatList>
         <ChatCategoryTitle>All messages</ChatCategoryTitle>
@@ -86,7 +83,7 @@ const ChatSidebar = ({ sessions, currentSession, onSelectSession, loading }) => 
           </ChatItem>
         ))}
       </ChatList>
-    </SidebarContainer>
+    </>
   );
 };
 
@@ -102,45 +99,6 @@ ChatSidebar.defaultProps = {
   loading: false
 };
 
-const SidebarContainer = styled.div`
-  width: 320px;
-  border-right: 1px solid #e0e0e0;
-  background-color: #f9f9f9;
-  display: flex;
-  flex-direction: column;
-  
-  @media (max-width: 768px) {
-    width: 100%;
-    height: 40%;
-    border-right: none;
-    border-bottom: 1px solid #e0e0e0;
-  }
-`;
-
-const SidebarHeader = styled.div`
-  padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
-`;
-
-const Title = styled.h2`
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 15px 0;
-  color: #333;
-  display: flex;
-  align-items: center;
-`;
-
-const Badge = styled.span`
-  background-color: #f2f2f2;
-  color: #333;
-  font-size: 14px;
-  padding: 2px 8px;
-  border-radius: 12px;
-  margin-left: 10px;
-  font-weight: 500;
-`;
-
 const SearchContainer = styled.div`
   position: relative;
   margin-top: 10px;
@@ -148,6 +106,7 @@ const SearchContainer = styled.div`
 
 const SearchInput = styled.input`
   width: 100%;
+  height: 56px;
   padding: 10px 15px;
   padding-left: 40px;
   border-radius: 20px;
@@ -157,11 +116,14 @@ const SearchInput = styled.input`
   
   &:focus {
     outline: none;
-    background-color: #e8e8e8;
   }
   
   &::placeholder {
-    color: #aaa;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    color: #6E6E6E;
   }
 `;
 
@@ -185,25 +147,29 @@ const ChatList = styled.div`
 `;
 
 const ChatCategoryTitle = styled.div`
-  padding: 0 20px 10px;
-  font-size: 14px;
+  padding: 20px 0px 15px 0px;
+  font-family: Manrope;
   font-weight: 500;
-  color: #777;
+  font-size: 18px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #121F24;
 `;
 
 const ChatItem = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 15px 20px;
+  max-width: 360px;
+  max-height: 63px;
+  border-radius: 16px;
+  padding: 12px;
   cursor: pointer;
-  background-color: ${props => props.active ? '#e7f5ed' : 'transparent'};
-  border-left: ${props => props.active ? '3px solid #1E473C' : '3px solid transparent'};
+  background-color: ${props => props.active ? '#F0F6E3' : 'transparent'};
+  font-weight: ${props => props.unread ? '600' : '400'};
   
   &:hover {
-    background-color: ${props => props.active ? '#e7f5ed' : '#f2f2f2'};
+    background-color: ${props => props.active ? '' : '#f2f2f2'};
   }
-  
-  font-weight: ${props => props.unread ? '600' : '400'};
 `;
 
 const LeftSection = styled.div`

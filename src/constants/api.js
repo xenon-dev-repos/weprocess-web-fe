@@ -42,7 +42,7 @@ export const API_ENDPOINTS = {
   // Chat endpoints
   GET_CHAT_SESSIONS: `${API_BASE_URL}/chat/sessions`,
   GET_CHAT_MESSAGES: `${API_BASE_URL}/chat/:sessionId/messages`,
-  SEND_MESSAGE: `${API_BASE_URL}/chat/message`,
+  SEND_MESSAGE: `${API_BASE_URL}/chat/send-message`,
   MARK_CHAT_AS_READ: `${API_BASE_URL}/chat/read`,
 };
 
