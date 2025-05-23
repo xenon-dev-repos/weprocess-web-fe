@@ -1,21 +1,26 @@
-import React from 'react';
-import { useState } from 'react';
-import styled from 'styled-components';
-import { Images } from '../assets/images/index.js';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { Images } from "../assets/images/index.js";
 // import { ContentSection, ContentSectionContent, SideBarSection } from '../styles/Shared.js';
 
-export const SubLayout = ({ children, pageTitle, title, icon = null, chatSessionsCount = null  }) => {
+export const SubLayout = ({
+  children,
+  pageTitle,
+  title,
+  icon = null,
+  chatSessionsCount = null,
+  showTitle = true,
+}) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <LayoutContainer>
-
       <SideBarSection $drawerOpen={drawerOpen}>
         <DrawerHeader>
-        <SettingsTitleContainer>
-          <SettingsTitle>{pageTitle}</SettingsTitle>
-          {chatSessionsCount && <Badge>{chatSessionsCount}</Badge>}
-        </SettingsTitleContainer>
+          <SettingsTitleContainer>
+            <SettingsTitle>{pageTitle}</SettingsTitle>
+            {chatSessionsCount && <Badge>{chatSessionsCount}</Badge>}
+          </SettingsTitleContainer>
           <DrawerCloseButton onClick={() => setDrawerOpen(false)}>
             <ArrowIcon src={Images.icons.arrowLeft} alt="Close drawer" />
           </DrawerCloseButton>
@@ -27,27 +32,28 @@ export const SubLayout = ({ children, pageTitle, title, icon = null, chatSession
         <MobileMenuButton onClick={() => setDrawerOpen(!drawerOpen)}>
           <MenuIcon src={Images.icons.menuIcon} alt="Menu" />
         </MobileMenuButton>
-        
-        <ContentSectionHeader>
-          {icon ?
-            <IconContainer $width="64px" $height="64px">
-              <Icon src={icon } alt="Profile" />
-            </IconContainer>
-            :
-            <IconContainer>
-              {title ? title.charAt(0).toUpperCase() : 'U'}
-            </IconContainer>
-          }
-          <ContentSectionTitle>{title}</ContentSectionTitle>
-        </ContentSectionHeader>
-        
-        <ContentSectionContent noPadding={pageTitle === 'Chats'}>
+        {showTitle && (
+          <ContentSectionHeader>
+            {icon ? (
+              <IconContainer $width="64px" $height="64px">
+                <Icon src={icon} alt="Profile" />
+              </IconContainer>
+            ) : (
+              <IconContainer>
+                {title ? title.charAt(0).toUpperCase() : "U"}
+              </IconContainer>
+            )}
+            <ContentSectionTitle>{title}</ContentSectionTitle>
+          </ContentSectionHeader>
+        )}
+
+        <ContentSectionContent noPadding={pageTitle === "Chats"}>
           {children[1]}
         </ContentSectionContent>
       </ContentSection>
 
-      <DrawerOverlay 
-        $drawerOpen={drawerOpen} 
+      <DrawerOverlay
+        $drawerOpen={drawerOpen}
         onClick={() => setDrawerOpen(false)}
       />
     </LayoutContainer>
@@ -73,7 +79,7 @@ const ContentSectionHeader = styled.div`
   gap: 24px;
   padding: 6px 24px;
   height: 112px;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid #e5e7eb;
   flex-shrink: 0;
   position: relative;
 
@@ -88,9 +94,9 @@ const DrawerHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-//   margin-bottom: 20px;
+  //   margin-bottom: 20px;
   padding-bottom: 16px;
-//   border-bottom: 1px solid #E5E7EB;
+  //   border-bottom: 1px solid #E5E7EB;
 `;
 const SettingsTitleContainer = styled.div`
   margin: 0;
@@ -105,7 +111,7 @@ const SettingsTitle = styled.h1`
   font-size: 28px;
   line-height: 100%;
   letter-spacing: 0%;
-  color: #121F24;
+  color: #121f24;
   margin: 0;
 
   @media (max-width: 768px) {
@@ -131,10 +137,10 @@ const ArrowIcon = styled.img`
 `;
 
 const ContentSectionTitle = styled.h2`
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-weight: 500;
   font-size: 28px;
-  color: #121F24;
+  color: #121f24;
 
   @media (max-width: 768px) {
     font-size: 20px;
@@ -142,17 +148,17 @@ const ContentSectionTitle = styled.h2`
 `;
 
 const IconContainer = styled.div`
-  width: ${props => props.$width || '48px'};
-  height: ${props => props.$height || '48px'};
+  width: ${(props) => props.$width || "48px"};
+  height: ${(props) => props.$height || "48px"};
   border-radius: 100px;
-  background-color: #043F35;
-  Color: white;
+  background-color: #043f35;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 
-@media (max-width: 768px) {
+  @media (max-width: 768px) {
     margin-left: 60px;
   }
 `;
@@ -174,7 +180,7 @@ const MobileMenuButton = styled.button`
   border-radius: 8px;
   padding: 8px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 768px) {
     display: block;
@@ -193,11 +199,11 @@ const DrawerOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 999;
-  opacity: ${props => props.$drawerOpen ? 1 : 0};
+  opacity: ${(props) => (props.$drawerOpen ? 1 : 0)};
   transition: opacity 0.3s ease;
-  pointer-events: ${props => props.$drawerOpen ? 'auto' : 'none'};
+  pointer-events: ${(props) => (props.$drawerOpen ? "auto" : "none")};
 
   @media (max-width: 768px) {
     display: block;
@@ -219,13 +225,12 @@ export const ContentSection = styled.div`
   }
 `;
 
-
 export const SideBarSection = styled.div`
   width: 100%;
   max-width: 384px;
-  height: ${props => props.$height ? props.$height : 'auto'};
+  height: ${(props) => (props.$height ? props.$height : "auto")};
   border-radius: 12px;
-  border-left: 1px solid #E5E7EB;
+  border-left: 1px solid #e5e7eb;
   padding: 24px;
   background: white;
   display: flex;
@@ -252,12 +257,12 @@ export const SideBarSection = styled.div`
   @media (max-width: 768px) {
     position: fixed;
     top: 0;
-    left: ${props => props.$drawerOpen ? '0' : '-100%'};
+    left: ${(props) => (props.$drawerOpen ? "0" : "-100%")};
     height: 100%;
     width: 85%;
     max-width: 320px;
     transition: left 0.3s ease;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 0;
     padding: 16px;
   }
@@ -277,9 +282,9 @@ export const SideBarSection = styled.div`
 export const SideBarSectionAddInstruction = styled.div`
   width: 100%;
   max-width: 384px;
-  height: ${props => props.$height ? props.$height : 'auto'};
+  height: ${(props) => (props.$height ? props.$height : "auto")};
   border-radius: 12px;
-  border-left: 1px solid #E5E7EB;
+  border-left: 1px solid #e5e7eb;
   padding: 24px;
   background: white;
   display: flex;
@@ -321,11 +326,11 @@ export const SideBarSectionAddInstruction = styled.div`
 export const SideBarSectionRight = styled.div`
   width: 100%;
   max-width: 440px;
-  height: ${props => props.$height ? props.$height : 'auto'};
+  height: ${(props) => (props.$height ? props.$height : "auto")};
   border-radius: 20px;
   padding: 24px;
   gap: 16px;
-  background: #FFFFFF;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -360,12 +365,12 @@ export const SideBarSectionRight = styled.div`
 `;
 
 export const ContentSectionContent = styled.div`
-  padding: ${props => props.noPadding ? '0' : '24px'};
+  padding: ${(props) => (props.noPadding ? "0" : "24px")};
   overflow-y: auto;
   flex-grow: 1;
 
   @media (max-width: 768px) {
-    padding: ${props => props.noPadding ? '0' : '20px'};
+    padding: ${(props) => (props.noPadding ? "0" : "20px")};
   }
 `;
 
@@ -375,7 +380,7 @@ const Badge = styled.span`
   border-radius: 24px;
   border-width: 1px;
   background-color: #f2f2f2;
-  color: #6E6E6E;
+  color: #6e6e6e;
   font-weight: 700;
   font-size: 18px;
   display: flex;
