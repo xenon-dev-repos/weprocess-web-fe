@@ -1,50 +1,56 @@
 import React from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
-import { MainLayout } from './MainLayout';
 import { Images } from '../assets/images/index.js';
 // import { ContentSection, ContentSectionContent, SideBarSection } from '../styles/Shared.js';
 
-export const SubLayout = ({ children, pageTitle, title, icon  }) => {
+export const SubLayout = ({ children, pageTitle, title, icon = null, chatSessionsCount = null  }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <MainLayout>
-      <LayoutContainer>
+    <LayoutContainer>
 
-        <SideBarSection $drawerOpen={drawerOpen}>
-          <DrawerHeader>
-            <SettingsTitle>{pageTitle}</SettingsTitle>
-            <DrawerCloseButton onClick={() => setDrawerOpen(false)}>
-              <ArrowIcon src={Images.icons.arrowLeft} alt="Close drawer" />
-            </DrawerCloseButton>
-          </DrawerHeader>
-          {children[0]}
-        </SideBarSection>
+      <SideBarSection $drawerOpen={drawerOpen}>
+        <DrawerHeader>
+        <SettingsTitleContainer>
+          <SettingsTitle>{pageTitle}</SettingsTitle>
+          {chatSessionsCount && <Badge>{chatSessionsCount}</Badge>}
+        </SettingsTitleContainer>
+          <DrawerCloseButton onClick={() => setDrawerOpen(false)}>
+            <ArrowIcon src={Images.icons.arrowLeft} alt="Close drawer" />
+          </DrawerCloseButton>
+        </DrawerHeader>
+        {children[0]}
+      </SideBarSection>
 
-        <ContentSection>
-          <MobileMenuButton onClick={() => setDrawerOpen(!drawerOpen)}>
-            <MenuIcon src={Images.icons.menuIcon} alt="Menu" />
-          </MobileMenuButton>
-          
-          <ContentSectionHeader>
+      <ContentSection>
+        <MobileMenuButton onClick={() => setDrawerOpen(!drawerOpen)}>
+          <MenuIcon src={Images.icons.menuIcon} alt="Menu" />
+        </MobileMenuButton>
+        
+        <ContentSectionHeader>
+          {icon ?
             <IconContainer $width="64px" $height="64px">
               <Icon src={icon } alt="Profile" />
             </IconContainer>
-            <ContentSectionTitle>{title}</ContentSectionTitle>
-          </ContentSectionHeader>
-          
-          <ContentSectionContent>
-            {children[1]}
-          </ContentSectionContent>
-        </ContentSection>
+            :
+            <IconContainer>
+              {title ? title.charAt(0).toUpperCase() : 'U'}
+            </IconContainer>
+          }
+          <ContentSectionTitle>{title}</ContentSectionTitle>
+        </ContentSectionHeader>
+        
+        <ContentSectionContent noPadding={pageTitle === 'Chats'}>
+          {children[1]}
+        </ContentSectionContent>
+      </ContentSection>
 
-        <DrawerOverlay 
-          $drawerOpen={drawerOpen} 
-          onClick={() => setDrawerOpen(false)}
-        />
-      </LayoutContainer>
-    </MainLayout>
+      <DrawerOverlay 
+        $drawerOpen={drawerOpen} 
+        onClick={() => setDrawerOpen(false)}
+      />
+    </LayoutContainer>
   );
 };
 
@@ -85,6 +91,13 @@ const DrawerHeader = styled.div`
 //   margin-bottom: 20px;
   padding-bottom: 16px;
 //   border-bottom: 1px solid #E5E7EB;
+`;
+const SettingsTitleContainer = styled.div`
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
 `;
 
 const SettingsTitle = styled.h1`
@@ -133,6 +146,7 @@ const IconContainer = styled.div`
   height: ${props => props.$height || '48px'};
   border-radius: 100px;
   background-color: #043F35;
+  Color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -346,11 +360,32 @@ export const SideBarSectionRight = styled.div`
 `;
 
 export const ContentSectionContent = styled.div`
-  padding: 24px;
+  padding: ${props => props.noPadding ? '0' : '24px'};
   overflow-y: auto;
   flex-grow: 1;
 
   @media (max-width: 768px) {
-    padding: 20px;
+    padding: ${props => props.noPadding ? '0' : '20px'};
+  }
+`;
+
+const Badge = styled.span`
+  width: 44px;
+  height: 44px;
+  border-radius: 24px;
+  border-width: 1px;
+  background-color: #f2f2f2;
+  color: #6E6E6E;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    width: 34px;
+    height: 34px;
+    font-weight: 500;
+    font-size: 14px;
   }
 `;

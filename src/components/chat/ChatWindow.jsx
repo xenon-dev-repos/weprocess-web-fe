@@ -4,12 +4,14 @@ import PropTypes from 'prop-types';
 import { format, parseISO } from 'date-fns';
 import EmojiIcon from '../../assets/images/dashboard/emoji-icon.svg';
 import SendIcon from '../../assets/images/dashboard/send-icon.svg';
+import AttachmentIcon from '../../assets/images/dashboard/attachment-icon.svg';
 
 const ChatWindow = ({ session, messages, currentUser, onSendMessage, loading, disabled, authError }) => {
   const [newMessage, setNewMessage] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
   
-  // Scroll to bottom of messages
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -20,9 +22,10 @@ const ChatWindow = ({ session, messages, currentUser, onSendMessage, loading, di
   
   const handleSend = (e) => {
     e.preventDefault();
-    if (newMessage.trim() && !disabled) {
-      onSendMessage(newMessage);
+    if ((newMessage.trim() || selectedFile) && !disabled) {
+      onSendMessage(newMessage, selectedFile);
       setNewMessage('');
+      setSelectedFile(null);
     }
   };
   
@@ -33,7 +36,20 @@ const ChatWindow = ({ session, messages, currentUser, onSendMessage, loading, di
     }
   };
   
-  // Format timestamp
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+  
+  const removeFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+  
   const formatTimestamp = (timestamp) => {
     try {
       if (!timestamp) return '';
@@ -44,7 +60,6 @@ const ChatWindow = ({ session, messages, currentUser, onSendMessage, loading, di
     }
   };
   
-  // Group messages by date
   const groupMessagesByDate = () => {
     const groups = {};
     
@@ -83,7 +98,7 @@ const ChatWindow = ({ session, messages, currentUser, onSendMessage, loading, di
   
   return (
     <ChatWindowContainer>
-      <ChatHeader>
+      {/* <ChatHeader>
         <Avatar>
           {session.participant?.name 
             ? session.participant.name.charAt(0).toUpperCase() 
@@ -96,7 +111,8 @@ const ChatWindow = ({ session, messages, currentUser, onSendMessage, loading, di
           </Status>
         </HeaderInfo>
       </ChatHeader>
-      
+       */}
+       
       <MessageContainer>
         {loading && messages.length === 0 ? (
           <LoadingContainer>Loading messages...</LoadingContainer>
@@ -105,18 +121,38 @@ const ChatWindow = ({ session, messages, currentUser, onSendMessage, loading, di
             {Object.keys(messageGroups).map(dateStr => (
               <MessageGroup key={dateStr}>
                 <DateDivider><DateLabel>{dateStr}</DateLabel></DateDivider>
-                
                 {messageGroups[dateStr].map(message => {
-                  // Check if the message is from the current user
-                  const isCurrentUser = message.sender_id === currentUser?.id;
+                  const isCurrentUser = message.is_sent === true; // Adjust based on your API's is_sent flag
                   
                   return (
-                    <MessageBubble key={message.id || message.message_id} isCurrentUser={isCurrentUser}>
+                    <MessageBubble key={message.id} isCurrentUser={isCurrentUser}>
+                      {message.media_url && (
+                        <MediaPreview>
+                          {message.mime_type === 'application/pdf' ? (
+                            <FilePreview>
+                              <FileIcon>PDF</FileIcon>
+                              <FileName>{message.media_url.split('/').pop()}</FileName>
+                            </FilePreview>
+                          ) : (
+                            <img 
+                              src={message.media_url} 
+                              alt="Attachment" 
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'placeholder-for-broken-image.png';
+                              }}
+                            />
+                          )}
+                        </MediaPreview>
+                      )}
                       <MessageContent isCurrentUser={isCurrentUser}>
-                        {message.content || message.text}
+                        {message.text}
                       </MessageContent>
                       <MessageTime isCurrentUser={isCurrentUser}>
-                        {formatTimestamp(message.timestamp || message.created_at)}
+                        {formatTimestamp(message.timestamp)}
+                        {message.is_read && isCurrentUser && (
+                          <ReadIndicator>✓✓</ReadIndicator>
+                        )}
                       </MessageTime>
                     </MessageBubble>
                   );
@@ -135,10 +171,40 @@ const ChatWindow = ({ session, messages, currentUser, onSendMessage, loading, di
         )}
       </MessageContainer>
       
+      {selectedFile && (
+        <FilePreviewContainer>
+          <FilePreview>
+            {selectedFile.type.startsWith('image/') ? (
+              <img src={URL.createObjectURL(selectedFile)} alt="Preview" />
+            ) : (
+              <FileIcon>{selectedFile.name.split('.').pop().toUpperCase()}</FileIcon>
+            )}
+            <FileName>{selectedFile.name}</FileName>
+            <RemoveFileButton onClick={removeFile}>×</RemoveFileButton>
+          </FilePreview>
+        </FilePreviewContainer>
+      )}
+      
       <InputContainer onSubmit={handleSend}>
+        <AttachmentButton 
+          type="button" 
+          onClick={() => fileInputRef.current.click()}
+          disabled={disabled || loading}
+        >
+          <img src={AttachmentIcon} alt="Attach file" />
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".jpeg,.jpg,.png,.pdf,.doc,.docx"
+            style={{ display: 'none' }}
+          />
+        </AttachmentButton>
+        
         <EmojiButton type="button" disabled={disabled || loading}>
           <img src={EmojiIcon} alt="Emoji" />
         </EmojiButton>
+        
         <MessageInput 
           placeholder={
             disabled 
@@ -152,7 +218,11 @@ const ChatWindow = ({ session, messages, currentUser, onSendMessage, loading, di
           onKeyDown={handleKeyDown}
           disabled={loading || disabled}
         />
-        <SendButton type="submit" disabled={!newMessage.trim() || loading || disabled}>
+        
+        <SendButton 
+          type="submit" 
+          disabled={(!newMessage.trim() && !selectedFile) || loading || disabled}
+        >
           <img src={SendIcon} alt="Send" />
         </SendButton>
         
@@ -170,22 +240,99 @@ const ChatWindow = ({ session, messages, currentUser, onSendMessage, loading, di
   );
 };
 
-ChatWindow.propTypes = {
-  session: PropTypes.object,
-  messages: PropTypes.array,
-  currentUser: PropTypes.object,
-  onSendMessage: PropTypes.func.isRequired,
-  loading: PropTypes.bool,
-  disabled: PropTypes.bool,
-  authError: PropTypes.bool
-};
 
-ChatWindow.defaultProps = {
-  messages: [],
-  loading: false,
-  disabled: false,
-  authError: false
-};
+const ParticipantName = styled.div`
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: ${props => props.isCurrentUser ? '#1E473C' : '#333'};
+`;
+
+// Add these new styled components to your existing styles
+const AttachmentButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  margin-right: 5px;
+  opacity: ${props => props.disabled ? 0.5 : 1};
+  
+  img {
+    width: 24px;
+    height: 24px;
+  }
+  
+  &:disabled {
+    cursor: not-allowed;
+  }
+`;
+
+const FilePreviewContainer = styled.div`
+  padding: 10px 20px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
+`;
+
+const ReadIndicator = styled.span`
+  color: #4caf50;
+  margin-left: 5px;
+  font-size: 12px;
+`;
+
+const FilePreview = styled.div`
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+`;
+
+
+const FileIcon = styled.div`
+  width: 40px;
+  height: 40px;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  margin-right: 10px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #555;
+`;
+
+const FileName = styled.div`
+  flex: 1;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const RemoveFileButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #777;
+  margin-left: 10px;
+  
+  &:hover {
+    color: #333;
+  }
+`;
+
+const MediaPreview = styled.div`
+  max-width: 100%;
+  margin-bottom: 8px;
+  
+  img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+  }
+`;
 
 const ChatWindowContainer = styled.div`
   flex: 1;
@@ -234,7 +381,7 @@ const Status = styled.div`
 
 const MessageContainer = styled.div`
   flex: 1;
-  padding: 20px;
+  // padding: 20px;
   overflow-y: auto;
   background-color: #f9f9f9;
 `;

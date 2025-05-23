@@ -19,6 +19,7 @@ import { useToast } from '../services/ToastService';
 // import { useNavigation } from '../hooks/useNavigation.js';
 import { useApi } from '../hooks/useApi.js';
 import { ROUTES } from '../constants/routes.js';
+import { MainLayout } from '../layouts/MainLayout.jsx';
 
 const SettingsPage = () => {
   const location = useLocation();
@@ -451,58 +452,60 @@ const SettingsPage = () => {
 
 
   return (
-    <SubLayout
-      pageTitle={'Settings'}
-      title={headerData.title}
-      icon={headerData.icon}
-    >
-      {/* Left Section Content */}
-      <>
-        <DropdownItem           
-          onClick={() => handleItemClick('profile')}
-          $isActive={activeTab === 'profile'}
-        >
-          <DropdownIconContainer $isActive={activeTab === 'profile'}>
-            <DropdownIcon $isActive={activeTab === 'profile'} src={Images.dashboard.profileIcon} alt="Profile" />
-          </DropdownIconContainer>
-          <DropdownTextContainer>
-            <DropdownTitle>Profile</DropdownTitle>
-            <DropdownDescription>View your profile</DropdownDescription>
-          </DropdownTextContainer>
-        </DropdownItem>
+    <MainLayout>
+      <SubLayout
+        pageTitle={'Settings'}
+        title={headerData.title}
+        icon={headerData.icon}
+      >
+        {/* Left Section Content */}
+        <>
+          <DropdownItem           
+            onClick={() => handleItemClick('profile')}
+            $isActive={activeTab === 'profile'}
+          >
+            <DropdownIconContainer $isActive={activeTab === 'profile'}>
+              <DropdownIcon $isActive={activeTab === 'profile'} src={Images.dashboard.profileIcon} alt="Profile" />
+            </DropdownIconContainer>
+            <DropdownTextContainer>
+              <DropdownTitle>Profile</DropdownTitle>
+              <DropdownDescription>View your profile</DropdownDescription>
+            </DropdownTextContainer>
+          </DropdownItem>
 
-        <DropdownItem 
-          onClick={() => handleItemClick('password')}
-          $isActive={activeTab === 'password'}
-        >
-          <DropdownIconContainer $isActive={activeTab === 'password'}>
-            <DropdownIcon $isActive={activeTab === 'password'} src={Images.dashboard.lockIcon} alt="Change Password" />
-          </DropdownIconContainer>
-          <DropdownTextContainer>
-            <DropdownTitle>Change Password</DropdownTitle>
-            <DropdownDescription>Update your password</DropdownDescription>
-          </DropdownTextContainer>
-        </DropdownItem>
-      
-        <DropdownItem 
-          onClick={() => handleItemClick('logout')}
-          $isActive={activeTab === 'logout'}
-        >
-          <DropdownIconContainer $isActive={activeTab === 'logout'}>
-            <DropdownIcon $isActive={activeTab === 'logout'} src={Images.dashboard.logoutIcon} alt="Logout" />
-          </DropdownIconContainer>
-          <DropdownTextContainer>
-            <DropdownTitle>Logout</DropdownTitle>
-            <DropdownDescription>Sign out of your account</DropdownDescription>
-          </DropdownTextContainer>
-        </DropdownItem>
-      </>
+          <DropdownItem 
+            onClick={() => handleItemClick('password')}
+            $isActive={activeTab === 'password'}
+          >
+            <DropdownIconContainer $isActive={activeTab === 'password'}>
+              <DropdownIcon $isActive={activeTab === 'password'} src={Images.dashboard.lockIcon} alt="Change Password" />
+            </DropdownIconContainer>
+            <DropdownTextContainer>
+              <DropdownTitle>Change Password</DropdownTitle>
+              <DropdownDescription>Update your password</DropdownDescription>
+            </DropdownTextContainer>
+          </DropdownItem>
+        
+          <DropdownItem 
+            onClick={() => handleItemClick('logout')}
+            $isActive={activeTab === 'logout'}
+          >
+            <DropdownIconContainer $isActive={activeTab === 'logout'}>
+              <DropdownIcon $isActive={activeTab === 'logout'} src={Images.dashboard.logoutIcon} alt="Logout" />
+            </DropdownIconContainer>
+            <DropdownTextContainer>
+              <DropdownTitle>Logout</DropdownTitle>
+              <DropdownDescription>Sign out of your account</DropdownDescription>
+            </DropdownTextContainer>
+          </DropdownItem>
+        </>
 
-      {/* Right Section Content */}
-      <>
-      {renderRightSection()}
-      </>
-    </SubLayout>
+        {/* Right Section Content */}
+        <>
+        {renderRightSection()}
+        </>
+      </SubLayout>
+    </MainLayout>
   );
 };
 
