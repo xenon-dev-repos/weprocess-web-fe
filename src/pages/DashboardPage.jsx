@@ -11,7 +11,7 @@ import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import CustomSelect from '../components/shared/CustomSelect';
-import { capitalizeFirstLetter, getDateRange } from '../utils/helperFunctions.jsx';
+import { capitalizeFirstLetter, getDateRange, getFilterLabel } from '../utils/helperFunctions.jsx';
 import { defaultIntervalFilter, InstructionsTableStatusFilters, IntervalFilters } from '../constants/filters';
 import { BarChart, DoughnutChart } from '../components/dashboard/DashboardCharts';
 
@@ -31,6 +31,10 @@ const DashboardPage = () => {
     const [doughnutLoading, setDoughnutLoading] = useState(false);
     const [barGraphLoading, setBarGraphLoading] = useState(false);
     const [tableLoading, setTableLoading] = useState(false);
+
+    // filter states
+    const [barGraphFilter, setBarGraphFilter] = useState(defaultIntervalFilter);
+    const [doughnutGraphFilter, setDoughnutGraphFilter] = useState(defaultIntervalFilter);
     
     // Data states
     const [summaryData, setSummaryData] = useState({
@@ -103,10 +107,12 @@ const DashboardPage = () => {
     };
 
     const handleBarGraphIntervalFilterChange = (value) => {
+        setBarGraphFilter(value);
         fetchBarGraphData(value);
     };
 
     const handleDoughnutIntervalFilterChange = (value) => {
+        setDoughnutGraphFilter(value);
         const range = getDateRange(value);
         fetchDoughnutData(range.from_date, range.to_date);
     };
@@ -409,7 +415,7 @@ const DashboardPage = () => {
                                     onChange={(value) => handleBarGraphIntervalFilterChange(value)}
                                 />
                             </ChartHeader>
-                            <StatSubtitle style={{marginTop: -6.5}}>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</StatSubtitle>
+                            <StatSubtitle style={{marginTop: -6.5}}>{`${getFilterLabel(IntervalFilters, barGraphFilter)} instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}</StatSubtitle>
                             <ChartCanvasWrapper>
                             {barGraphLoading ? (
                                 <LoadingOverlay>Loading...</LoadingOverlay>
@@ -430,7 +436,7 @@ const DashboardPage = () => {
                                     onChange={(value) => handleDoughnutIntervalFilterChange(value)}
                                 />
                             </ChartHeader>
-                            <StatSubtitle style={{marginTop: -6.5}}>Monthly instructions requested by {user?.type === 'firm' ? 'firm' : 'individual'}</StatSubtitle>
+                            <StatSubtitle style={{marginTop: -6.5}}>{`${getFilterLabel(IntervalFilters, doughnutGraphFilter)} instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}</StatSubtitle>
                             <ChartCanvasWrapper>
                             {doughnutLoading ? (
                                 <LoadingOverlay>Loading...</LoadingOverlay>

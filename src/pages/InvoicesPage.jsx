@@ -12,10 +12,6 @@ import { formatDate, formatServiceType, getDateRange, getFilterLabel } from '../
 import CustomSelect from '../components/shared/CustomSelect';
 import { defaultIntervalFilter, IntervalFilters } from '../constants/filters';
 
-
-
-
-
 const InvoicesPage = () => {
     const [timeFilter, setTimeFilter] = useState(defaultIntervalFilter);
     // const [deadlineDate, setDeadlineDate] = useState(getDeadlineDate(timeFilter));
