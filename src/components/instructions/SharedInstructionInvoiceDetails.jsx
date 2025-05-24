@@ -12,12 +12,12 @@ export const SharedInstructionInvoiceDetails = ({
     isInstructionDetails = false, 
     isAddNewInstructionStep5 = false,
     // isAddNewInstructionStep6 = false 
-    currentInvoiceData = null,
+    currentInvoiceDetails = null,
 }) => {
 
   return (
     <>
-        {(isAddNewInstructionStep5 || (isInvoiceDetails && currentInvoiceData)) &&
+        {(isAddNewInstructionStep5 || (isInvoiceDetails && currentInvoiceDetails)) &&
             <RecipientDetailsLayout title="Invoice details">
                 <InvoiceDetailsContainer>
                     <InvoiceLeftColumn>
@@ -27,7 +27,7 @@ export const SharedInstructionInvoiceDetails = ({
                     <InvoiceRightColumn>
                         {/* TODO: Invoice number approach to be finalized later. */}
                         {/* <DetailLabel>Invoice no.</DetailLabel>
-                        <DetailValue>{isAddNewInstructionStep5 ? "TEST-9876" : currentInvoiceData?.invoice_number}</DetailValue> */}
+                        <DetailValue>{isAddNewInstructionStep5 ? "TEST-9876" : currentInvoiceDetails?.invoice_number}</DetailValue> */}
                     </InvoiceRightColumn>
                 </InvoiceDetailsContainer>
 

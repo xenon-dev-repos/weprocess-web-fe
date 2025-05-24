@@ -285,3 +285,33 @@ export const getFileTypeIcon = (type) => {
   }
 };
 
+export const getStatusColors = (statusValue) => {
+  const status = String(statusValue).toLowerCase().trim();
+
+  switch (status) {
+    case '1st attempt':
+    case 'new':
+    case 'paid':
+    case '1':
+      return { background: '#D4F8D3', color: '#008000' };
+    case '2nd attempt':
+    case 'pending':
+    case 'un_paid':
+    case '0':
+      return { background: '#FFF0BB', color: '#E78E00' };
+    case '3rd attempt':
+      return { background: '#FFE5E5', color: '#B71C1C' };
+    case 'in transit':
+      return { background: '#F2F2F2', color: '#6585FE' };
+    case 'completed':
+      return { background: '#8B5CF6', color: '#ffffff' };
+    case 'active':
+      return { background: '#FF5B5B', color: '#ffffff' };
+    case 'on_hold':
+      return { background: '#6B7280', color: '#ffffff' };
+    default:
+      return { background: '#e5e7eb', color: '#374151' };
+  }
+};
+
+

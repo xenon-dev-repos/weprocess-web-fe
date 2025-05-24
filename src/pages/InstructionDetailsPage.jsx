@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { MainLayout } from '../layouts/MainLayout';
 import { ContentSection, SideBarSection, SideBarSectionRight } from '../layouts/SubLayout.jsx';
@@ -10,23 +10,15 @@ import { ProfileSidebar } from '../components/instructions/RiderDetailsProfile.j
 import AttemptDetails from '../components/instructions/AttemptDetails.jsx';
 import LoadingOnPage from '../components/shared/LoadingOnPage.jsx';
 import { useParams } from 'react-router-dom';
-import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-import Modal from 'react-modal';
 import { useNavigation } from '../hooks/useNavigation.js';
 import DocumentViewer from '../components/shared/DocumentViewer.jsx';
 
 const InstructionDetailsPage = () => {
   const { id } = useParams();
   const navigation = useNavigation();
-  const { formData, fetchServeById, currentServeData, isLoading } = useInstruction();
-  const [layoutData, setLayoutData] = useState(null);
-
-  useEffect(() => {
-    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-    Modal.setAppElement('#root');
-  }, []);
+  const { formData, fetchServeById, currentInstructionDetails, isLoading } = useInstruction();
 
   useEffect(() => {
     let isMounted = true;
@@ -50,19 +42,9 @@ const InstructionDetailsPage = () => {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
-
-  useEffect(() => {
-    if (currentServeData) {
-      setLayoutData({
-        id: currentServeData?.id,
-        title: currentServeData?.title,
-        priority: currentServeData?.priority
-      });
-    }
-  }, [currentServeData]);
   
   return (
-    <MainLayout title="Instruction Details" isInstructionDetailsPage={true} instructionData={layoutData}>
+    <MainLayout title="Instruction Details" isInstructionDetailsPage={true} currentInstructionDetails={currentInstructionDetails}>
       <LayoutContainer>
         {isLoading && <LoadingOnPage />}
         {/* LEFT SECTION */}
@@ -73,7 +55,7 @@ const InstructionDetailsPage = () => {
 
 
           <InstructionsDetailMainContainer>
-            {currentServeData ? (
+            {currentInstructionDetails ? (
               <>
               <ViewInvoicesBtnContainer onClick={() => navigation.navigateToInvoiceDetails({id})}>
                 <ViewInvoicesBtnIcon src={Images.shared.eyeIcon} alt="View Invoices" />
@@ -90,7 +72,7 @@ const InstructionDetailsPage = () => {
 
             ) : (
               <>
-                {!isLoading && !currentServeData && (
+                {!isLoading && !currentInstructionDetails && (
                 <NoDataContainer>
                   <NoDataMessage>No data available</NoDataMessage>
                 </NoDataContainer>
@@ -101,14 +83,14 @@ const InstructionDetailsPage = () => {
         </ContentSection>
 
         {/* Right SECTION */}
-        {currentServeData?.serve?.user &&
+        {currentInstructionDetails?.serve?.user &&
           <SideBarSectionRightMain>
             <SideBarSectionRight $height={'395px'} $drawerOpen={false}>
-              <ProfileSidebar userData={currentServeData?.serve?.user}/>
+              <ProfileSidebar userData={currentInstructionDetails?.serve?.user}/>
             </SideBarSectionRight>
 
             <SideBarSectionSecond $height={'530px'} $drawerOpen={false}>
-            <AttemptDetails attempts={currentServeData?.serve?.attempts || []}/>
+            <AttemptDetails attempts={currentInstructionDetails?.serve?.attempts || []}/>
             </SideBarSectionSecond>
           </SideBarSectionRightMain>
         }

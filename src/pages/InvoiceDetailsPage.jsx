@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 // import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { MainLayout } from '../layouts/MainLayout';
@@ -11,8 +11,7 @@ import { useParams } from 'react-router-dom';
 
 
 const InstructionDetailsPage = () => {
-  const { formData, fetchInvoiceById, currentInvoiceData, isLoading } = useInstruction();
-  const [layoutData, setLayoutData] = useState(null);
+  const { formData, fetchInvoiceById, currentInvoiceDetails, isLoading } = useInstruction();
   const { id } = useParams();
 
   useEffect(() => {
@@ -30,18 +29,8 @@ const InstructionDetailsPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-    useEffect(() => {
-      if (currentInvoiceData) {
-        setLayoutData({
-          id: currentInvoiceData?.id,
-          title: currentInvoiceData?.serve?.title,
-          priority: currentInvoiceData?.priority
-        });
-      }
-    }, [currentInvoiceData]);
-
   return (
-    <MainLayout title="Invoice Details" isInvoiceDetailsPage={true} invoiceData={layoutData}>
+    <MainLayout title="Invoice Details" isInvoiceDetailsPage={true} currentInvoiceDetails={currentInvoiceDetails}>
       <LayoutContainer>
         {isLoading && <LoadingOnPage />}
         {/* LEFT SECTION */}
@@ -51,7 +40,7 @@ const InstructionDetailsPage = () => {
           </ContentSectionHeader>
 
           <InstructionsDetailMainContainer>
-            <SharedInstructionInvoiceDetails formData={formData} isInvoiceDetails={true} currentInvoiceData={currentInvoiceData}/>
+            <SharedInstructionInvoiceDetails formData={formData} isInvoiceDetails={true} currentInvoiceDetails={currentInvoiceDetails}/>
           </InstructionsDetailMainContainer>
         </ContentSection>
 

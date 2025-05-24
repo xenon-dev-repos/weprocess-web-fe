@@ -13,7 +13,7 @@ import { useNavigation } from '../hooks/useNavigation';
 import CustomSelect from '../components/shared/CustomSelect';
 import { capitalizeFirstLetter, getDateRange, getFilterLabel } from '../utils/helperFunctions.jsx';
 import { defaultIntervalFilter, InstructionsTableStatusFilters, IntervalFilters } from '../constants/filters';
-import { BarChart, DoughnutChart } from '../components/dashboard/DashboardCharts';
+import { BarChart, DoughnutChart } from '../components/shared/ChartsAndGraphs.jsx';
 
 const columns = [
     { key: 'wpr', header: 'WPR no.' },

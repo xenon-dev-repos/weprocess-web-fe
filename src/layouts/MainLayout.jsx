@@ -13,6 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Images } from '../assets/images/index.js';
 import NotificationModal from '../components/shared/NotificationModal';
 import NotificationBadge from '../components/NotificationBadge';
+import { StatusBadge } from '../styles/Shared.js';
 
 export const MainLayout = ({ 
   children,
@@ -31,8 +32,8 @@ export const MainLayout = ({
   onFilterChange,
   currentStep='1',
   stepsData=[],
-  instructionData,
-  invoiceData,
+  currentInstructionDetails,
+  currentInvoiceDetails,
 }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -114,9 +115,9 @@ export const MainLayout = ({
     const path = location.pathname;
     if (path === '/' || path.includes('/dashboard')) {
       setActiveLink('Dashboard');
-    } else if (path.includes('/instructions')) {
+    } else if (path.includes('/instructions') || path.includes('/new-instruction') || path.includes('/instruction-details')) {
       setActiveLink('Instructions');
-    } else if (path.includes('/invoices')) {
+    } else if (path.includes('/invoices') || path.includes('/invoice-details')) {
       setActiveLink('Invoices');
     } else if (path.includes('/chat')) {
       setSelectedButton('message');
@@ -284,22 +285,26 @@ export const MainLayout = ({
 
         {isInstructionDetailsPage && (
           <DashboardHeader>
-          {instructionData && (
-            <Title>
-              #{instructionData.id} | {instructionData.title}
-            </Title>
+          {currentInstructionDetails && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Title>
+                #{currentInstructionDetails.id} | {currentInstructionDetails.title}
+              </Title>
+              <StatusBadge>{currentInstructionDetails.status}</StatusBadge>
+            </div>
           )}
-              
-            {/* <Title>#5102 | Serve to Alex</Title> */}
           </DashboardHeader>
         )}
 
         {isInvoiceDetailsPage && (
           <DashboardHeader>
-            {invoiceData && (
-              <Title>
-                #{invoiceData.id} | {invoiceData.title}
-              </Title>
+            {currentInvoiceDetails && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <Title>
+                  #{currentInvoiceDetails.id} | {currentInvoiceDetails.serve?.title}
+                </Title>
+                <StatusBadge>{currentInvoiceDetails.serve?.status}</StatusBadge>
+              </div>
             )}
           </DashboardHeader>
         )}

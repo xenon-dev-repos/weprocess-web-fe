@@ -118,8 +118,8 @@ const AttemptDetails = ({ attempts }) => {
 // import styled from 'styled-components';
 // import { Images } from '../../assets/images';
 
-// const AttemptDetails = ({ currentServeData }) => {
-//   const attempts = currentServeData?.serve?.attempts || [];
+// const AttemptDetails = ({ currentInstructionDetails }) => {
+//   const attempts = currentInstructionDetails?.serve?.attempts || [];
 //   const [openAttemptId, setOpenAttemptId] = useState(attempts[attempts.length - 1]?.id || null);
 
 //   const toggleAttempt = (id) => {

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { StatSubtitle, StatTitle } from './dashboard/StatCard';
+import { getStatusColors } from '../utils/helperFunctions';
 
 const CustomDataTable = ({
   data = [],
@@ -137,7 +138,7 @@ const CustomDataTable = ({
                       $selected={selectedRow === index}
                       $clickable={!!onRowClick}
                     >
-                      {columns.map(column => (
+                      {/* {columns.map(column => (
                         <TableCell 
                           key={column.key}
                           $align={column.align}
@@ -150,7 +151,32 @@ const CustomDataTable = ({
                             row[column.key]
                           )}
                         </TableCell>
-                      ))}
+                      ))} */}
+
+                      {columns.map(column => {
+                        const rawValue = row[column.key];
+
+                        // Compute the display label based on key
+                        const statusLabel =
+                          column.key === 'is_paid'
+                            ? rawValue
+                              ? 'Paid'
+                              : 'Pending'
+                            : rawValue;
+
+                        return (
+                          <TableCell key={column.key} $align={column.align}>
+                            {(column.key === 'status' || column.key === 'is_paid') ? (
+                              <StatusBadge $status={statusLabel}>
+                                {statusLabel}
+                              </StatusBadge>
+                            ) : (
+                              rawValue
+                            )}
+                          </TableCell>
+                        );
+                      })}
+
                     </TableRow>
                   ))
                 ) : (
@@ -715,40 +741,13 @@ const StatusBadge = styled.span`
   border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
-  
-  ${props => {
 
-    // if (!props.$status) {
-    //   return 'background-color: #e5e7eb; color: #374151;';
-    // }
-
-    // Convert to string and lowercase for comparison
-    const status = String(props.$status).toLowerCase().trim();
-    
-    switch (status) {
-      case '1st attempt':
-      case 'new':
-      case 'paid':
-      case '1':
-        return 'background-color: #D4F8D3; color: #008000;';
-      case '2nd attempt':
-      case 'pending':
-      case 'un_paid':
-      case '0':
-        return 'background-color: #FFF0BB; color: #E78E00;';
-      case '3rd attempt':
-        return 'background-color: #FFE5E5; color: #B71C1C;';
-      case 'in transit':
-        return 'background-color: #F2F2F2; color: #6585FE;';
-      case 'completed':
-        return 'background-color: #8B5CF6; color: white;';
-      case 'active':
-        return 'background-color: #FF5B5B; color: white;';
-      case 'on_hold':
-        return 'background-color: #6B7280; color: white;';
-      default:
-        return 'background-color: #e5e7eb; color: #374151;';
-    }
+  ${({ $status }) => {
+    const { background, color } = getStatusColors($status);
+    return `
+      background-color: ${background};
+      color: ${color};
+    `;
   }}
 `;
 

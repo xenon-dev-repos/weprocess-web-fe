@@ -65,3 +65,21 @@ export const CustomDivider = styled.div`
   background-color: #E4E8EE;
 `;
 
+export const StatusBadge = styled.div`
+  min-width: 77px;
+  height: 30px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 4px 12px;
+  background: #FFE5E5;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: 0;
+  color: #b71c1c;
+  vertical-align: middle;
+`;
+
