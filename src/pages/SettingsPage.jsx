@@ -286,7 +286,7 @@ const SettingsPage = () => {
                   <Input
                     type="tel"
                     name="phone_number"
-                    placeholder="71 7946 0958"
+                    placeholder="7123 456 789"
                     value={phoneNumber}
                     onChange={handleChange}
                     required

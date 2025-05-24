@@ -662,7 +662,7 @@ const Navigation = styled.nav`
     border-radius: 16px;
     padding: 12px;
     box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-    z-index: 100;
+    z-index: 1001;
     display: ${props => props.$mobileMenuOpen ? 'flex' : 'none'};
     gap: 6px;
     border: 1px solid var(--color-neutral-200);

@@ -6,9 +6,9 @@ export const useNavigation = () => {
   const navigate = useNavigate();
   const { clearError } = useAuth();
 
-  const navigateTo = (url, options) => {
+  const navigateTo = (url, state) => {
     clearError();
-    navigate(url, options);
+    navigate(url, state);
   };
 
 // Public routes
@@ -24,9 +24,9 @@ const navigateToIndividualSetup = () => navigateTo(ROUTES.INDIVIDUAL_SETUP);
 // App routes
 const navigateToDashboard = () => navigateTo(ROUTES.DASHBOARD);
 const navigateToInstructions = () => navigateTo(ROUTES.INSTRUCTIONS);
-const navigateToInstructionsDetails = (options) => {navigateTo(`${ROUTES.INSTRUCTION_DETAILS}/${options.state['WPR no.']}`, options);};
 const navigateToInvoices = () => navigateTo(ROUTES.INVOICES);
-const navigateToInvoicesDetails = (options) => {navigateTo(`${ROUTES.INVOICE_DETAILS}/${options.state['WPR no.']}`, options);};
+const navigateToInstructionDetails = (state) => {navigateTo(`${ROUTES.INSTRUCTION_DETAILS}/${state.id}`, state);};
+const navigateToInvoiceDetails = (state) => {navigateTo(`${ROUTES.INVOICE_DETAILS}/${state.id}`, state);};
 const navigateToAddInstruction = () => navigateTo(ROUTES.ADD_INSTRUCTION);
 const navigateToChat = () => navigateTo(ROUTES.CHAT);
 
@@ -36,27 +36,6 @@ const navigateToNotFound = () => navigateTo(ROUTES.NOT_FOUND);
 
 // Route builders
 const navigateToVerifyOtp = (email) => navigateTo(`${ROUTES.VERIFY_OTP}?email=${encodeURIComponent(email)}`);
-
-
-  const handleNavigationFromTableRow = (rowData, isInstruction = false) => {
-    if (isInstruction) {
-        navigateToInstructionsDetails({
-            state: {
-                'WPR no.': rowData.wpr,
-                "Recipient's name": rowData.recipientName,
-                "Service type": rowData.type
-            }
-        });
-    } else {
-      navigateToInvoicesDetails({
-          state: {
-              'WPR no.': rowData.id,
-              "Recipient's name": rowData.recipientName,
-              "Service type": rowData.type
-          }
-      });
-    }
-  };
 
 return {
   navigateTo,
@@ -68,15 +47,13 @@ return {
   navigateToIndividualSetup,
   navigateToDashboard,
   navigateToInstructions,
-  navigateToInstructionsDetails,
+  navigateToInstructionDetails,
   navigateToInvoices,
-  navigateToInvoicesDetails,
+  navigateToInvoiceDetails,
   navigateToAddInstruction,
   navigateToChat,
   navigateToRoot,
   navigateToNotFound,
   navigateToVerifyOtp,
-
-  handleNavigationFromTableRow,
 };
 };

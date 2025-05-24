@@ -55,37 +55,25 @@ export const AuthProvider = ({ children, toast = createLogger() }) => {
   }, []);
 
   const formatPhoneNumber = (value, phoneNumber) => {
-    const isAdding = value.length > phoneNumber.length;
-    const digitsOnly = value.replace(/\D/g, '');
-    
-    if (!isAdding) {
-      return value;
-    }
-    
-    let formattedValue = '';
-    // UK mobile format: 7123 456 789 (10 digits) 
-    if (digitsOnly.startsWith('7')) {
-      if (digitsOnly.length <= 4) {
-        formattedValue = digitsOnly;
-      } else if (digitsOnly.length <= 7) {
-        formattedValue = `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4)}`;
-      } else {
-        formattedValue = `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4, 7)} ${digitsOnly.slice(7, 10)}`;
-      }
-    }
-    // UK landline format without leading 0: 71 7946 0958 (10 digits)
-    else {
-      if (digitsOnly.length <= 2) {
-        formattedValue = digitsOnly;
-      } else if (digitsOnly.length <= 6) {
-        formattedValue = `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2)}`;
-      } else {
-        formattedValue = `${digitsOnly.slice(0, 2)} ${digitsOnly.slice(2, 6)} ${digitsOnly.slice(6, 10)}`;
-      }
-    }
-    
-    return formattedValue;
-  };
+  const isAdding = value.length > phoneNumber.length;
+  const digitsOnly = value.replace(/\D/g, '').slice(0, 10); // Limit to 10 digits
+
+  if (!isAdding) {
+    return value;
+  }
+
+  let formattedValue = '';
+
+  if (digitsOnly.length <= 4) {
+    formattedValue = digitsOnly;
+  } else if (digitsOnly.length <= 7) {
+    formattedValue = `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4)}`;
+  } else {
+    formattedValue = `${digitsOnly.slice(0, 4)} ${digitsOnly.slice(4, 7)} ${digitsOnly.slice(7)}`;
+  }
+
+  return formattedValue;
+};
 
   // const togglePasswordVisibility = () => {
   //   setShowPassword(!showPassword);

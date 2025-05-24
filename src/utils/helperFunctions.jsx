@@ -1,34 +1,26 @@
+import { Images } from "../assets/images";
+
 export const formatPhoneDisplay = (phone) => {
-  if (!phone) return '-';
+  if (!phone) return '-'; 
   
-  // Remove all non-digit characters except +
+  // Remove all non-digit characters except leading +
   const cleaned = phone.replace(/[^\d+]/g, '');
-  
-  // UK numbers: +44XXXXXXXXXX
+
+  // Check for +44 UK numbers
   if (cleaned.startsWith('+44')) {
-    const areaAndNumber = cleaned.substring(3);
-    
-    // UK mobile numbers (start with 7)
-    if (/^7\d+/.test(areaAndNumber)) {
-      // Format: +44-7XXX-XXX-XXX
-      return `+44-${areaAndNumber.substring(0, 4)}-${areaAndNumber.substring(4, 7)}-${areaAndNumber.substring(7)}`;
-    }
-    // UK landline numbers (start with 1,2,3, etc.)
-    else {
-      // London numbers (20) get different formatting
-      if (areaAndNumber.startsWith('20')) {
-        // Format: +44-20-XXXX-XXXX
-        return `+44-20-${areaAndNumber.substring(2, 6)}-${areaAndNumber.substring(6)}`;
-      }
-      // Other landline numbers
-      else {
-        // Format: +44-XXX-XXX-XXXX
-        return `+44-${areaAndNumber.substring(0, 3)}-${areaAndNumber.substring(3, 6)}-${areaAndNumber.substring(6)}`;
-      }
+    const number = cleaned.slice(3).slice(0, 10); // Extract 10 digits after +44
+
+    // Apply consistent formatting: 4 + 3 + 3
+    if (number.length <= 4) {
+      return `+44 ${number}`;
+    } else if (number.length <= 7) {
+      return `+44 ${number.slice(0, 4)} ${number.slice(4)}`;
+    } else {
+      return `+44 ${number.slice(0, 4)} ${number.slice(4, 7)} ${number.slice(7)}`;
     }
   }
-  
-  // Return original if doesn't match UK format
+
+  // Return original if not a UK number
   return phone;
 };
 
@@ -63,6 +55,14 @@ export const formatDate = (dateStr) => {
 //   deadline: serve.deadline,
 //   status: serve.status,
 // });
+
+
+export const formatServiceType = (input) => {
+  if (!input) return '';
+
+  const cleaned = input.replace(/[_-]+/g, ' ').toLowerCase(); // Normalize and lowercase
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);  // Rejoin
+};
 
 
 export const capitalizeFirstLetter = (string) => {
@@ -260,3 +260,28 @@ export const formatLastSeen = (timestamp) => {
   if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)} hours ago`;
   return `${Math.floor(diffMinutes / 1440)} days ago`;
 };
+
+export const getFileTypeIcon = (type) => {
+  if (!type || typeof type !== 'string') return Images.instructions.fileIcon;
+
+  const fileExtension = type.includes('/')
+    ? type.split('/')[1]
+    : type.split('.').pop().toLowerCase();
+
+  switch (fileExtension) {
+    case 'pdf':
+      return Images.instructions.pdfIcon;
+    case 'msword':
+    case 'doc':
+    case 'vnd.openxmlformats-officedocument.wordprocessingml.document':
+    case 'docx':
+      return Images.instructions.wordIcon;
+    case 'jpeg':
+    case 'jpg':
+    case 'png':
+      return Images.instructions.imageIcon;
+    default:
+      return Images.instructions.fileIcon;
+  }
+};
+

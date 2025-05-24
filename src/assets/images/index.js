@@ -3,8 +3,11 @@ import profileIcon from './dashboard/profile-icon.svg';
 import lockIcon from './dashboard/lock-icon.svg';
 import logoutIcon from './dashboard/logout-icon.svg';
 import weProcessLogo from './dashboard/weprocess-logo-icon.svg';
+
 import arrowLeft from './shared/arrow-left.svg';
 import menuIcon from './shared/menu-icon.svg';
+import eyeIcon from './shared/eye-icon.svg';
+
 import checkIcon from './instructions/check-icon.svg';
 import uploadIcon from './instructions/upload-icon.svg';
 import pdfIcon from './instructions/pdf-icon.svg';
@@ -78,6 +81,7 @@ export const Images = {
   
   shared: {
     weProcessLogo,
+    eyeIcon,
   },
 
   icons: {

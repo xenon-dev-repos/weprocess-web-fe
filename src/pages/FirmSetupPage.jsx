@@ -172,7 +172,7 @@ const FirmSetupPage = () => {
             <Input
               type="tel"
               name="phone_number"
-              placeholder="7946 095862"
+              placeholder="7123 456 789"
               value={phoneNumber}
               onChange={handleChange}
               required

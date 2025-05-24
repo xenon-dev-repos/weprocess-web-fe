@@ -5,6 +5,7 @@ import { ROUTES } from '../constants/routes';
 import InstructionDetailsPage from '../pages/InstructionDetailsPage';
 import InvoiceDetailsPage from '../pages/InvoiceDetailsPage';
 import ProtectedRoute from './ProtectedRoute';
+import { GlobalErrorFallbackPage } from '../pages/GlobalErrorFallbackPage';
 
 const SignupPage = lazy(() => import('../pages/SignupPage'));
 const SigninPage = lazy(() => import('../pages/SigninPage'));

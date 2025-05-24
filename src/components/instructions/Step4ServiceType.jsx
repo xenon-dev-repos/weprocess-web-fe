@@ -23,9 +23,9 @@ export const Step4ServiceType = () => {
       case 'urgent':
         deadline.setDate(deadline.getDate() + 5);
         break;
-      case 'same-day':
-      case 'sub-serve':
-        // current date for same-day and instant delivery
+      case 'same_day':
+      case 'sub_serve':
+        // current date for same_day and instant delivery
         break;
       default:
         deadline.setDate(deadline.getDate() + 10);
@@ -94,7 +94,7 @@ useEffect(() => {
       price: '£200'
     },
     {
-      id: 'same-day',
+      id: 'same_day',
       title: 'Same day',
       image: Images.instructions.sameDay,
       description: [
@@ -105,7 +105,7 @@ useEffect(() => {
       price: '£350'
     },
     {
-      id: 'sub-serve',
+      id: 'sub_serve',
       title: 'Sub Serve',
       image: Images.instructions.subServe,
       description: [

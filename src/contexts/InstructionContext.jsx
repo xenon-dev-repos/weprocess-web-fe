@@ -3,6 +3,7 @@ import React, { createContext, useState, useContext, useCallback, useEffect, use
 import { useAuth } from './AuthContext';
 import { useApi } from '../hooks/useApi';
 import { useNavigation } from '../hooks/useNavigation';
+import { Images } from '../assets/images';
 
 const InstructionContext = createContext();
 
@@ -23,65 +24,65 @@ export const InstructionProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const initialFormData = {
-    documents: [],             //can be pdf,doc,docx,jpg,jpeg,png
-    receipt: null,
-    document_labels: [],        // ["Document 1","Document 2"]
-    document_urls: [],
-    title: '',
-    owner: '',
-    document_types: [],        // Comma separated string input, saved as array, 
-    reason: null,
-    issuing_court: '',
-    court_case_number: '',
-    date_of_submission: '',
-    date_of_next_hearing: '',
-    recipient_name: '',
-    recipient_email: '',
-    recipient_address: '',
-    recipient_phone: '',
-    recipient_additional_details: '',
-    applicant_name: '',
-    applicant_email: '',
-    applicant_address: '',
-    applicant_phone: '',
-    service_type: 'standard',  // ['standard','urgent','same_day','sub_serve']
-    priority: 'low',           // ["low", "medium", "high", "urgent"]
-    deadline: '',
-    type: 'Personal',
-    price: 0,
-    instructions: null,
-    attempts_allowed: '3',
-    payment_method: 'private',
-
-    // documents: [],
-    // receipt: '',
-    // document_labels: [],
+    // documents: [],             //can be pdf,doc,docx,jpg,jpeg,png
+    // receipt: null,
+    // document_labels: [],        // ["Document 1","Document 2"]
     // document_urls: [],
-    // title: 'Service of Summons to Defendant',
-    // owner: 'John Doe',
-    // document_types: ['Divorce Petition', 'Statutory Demand'],
-    // reason: 'To initiate legal proceedings against the defendant.',
-    // issuing_court: 'Superior Court of California, County of Los Angeles',
-    // court_case_number: 'LA12345678',
-    // date_of_submission: '2025-05-13',
-    // date_of_next_hearing: '2025-06-10',
-    // recipient_name: 'Jane Smith',
-    // recipient_email: 'jane.smith@example.com',
-    // recipient_address: '1234 Elm Street, Los Angeles, CA 90001',
-    // recipient_phone: '3105557890',
-    // recipient_additional_details: 'Lives in unit #5B. Best time to serve is after 6 PM.',
-    // applicant_name: 'John Doe',
-    // applicant_email: 'john.doe@example.com',
-    // applicant_address: '5678 Oak Avenue, Pasadena, CA 91101',
-    // applicant_phone: '6265551234',
-    // service_type: 'standard',
-    // priority: 'low',
-    // deadline: '2025-06-13',
+    // title: '',
+    // owner: '',
+    // document_types: [],        // Comma separated string input, saved as array, 
+    // reason: null,
+    // issuing_court: '',
+    // court_case_number: '',
+    // date_of_submission: '',
+    // date_of_next_hearing: '',
+    // recipient_name: '',
+    // recipient_email: '',
+    // recipient_address: '',
+    // recipient_phone: '',
+    // recipient_additional_details: '',
+    // applicant_name: '',
+    // applicant_email: '',
+    // applicant_address: '',
+    // applicant_phone: '',
+    // service_type: 'standard',  // ['standard','urgent','same_day','sub_serve']
+    // priority: 'low',           // ["low", "medium", "high", "urgent"]
+    // deadline: '',
     // type: 'Personal',
-    // price: 150.00,
-    // instructions: 'Serve at doorstep and take a photo as proof of delivery.',
+    // price: 0,
+    // instructions: null,
     // attempts_allowed: '3',
-    // payment_method: 'private'
+    // payment_method: 'private',
+
+    documents: [],
+    receipt: '',
+    document_labels: [],
+    document_urls: [],
+    title: 'Service of Summons to Defendant',
+    owner: 'John Doe',
+    document_types: ['Divorce Petition', 'Statutory Demand'],
+    reason: 'To initiate legal proceedings against the defendant.',
+    issuing_court: 'Superior Court of California, County of Los Angeles',
+    court_case_number: 'LA12345678',
+    date_of_submission: '2025-05-13',
+    date_of_next_hearing: '2025-06-15',
+    recipient_name: 'Jane Smith',
+    recipient_email: 'jane.smith@example.com',
+    recipient_address: '1234 Elm Street, Los Angeles, CA 90001',
+    recipient_phone: '3105557890',
+    recipient_additional_details: 'Lives in unit #5B. Best time to serve is after 6 PM.',
+    applicant_name: 'John Doe',
+    applicant_email: 'john.doe@example.com',
+    applicant_address: '5678 Oak Avenue, Pasadena, CA 91101',
+    applicant_phone: '6265551234',
+    service_type: 'standard',
+    priority: 'low',
+    deadline: '2025-06-13',
+    type: 'Personal',
+    price: 150.00,
+    instructions: 'Serve at doorstep and take a photo as proof of delivery.',
+    attempts_allowed: '3',
+    payment_method: 'private'
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -717,4 +718,17 @@ export const InstructionProvider = ({ children }) => {
   );
 };
 
-export const useInstruction = () => useContext(InstructionContext);
+export const useInstruction = () => {
+  const context = useContext(InstructionContext);
+
+  if (!context) {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
+
+    // TODO: I can also through error Message, I can also show error page if I do not reload the page automatically on above LineController.
+    // throw new Error('Instruction context is missing. Reloading page...');
+  }
+
+  return context;
+};

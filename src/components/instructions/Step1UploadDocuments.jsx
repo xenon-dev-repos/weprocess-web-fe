@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { InstructionsMainContainer } from '../../styles/Shared';
 import { Images } from '../../assets/images/index.js';
 import { useInstruction } from '../../contexts/InstructionContext.jsx';
+import { getFileTypeIcon } from '../../utils/helperFunctions.jsx';
 
 export const Step1UploadDocuments = () => {
   const {
@@ -12,7 +13,7 @@ export const Step1UploadDocuments = () => {
     handleDocumentUpload,
     handleReceiptUpload,
     removeDocument,
-    handleLabelChange
+    handleLabelChange,
   } = useInstruction();
 
   const [uploadError, setUploadError] = useState(null);
@@ -36,7 +37,7 @@ export const Step1UploadDocuments = () => {
     }
 
     const oversizedFiles = Array.from(e.target.files).filter(
-      file => file.size > 23 * 1024 * 1024
+      file => file.size > 9 * 1024 * 1024
     );
 
     if (oversizedFiles.length > 0) {
@@ -66,47 +67,13 @@ export const Step1UploadDocuments = () => {
     input.click();
   };
 
-  const FileTypeIcon = ({ type }) => {
-    let iconSrc;
-    
-    // Extract the file extension from the type or name
-    const fileExtension = type.includes('/') 
-      ? type.split('/')[1]  // For MIME types like 'application/pdf'
-      : type.split('.').pop().toLowerCase(); // For file names or extensions
-
-    switch(fileExtension) {
-      case 'pdf':
-        iconSrc = Images.instructions.pdfIcon;
-        break;
-      case 'msword':
-      case 'doc':
-        iconSrc = Images.instructions.wordIcon;
-        break;
-      case 'vnd.openxmlformats-officedocument.wordprocessingml.document':
-      case 'docx':
-        iconSrc = Images.instructions.wordIcon;
-        break;
-      case 'jpeg':
-      case 'jpg':
-        iconSrc = Images.instructions.imageIcon;
-        break;
-      case 'png':
-        iconSrc = Images.instructions.imageIcon;
-        break;
-      default:
-        iconSrc = Images.instructions.fileIcon;
-    }
-
-    return <DocImage src={iconSrc} alt="Document" />;
-  };
-
   return (
       <InstructionsMainContainer>
 
           <UploadContainer>
             <UploadContent>
               <UploadIcon src={Images.instructions.uploadIcon} alt="Upload" />
-              <UploadText>Upload your files here (max 23MB)</UploadText>
+              <UploadText>Upload your files here (max 9MB)</UploadText>
               <BrowseLink onClick={() => triggerFileInput('document')}>Browse</BrowseLink>
               {uploadError && <UploadErrorText>{uploadError}</UploadErrorText>}
             </UploadContent>
@@ -153,7 +120,7 @@ export const Step1UploadDocuments = () => {
                   <DocRow key={doc.id} $hasError={!!formData.labelErrors?.[doc.id]}>
                     <DocInfoContainer>
                       <DocLeft>
-                        <FileTypeIcon type={doc.type} />
+                        <DocImage src={getFileTypeIcon(doc.type)} alt="Document" />
                         <DocTextGroup>
                           <DocName>{doc.name}</DocName>
                           <DocSize>{doc.size}</DocSize>

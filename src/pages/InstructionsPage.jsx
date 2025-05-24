@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../hooks/useNavigation';
 import LoadingOnPage from '../components/shared/LoadingOnPage';
 import { ROUTES } from '../constants/routes';
-import { capitalizeFirstLetter, formatDate, getDateRange, getFilterLabel } from '../utils/helperFunctions.jsx';
+import { capitalizeFirstLetter, formatDate, formatServiceType, getDateRange, getFilterLabel } from '../utils/helperFunctions.jsx';
 import CustomSelect from '../components/shared/CustomSelect';
 import { defaultIntervalFilter, IntervalFilters } from '../constants/filters';
 
@@ -15,7 +15,7 @@ const columns = [
     { key: 'wpr', header: 'WPR no.', width: 'id' },
     { key: 'owner', header: 'Owner', width: 'owner' },
     { key: 'serve', header: 'Serve name', width: 'title' },
-    { key: 'type', header: 'Service type', width: 'type' },
+    { key: 'service_type', header: 'Service type', width: 'service_type' },
     { key: 'court', header: 'Court name', width: 'issuing_court' },
     { key: 'recipient_name', header: "Recipient's Name", width: 'recipient_name' },
     { key: 'recipient_address', header: "Recipient's Address", width: 'recipient_address' },
@@ -85,6 +85,8 @@ const InstructionsPage = () => {
                 client_id: user?.id,
                 page: page,
                 per_page: pagination.per_page,
+                sort_by: 'created_at',
+                sort_order: 'desc',
                 ...(statusFilter && { status: statusFilter }),
                 // ...(deadline && { deadline: deadlineDate }),
                 ...(dateRange.from_date && { from_date: dateRange.from_date }),
@@ -146,7 +148,7 @@ const InstructionsPage = () => {
         wpr: serve.id,
         owner: serve.applicant_name || serve.client_id || 'N/A',
         serve: serve.title,
-        type: serve.priority ? serve.priority.charAt(0).toUpperCase() + serve.priority.slice(1) : 'N/A',
+        service_type: formatServiceType(serve.service_type),
         court: serve.issuing_court,
         recipient_name: serve.recipient_name,
         recipient_address: serve.recipient_address,
@@ -154,14 +156,6 @@ const InstructionsPage = () => {
         deadline: serve.deadline,
         status: capitalizeFirstLetter(serve.status)
     });
-
-    const tableData = filteredData.map(mapServeToTableRow);
-    
-    const handleRowClick = (rowData) => {
-        if (typeof navigation.handleNavigationFromTableRow === 'function') {
-            navigation.handleNavigationFromTableRow(rowData, true)
-        };
-    }
 
     return (
         <MainLayout 
@@ -175,7 +169,7 @@ const InstructionsPage = () => {
             <DashboardContainer>
                 <MainContent>
                     <CustomDataTable 
-                        data={tableData}
+                        data={filteredData.map(mapServeToTableRow)}
                         title="Instructions In Progress"
                         subtitle={`${getFilterLabel(IntervalFilters, timeFilter)} instructions requested by ${user?.type === 'firm' ? 'firm' : 'individual'}`}
                         columns={columns}
@@ -189,7 +183,7 @@ const InstructionsPage = () => {
                         totalPages={pagination.last_page}
                         totalItems={pagination.total}
                         onPageChange={handlePageChange}
-                        onRowClick={handleRowClick}
+                        onRowClick={(rowData) => navigation.navigateToInstructionDetails({ id: rowData.wpr})}
                         serverSidePagination={true}
                     />
                 </MainContent>

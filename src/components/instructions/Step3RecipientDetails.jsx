@@ -37,7 +37,7 @@ export const Step3RecipientDetails = () => {
     {
       label: 'Contact number',
       name: 'applicant_phone',
-      placeholder: '71 7946 0958',
+      placeholder: '7123 456 789',
       type: 'phone',
       countryCode: '+44',
       flagIcon: Images.auth.ukFlag,
@@ -72,7 +72,7 @@ export const Step3RecipientDetails = () => {
     {
       label: 'Contact number',
       name: 'recipient_phone',
-      placeholder: '71 7946 0958',
+      placeholder: '7123 456 789',
       type: 'phone',
       countryCode: '+44',
       flagIcon: Images.auth.ukFlag,

@@ -2,7 +2,7 @@ import React from 'react';
 import { FieldRow } from '../shared/FieldRow.jsx';
 import { DisplayField } from '../shared/DisplayField.jsx';
 import { RecipientDetailsLayout } from '../../layouts/RecipientDetailsLayout.jsx';
-import { capitalizeFirstLetter, formatDate, formatDateDisplay, formatDocumentTypesForDisplay, formatPhoneDisplay } from '../../utils/helperFunctions.jsx';
+import { capitalizeFirstLetter, formatDate, formatDateDisplay, formatDocumentTypesForDisplay, formatPhoneDisplay, formatServiceType } from '../../utils/helperFunctions.jsx';
 import styled from 'styled-components';
 import { CustomDivider } from '../../styles/Shared.js';
 
@@ -38,18 +38,19 @@ export const SharedInstructionInvoiceDetails = ({
                     <InfoSection>
                         <DetailLabel>Client contact info</DetailLabel>
                         <DetailValue>{formData.applicant_name || '-'}</DetailValue>
+                        <DetailValue>{formData.applicant_address || '-'}</DetailValue>
                         <DetailValue>{formData.applicant_email || '-'}</DetailValue>
                         <DetailValue>{formatPhoneDisplay(formData.applicant_phone) || '-'}</DetailValue>
-                        <DetailValue>{formData.applicant_address || '-'}</DetailValue>
+
                     </InfoSection>
 
                     {/* Bill To */}
                     <InfoSection>
                         <DetailLabel>Bill to</DetailLabel>
                         <DetailValue>WeProcess Ltd</DetailValue>
-                        <DetailValue>accounts@weprocess.com</DetailValue>
-                        <DetailValue>+44-20-7946-0000</DetailValue>
                         <DetailValue>123 Business Ave, London</DetailValue>
+                        <DetailValue>accounts@weprocess.com</DetailValue>
+                        <DetailValue>{formatPhoneDisplay('+44 2079 460 000')}</DetailValue>
                     </InfoSection>
 
                     {/* Client Name Details */}
@@ -121,7 +122,7 @@ export const SharedInstructionInvoiceDetails = ({
                 <DisplayField label="Serve Type" value={formatDocumentTypesForDisplay(formData.document_types, formData.reason)}  />
                 <DisplayField 
                   label="Service type" 
-                  value={capitalizeFirstLetter(formData.service_type)} 
+                  value={capitalizeFirstLetter(formatServiceType(formData.service_type))} 
                 />
             </FieldRow>
             {/* <FieldRow>

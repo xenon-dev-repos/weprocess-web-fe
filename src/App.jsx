@@ -12,6 +12,7 @@ import { ROUTE_CONFIG } from './config/routes.config';
 import { ROUTES } from './constants/routes';
 import { NotificationProvider } from './components/NotificationBadge';
 import { NavigationHandler } from './hooks/NavigationHandler';
+import { GlobalErrorFallbackPage } from './pages/GlobalErrorFallbackPage';
 
 function App() {
   const router = createBrowserRouter(
@@ -36,56 +37,13 @@ function App() {
             </InstructionProviderWithToast>
           </AuthWithToast>
         </ToastProvider>
-      )
+      ),
+      errorElement: <GlobalErrorFallbackPage />,
     }))
   );
 
   return <RouterProvider router={router} />;
 }
-
-// function App() {
-//   return (
-//     <Router>
-//       <ToastProvider>
-//         <AuthWithToast>
-//           <InstructionProviderWithToast>
-//             <ThemeProvider theme={theme}>
-//             <NotificationProvider>
-//                 <GlobalStyles />
-//                 <Toaster />
-//                 <AppRoutes />
-//             </NotificationProvider>
-//             </ThemeProvider>
-//           </InstructionProviderWithToast>
-//         </AuthWithToast>
-//       </ToastProvider>
-//     </Router>
-//   );
-// }
-
-// function AppRoutes() {
-//   const { isAuthenticated = true } = useAuth();
-
-//   return (
-//     <>
-//       <Suspense>
-//         <Routes>
-//           {ROUTE_CONFIG.map((route) => (
-//             <Route
-//               key={route.path}
-//               path={route.path}
-//               element={
-//                 route.isPublic || isAuthenticated
-//                   ? route.element 
-//                   : <Navigate to={ROUTES.SIGNIN} state={{ from: route.path }} replace />
-//               }
-//             />
-//           ))}
-//         </Routes>
-//       </Suspense>
-//     </>
-//   );
-// }
 
 const AuthWithToast = ({ children }) => {
   const toast = useToast();

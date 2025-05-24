@@ -63,12 +63,6 @@ const DashboardPage = () => {
     const { user, getServes } = useAuth();
     const navigation = useNavigation();
 
-    const handleRowClick = (rowData) => {
-      if (typeof navigation.handleNavigationFromTableRow === 'function') {
-          navigation.handleNavigationFromTableRow(rowData, true);
-      }
-    };
-
     const handleStatusFilterChange = async (tabId) => {
         try {
             setActiveTab(tabId);
@@ -400,7 +394,7 @@ const DashboardPage = () => {
                             totalPages={pagination.last_page}
                             totalItems={pagination.total}
                             onPageChange={handlePageChange}
-                            onRowClick={handleRowClick}
+                            onRowClick={(rowData) => navigation.navigateToInstructionDetails(rowData)}
                             serverSidePagination={true}
                         />
                     </LeftColumn>

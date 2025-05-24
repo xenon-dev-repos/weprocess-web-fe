@@ -505,19 +505,17 @@ const TableHeaderCell = styled.th`
   width: ${props => {
     // Base widths for different column types (now matching exactly with keys)
     const baseWidths = {
-      // From your columns array
+      // From columns array
       id: 80,          // WPR no.
       owner: 120,       // Owner
       title: 120,       // Serve name
-      type: 110,        // Service type
+      service_type: 110,        // Service type
       issuing_court: 160, // Court name
       recipient_name: 160, // Recipient's Name
       recipient_address: 160, // Recipient's Address
       date_issued: 120,  // Date Issued
       deadline: 120,     // Deadline
       is_paid: 100,      // Process status
-      
-      // Additional common ones from your previous implementation
       status: 120,
       invoice_number: 120,
       price: 120,
@@ -548,90 +546,6 @@ const TableHeaderCell = styled.th`
     return `${calculatedWidth}px`;
   }};
 `;
-
-// const TableHeaderCell = styled.th`
-//   padding: 16px;
-//   text-align: ${props => props.$align || 'left'};
-//   font-family: 'Manrope', sans-serif;
-//   font-size: 14px;
-//   font-weight: 600;
-//   color: #4B5563;
-//   white-space: nowrap;
-//   overflow: hidden;
-//   text-overflow: ellipsis;
-//   position: relative;
-//   border-bottom: 1px solid #E5E7EB;
-
-//   &:first-child {
-//     border-top-left-radius: 16px;
-//     border-bottom-left-radius: 16px;
-//   }
-
-//   &:last-child {
-//     border-top-right-radius: 16px;
-//     border-bottom-right-radius: 16px;
-//   }
-
-//   @media (min-width: 1700px) {
-//     width: ${props => {
-//       switch (props.$width) {
-//         case 'wpr': return '150px';
-//         case 'owner': return '200px';
-//         case 'serve': return '250px';
-//         case 'court': return '250px';
-//         case 'type': return '180px';
-//         case 'deadline': return '150px';
-//         case 'status': return '150px';
-//         case 'invoice_number': return '150px';
-//         case 'title': return '300px';
-//         case 'price': return '150px';
-//         case 'is_paid': return '120px';
-//         case 'paid_at': return '150px';
-//         default: return 'auto';
-//       }
-//     }};
-//   }
-
-//   @media (min-width: 1440px) and (max-width: 1699px) {
-//     width: ${props => {
-//       switch (props.$width) {
-//         case 'wpr': return '130px';
-//         case 'owner': return '180px';
-//         case 'serve': return '220px';
-//         case 'court': return '220px';
-//         case 'type': return '160px';
-//         case 'deadline': return '130px';
-//         case 'status': return '130px';
-//         case 'invoice_number': return '130px';
-//         case 'title': return '250px';
-//         case 'price': return '130px';
-//         case 'is_paid': return '100px';
-//         case 'paid_at': return '130px';
-//         default: return 'auto';
-//       }
-//     }};
-//   }
-
-//   @media (max-width: 1439px) {
-//     width: ${props => {
-//       switch (props.$width) {
-//         case 'wpr': return '110px';
-//         case 'owner': return '160px';
-//         case 'serve': return '200px';
-//         case 'court': return '200px';
-//         case 'type': return '140px';
-//         case 'deadline': return '110px';
-//         case 'status': return '110px';
-//         case 'invoice_number': return '110px';
-//         case 'title': return '200px';
-//         case 'price': return '110px';
-//         case 'is_paid': return '90px';
-//         case 'paid_at': return '110px';
-//         default: return 'auto';
-//       }
-//     }};
-//   }
-// `;
 
 const TableRow = styled.tr`
   height: 63px;

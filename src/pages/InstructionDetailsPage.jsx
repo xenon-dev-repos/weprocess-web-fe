@@ -14,9 +14,11 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import Modal from 'react-modal';
+import { useNavigation } from '../hooks/useNavigation.js';
 
 const InstructionDetailsPage = () => {
   const { id } = useParams();
+   const navigation = useNavigation();
   const { formData, fetchServeById, currentServeData, isLoading, } = useInstruction();
   const [layoutData, setLayoutData] = useState(null);
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -68,23 +70,10 @@ const InstructionDetailsPage = () => {
           <InstructionsDetailMainContainer>
             {currentServeData ? (
               <>
-                {/* <UploadedDocsContainer>
-                {formData.documents.length !== 0 && (
-                  formData.documents.map((doc) => (
-                    <DocRow key={doc.id}>
-                      <DocInfoContainer>
-                        <DocLeft>
-                          <DocImage src={Images.instructions.pdfIcon} alt="Doc" />
-                          <DocTextGroup>
-                            <DocName>{doc.name || 'Document'}</DocName>
-                            <DocSize>{doc.size || '1mb'}</DocSize>
-                          </DocTextGroup>
-                        </DocLeft>
-                      </DocInfoContainer>
-                    </DocRow>
-                  ))
-                )}
-              </UploadedDocsContainer> */}
+              <ViewInvoicesBtnContainer onClick={() => navigation.navigateToInvoiceDetails({id})}>
+                <ViewInvoicesBtnIcon src={Images.shared.eyeIcon} alt="View Invoices" />
+                <ViewInvoicesBtnText>View Invoices</ViewInvoicesBtnText>
+              </ViewInvoicesBtnContainer>
 
               <UploadedDocsContainer>
                 {formData.documents.length !== 0 && (
@@ -118,6 +107,7 @@ const InstructionDetailsPage = () => {
                   ))
                 )}
               </UploadedDocsContainer>
+
 
               <SharedInstructionInvoiceDetails formData={ formData } isInstructionDetails={true} />
               </>
@@ -197,6 +187,54 @@ const InstructionDetailsPage = () => {
     </MainLayout>
   );
 };
+
+const ImagePreviewContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+`;
+
+const OtherFileContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  width: 100%;
+`;
+
+const FileIcon = styled.img`
+  width: 100px;
+  height: 100px;
+  margin-bottom: 20px;
+`;
+
+const FileName = styled.h3`
+  margin-bottom: 10px;
+  color: #333;
+`;
+
+const FileMessage = styled.p`
+  margin-bottom: 20px;
+  color: #666;
+`;
+
+const DownloadButton = styled.a`
+  padding: 10px 20px;
+  background-color: #126456;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    background-color: #0f4e3c;
+  }
+`;
 
 const NoDataContainer = styled.div`
   display: flex;
@@ -363,6 +401,61 @@ export const LayoutContainer = styled.div`
     gap: 14px;
   }
 `;
+
+const DocsAndViewInvoicesContainer = styled.div`
+  width: 100%;
+  min-height: 183px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  @media (max-width: 768px) {
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 16px;
+  }
+`;
+
+const ViewInvoicesBtnContainer = styled.button`
+  width: 100%;
+  background: transparent;
+  border: none;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 0;
+  text-wrap: nowrap;
+`;
+
+const ViewInvoicesBtnIcon = styled.img`
+  width: 18px;
+  height: 12px;
+`;
+
+const ViewInvoicesBtnText = styled.span`
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 100%;
+  letter-spacing: 0;
+  color: #126456;
+  text-align: right;
+  vertical-align: middle;
+  transition: all 0.3s ease;
+
+  &:hover {
+    text-decoration: underline;
+    scale: 1.01;
+    color: #0f4e3c;
+  }
+`;
+
 
 const UploadedDocsContainer = styled.div`
   width: 100%;
